@@ -36,7 +36,17 @@ jobs:
           test -f minstrel_game10_payload.zip
           mkdir -p cloud
           python -m zipfile -e minstrel_game10_payload.zip cloud
-          test -f cloud/run_game_10.py
+          test -f           python -u cloud/run_game_10.py
+          result=$?
+          echo "Game launcher exit code: $result"
+          find cloud/series/game_10 -maxdepth 2 -type f -print 2>/dev/null || true
+          for file in cloud/series/game_10/console.log cloud/series/game_10/child.log cloud/series/game_10/supervisor_status.json; do
+            if [ -f "$file" ]; then
+              echo "=== $file ==="
+              tail -n 100 "$file"
+            fi
+          done
+          exit "$result"
           test -f cloud/series/game_09/game_01_result.json
 
       - name: Run game 10 only
