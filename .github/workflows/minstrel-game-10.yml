@@ -16,7 +16,7 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Install Xvfb and download Forge 2.0.14
+      - name: Install Forge 2.0.14
         shell: bash
         run: |
           set -euo pipefail
@@ -29,16 +29,43 @@ jobs:
           tar -xjf /tmp/forge.tar.bz2 -C /tmp/forge-install
           find /tmp/forge-install -name 'forge-gui-desktop-2.0.14-jar-with-dependencies.jar' -print
 
-      - name: Unpack saved pilot and nine checkpoints
+      - name: Unpack pilot and checkpoints
         shell: bash
         run: |
           set -euo pipefail
           test -f minstrel_game10_payload.zip
           mkdir -p cloud
           python -m zipfile -e minstrel_game10_payload.zip cloud
-          test -f           python -u cloud/run_game_10.py
+          test -f cloud/run_game_10.py
+          test -f cloud/series/game_09/game_01_result.json
+
+      - name: Run Game 10 with diagnostics
+        shell: bash
+        run: |
+          set -uo pipefail
+          FORGE_JAR="$(find /tmp/forge-install -name 'forge-gui-desktop-2.0.14-jar-with-dependencies.jar' -print -quit)"
+          if [ -z "$FORGE_JAR" ]; then
+            echo "ERROR: Forge JAR not found"
+            exit 1
+          fi
+          export FORGE_DIR="$(dirname "$FORGE_JAR")"
+          echo "Forge directory: $FORGE_DIR"
+          echo "Checking Python supervisor functions:"
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          p = Path("cloud/minstrel_signal_supervisor.py")
+          if p.exists():
+              tree = ast.parse(p.read_text())
+              print([n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))])
+          else:
+              print("Supervisor file missing")
+          PY
+          echo "Launching Game 10"
+          python -u cloud/run_game_10.py
           result=$?
-          echo "Game launcher exit code: $result"
+          echo "Launcher exit code: $result"
+          echo "Saved diagnostic files:"
           find cloud/series/game_10 -maxdepth 2 -type f -print 2>/dev/null || true
           for file in cloud/series/game_10/console.log cloud/series/game_10/child.log cloud/series/game_10/supervisor_status.json; do
             if [ -f "$file" ]; then
@@ -47,18 +74,8 @@ jobs:
             fi
           done
           exit "$result"
-          test -f cloud/series/game_09/game_01_result.json
 
-      - name: Run game 10 only
-        shell: bash
-        run: |
-          set -euo pipefail
-          FORGE_JAR="$(find /tmp/forge-install -name 'forge-gui-desktop-2.0.14-jar-with-dependencies.jar' -print -quit)"
-          test -n "$FORGE_JAR"
-          export FORGE_DIR="$(dirname "$FORGE_JAR")"
-          python cloud/run_game_10.py
-
-      - name: Preserve checkpoints and logs even on failure
+      - name: Preserve logs and checkpoints
         if: always()
         uses: actions/upload-artifact@v4
         with:
