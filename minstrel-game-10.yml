@@ -1,0 +1,59 @@
+name: Minstrel Forge Game 10
+
+on:
+  workflow_dispatch:
+
+jobs:
+  game-10:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Java 17 and virtual display
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Xvfb and download official Forge 2.0.14
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb bzip2
+          curl --fail --location --retry 3 --connect-timeout 30 \
+            -o /tmp/forge.tar.bz2 \
+            https://github.com/Card-Forge/forge/releases/download/forge-2.0.14/forge-installer-2.0.14.tar.bz2
+          mkdir -p /tmp/forge-install
+          tar -xjf /tmp/forge.tar.bz2 -C /tmp/forge-install
+          find /tmp/forge-install -name 'forge-gui-desktop-2.0.14-jar-with-dependencies.jar' -print
+
+      - name: Unpack saved pilot and nine checkpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f minstrel_game10_payload.zip
+          mkdir -p cloud
+          python -m zipfile -e minstrel_game10_payload.zip cloud
+          test -f cloud/run_game_10.py
+          test -f cloud/series/game_09/game_01_result.json
+
+      - name: Run game 10 only
+        shell: bash
+        run: |
+          set -euo pipefail
+          FORGE_JAR="$(find /tmp/forge-install -name 'forge-gui-desktop-2.0.14-jar-with-dependencies.jar' -print -quit)"
+          test -n "$FORGE_JAR"
+          export FORGE_DIR="$(dirname "$FORGE_JAR")"
+          python cloud/run_game_10.py
+
+      - name: Preserve checkpoints and logs even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: minstrel-game-10-results
+          path: |
+            cloud/series/
+          if-no-files-found: warn
+          retention-days: 30
