@@ -1,4 +1,4 @@
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38454409223
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38456311337
 
 forge-build.log
 [WARNING] Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-releases (https://maven.java.net/content/repositories/releases/): (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
@@ -17,17 +17,17 @@ forge-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
 [INFO] 
-[INFO] Forge Parent ....................................... SUCCESS [  4.968 s]
-[INFO] Forge Core ......................................... SUCCESS [  9.977 s]
-[INFO] Forge Game ......................................... SUCCESS [ 14.143 s]
-[INFO] Forge AI ........................................... SUCCESS [  7.141 s]
-[INFO] Forge Gui .......................................... SUCCESS [  8.023 s]
-[INFO] Forge .............................................. SUCCESS [ 36.744 s]
+[INFO] Forge Parent ....................................... SUCCESS [  3.794 s]
+[INFO] Forge Core ......................................... SUCCESS [  9.020 s]
+[INFO] Forge Game ......................................... SUCCESS [ 13.658 s]
+[INFO] Forge AI ........................................... SUCCESS [  6.451 s]
+[INFO] Forge Gui .......................................... SUCCESS [  7.017 s]
+[INFO] Forge .............................................. SUCCESS [ 29.840 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:24 min
-[INFO] Finished at: 2026-10-13T19:25:02Z
+[INFO] Total time:  01:11 min
+[INFO] Finished at: 2026-10-13T19:39:02Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -56,8 +56,8 @@ lab-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  10.576 s
-[INFO] Finished at: 2026-10-13T19:25:13Z
+[INFO] Total time:  8.853 s
+[INFO] Finished at: 2026-10-13T19:39:12Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -94,29 +94,26 @@ forge/forge-gui-desktop/target/forge-gui-desktop-2.0.12-SNAPSHOT-jar-with-depend
 
 smoke-test.log
 [WARN] Could not resolve deck path for: Commander 2020 - Arcane Maelstrom.dck — passing bare name to Forge (may fail)
-[WARN] Could not resolve deck path for: Commander 2020 - Enhanced Evolution.dck — passing bare name to Forge (may fail)
-[WARN] Could not resolve deck path for: Commander 2020 - Ruthless Regiment.dck — passing bare name to Forge (may fail)
-[WARN] Could not resolve deck path for: Commander 2020 - Timeless Wisdom.dck — passing bare name to Forge (may fail)
 ║    Win Rate:       0.0%  (0 W / 0 L / 1 D)
 ║    Avg Turns:      N/A
 ║    Avg Mulligan:  0.00
 ║    Avg Life:      40.0
 ║
-║  Seat 2: Commander 2020 - Ruthless Regiment           ║
+║  Seat 2: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/bello.dck     ║
 ║    Win Rate:       0.0%  (0 W / 0 L / 1 D)
 ║    Avg Turns:      N/A
 ║    Avg Mulligan:  0.00
 ║    Avg Life:      40.0
 ║
-║  Seat 3: Commander 2020 - Timeless Wisdom             ║
+║  Seat 3: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/betor.dck     ║
 ║    Win Rate:       0.0%  (0 W / 0 L / 1 D)
 ║    Avg Turns:      N/A
 ║    Avg Mulligan:  0.00
 ║    Avg Life:      40.0
 ║
 ╠══════════════════════════════════════════════════════════╣
-║  Games: 1       Avg Turns: 0.0      Sims/sec: 2.01  
-║  Wall Time: 0.5s
+║  Games: 1       Avg Turns: 0.0      Sims/sec: 1.67  
+║  Wall Time: 0.6s
 ╚══════════════════════════════════════════════════════════╝
 
 JSON validation: PASSED
