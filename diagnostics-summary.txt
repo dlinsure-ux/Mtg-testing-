@@ -1,4 +1,4 @@
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38465027063
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38465556736
 
 forge-build.log
 [WARNING] Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-releases (https://maven.java.net/content/repositories/releases/): (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
@@ -17,17 +17,17 @@ forge-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
 [INFO] 
-[INFO] Forge Parent ....................................... SUCCESS [  4.876 s]
-[INFO] Forge Core ......................................... SUCCESS [ 10.156 s]
-[INFO] Forge Game ......................................... SUCCESS [ 16.443 s]
-[INFO] Forge AI ........................................... SUCCESS [  7.737 s]
-[INFO] Forge Gui .......................................... SUCCESS [  7.596 s]
-[INFO] Forge .............................................. SUCCESS [ 33.746 s]
+[INFO] Forge Parent ....................................... SUCCESS [  8.567 s]
+[INFO] Forge Core ......................................... SUCCESS [ 15.278 s]
+[INFO] Forge Game ......................................... SUCCESS [ 17.844 s]
+[INFO] Forge AI ........................................... SUCCESS [  8.130 s]
+[INFO] Forge Gui .......................................... SUCCESS [  8.557 s]
+[INFO] Forge .............................................. SUCCESS [ 52.160 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:23 min
-[INFO] Finished at: 2026-10-13T20:45:00Z
+[INFO] Total time:  01:54 min
+[INFO] Finished at: 2026-10-13T20:49:29Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -56,8 +56,8 @@ lab-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  10.532 s
-[INFO] Finished at: 2026-10-13T20:45:12Z
+[INFO] Total time:  12.873 s
+[INFO] Finished at: 2026-10-13T20:49:44Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -92,4 +92,31 @@ forge-artifacts.log
 forge/forge-gui-desktop/target/forge-gui-desktop-2.0.12-SNAPSHOT-jar-with-dependencies.jar
 
 
-smoke-test.log: not generated
+direct-forge.log
+
+
+smoke-test.log
+║    Win Rate:       0.0%  (0 W / 0 L / 1 D)
+║    Avg Turns:      N/A
+║    Avg Mulligan:  0.00
+║    Avg Life:      40.0
+║
+║  Seat 2: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/bello.dck     ║
+║    Win Rate:       0.0%  (0 W / 0 L / 1 D)
+║    Avg Turns:      N/A
+║    Avg Mulligan:  0.00
+║    Avg Life:      40.0
+║
+║  Seat 3: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/betor.dck     ║
+║    Win Rate:       0.0%  (0 W / 0 L / 1 D)
+║    Avg Turns:      N/A
+║    Avg Mulligan:  0.00
+║    Avg Life:      40.0
+║
+╠══════════════════════════════════════════════════════════╣
+║  Games: 1       Avg Turns: 0.0      Sims/sec: 2.34  
+║  Wall Time: 0.4s
+╚══════════════════════════════════════════════════════════╝
+
+JSON validation: PASSED
+Output written to: results/smoke-test.json
