@@ -1,4 +1,4 @@
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38456561108
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38457044997
 
 forge-build.log
 [WARNING] Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-releases (https://maven.java.net/content/repositories/releases/): (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
@@ -17,17 +17,17 @@ forge-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
 [INFO] 
-[INFO] Forge Parent ....................................... SUCCESS [  6.613 s]
-[INFO] Forge Core ......................................... SUCCESS [ 10.651 s]
-[INFO] Forge Game ......................................... SUCCESS [ 11.248 s]
-[INFO] Forge AI ........................................... SUCCESS [  4.903 s]
-[INFO] Forge Gui .......................................... SUCCESS [  6.284 s]
-[INFO] Forge .............................................. SUCCESS [ 37.668 s]
+[INFO] Forge Parent ....................................... SUCCESS [  4.077 s]
+[INFO] Forge Core ......................................... SUCCESS [  8.795 s]
+[INFO] Forge Game ......................................... SUCCESS [ 11.047 s]
+[INFO] Forge AI ........................................... SUCCESS [  5.507 s]
+[INFO] Forge Gui .......................................... SUCCESS [  6.137 s]
+[INFO] Forge .............................................. SUCCESS [ 29.283 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:20 min
-[INFO] Finished at: 2026-10-13T19:41:08Z
+[INFO] Total time:  01:07 min
+[INFO] Finished at: 2026-10-13T19:44:37Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -56,8 +56,8 @@ lab-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  9.443 s
-[INFO] Finished at: 2026-10-13T19:41:18Z
+[INFO] Total time:  8.744 s
+[INFO] Finished at: 2026-10-13T19:44:46Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -93,7 +93,6 @@ forge/forge-gui-desktop/target/forge-gui-desktop-2.0.12-SNAPSHOT-jar-with-depend
 
 
 smoke-test.log
-[WARN] Could not resolve deck path for: Commander 2020 - Arcane Maelstrom.dck — passing bare name to Forge (may fail)
 ║    Win Rate:       0.0%  (0 W / 0 L / 1 D)
 ║    Avg Turns:      N/A
 ║    Avg Mulligan:  0.00
@@ -112,8 +111,8 @@ smoke-test.log
 ║    Avg Life:      40.0
 ║
 ╠══════════════════════════════════════════════════════════╣
-║  Games: 1       Avg Turns: 0.0      Sims/sec: 2.21  
-║  Wall Time: 0.5s
+║  Games: 1       Avg Turns: 0.0      Sims/sec: 1.58  
+║  Wall Time: 0.6s
 ╚══════════════════════════════════════════════════════════╝
 
 JSON validation: PASSED
