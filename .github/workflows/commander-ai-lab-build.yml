@@ -33,12 +33,28 @@ jobs:
           set -euo pipefail
           cd forge
           mvn -B -ntp install -pl forge-gui-desktop -am -DskipTests -Drevision=2.0.12-SNAPSHOT 2>&1 | tee ../forge-build.log
+      - name: Repair installed Forge parent POM version
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path.home()/'.m2/repository/forge'
+          fixed=[]
+          for pom in root.rglob('*.pom'):
+              source=pom.read_text()
+              if '${revision}' in source:
+                  pom.write_text(source.replace('${revision}', '2.0.12-SNAPSHOT'))
+                  fixed.append(str(pom))
+          print('Repaired Forge POM descriptors:', len(fixed))
+          for item in fixed: print(item)
+          PY
       - name: Build Commander AI Lab
         shell: bash
         run: |
           set -euo pipefail
           cd lab
-          mvn -B -ntp -DskipTests package 2>&1 | tee ../lab-build.log
+          mvn -B -ntp -DskipTests -Drevision=2.0.12-SNAPSHOT package 2>&1 | tee ../lab-build.log
       - name: Verify Forge desktop artifact exists
         shell: bash
         run: |
