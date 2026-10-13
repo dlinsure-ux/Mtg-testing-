@@ -66,13 +66,30 @@ jobs:
         run: |
           set -euo pipefail
           java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar --help 2>&1 | tee cli-help.log
+      - name: Run one four-player Forge smoke test
+        shell: bash
+        timeout-minutes: 15
+        run: |
+          set -euo pipefail
+          mkdir -p results
+          FORGE_JAR="$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)"
+          timeout 600 java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
+            --forge-jar "$FORGE_JAR" \
+            --forge-dir forge/forge-gui \
+            --deck1 'Commander 2020 - Arcane Maelstrom' \
+            --deck2 'Commander 2020 - Enhanced Evolution' \
+            --deck3 'Commander 2020 - Ruthless Regiment' \
+            --deck4 'Commander 2020 - Timeless Wisdom' \
+            --games 1 --threads 1 --clock 300 --no-db \
+            --output results/smoke-test.json --verbose 2>&1 | tee smoke-test.log
+          test -s results/smoke-test.json
       - name: Save diagnostic summary in repository
         if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const logs = ['forge-build.log','lab-build.log','cli-help.log','forge-artifacts.log'];
+            const logs = ['forge-build.log','lab-build.log','cli-help.log','forge-artifacts.log','smoke-test.log'];
             const sections = logs.map(file => {
               if (!fs.existsSync(file)) return file + ': not generated';
               const lines = fs.readFileSync(file,'utf8').split('\n');
@@ -103,6 +120,8 @@ jobs:
             lab-build.log
             cli-help.log
             forge-artifacts.log
+            smoke-test.log
+            results/*.json
             lab/target/*.jar
           if-no-files-found: warn
           retention-days: 14
