@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
+      - uses: actions/checkout@v4
       - name: Record runner environment
         run: |
           java -version
@@ -77,9 +78,9 @@ jobs:
             --forge-jar "$FORGE_JAR" \
             --forge-dir forge/forge-gui \
             --deck1 'Commander 2020 - Arcane Maelstrom' \
-            --deck2 'Commander 2020 - Enhanced Evolution' \
-            --deck3 'Commander 2020 - Ruthless Regiment' \
-            --deck4 'Commander 2020 - Timeless Wisdom' \
+            --deck2 "$GITHUB_WORKSPACE/opponents/aesi.dck" \
+            --deck3 "$GITHUB_WORKSPACE/opponents/bello.dck" \
+            --deck4 "$GITHUB_WORKSPACE/opponents/betor.dck" \
             --games 1 --threads 1 --clock 300 --no-db \
             --output results/smoke-test.json --verbose 2>&1 | tee smoke-test.log
           test -s results/smoke-test.json
