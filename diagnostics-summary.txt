@@ -1,4 +1,4 @@
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38453401973
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38454233514
 
 forge-build.log
 [WARNING] Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-releases (https://maven.java.net/content/repositories/releases/): (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
@@ -17,17 +17,17 @@ forge-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
 [INFO] 
-[INFO] Forge Parent ....................................... SUCCESS [  5.730 s]
-[INFO] Forge Core ......................................... SUCCESS [ 11.496 s]
-[INFO] Forge Game ......................................... SUCCESS [ 13.772 s]
-[INFO] Forge AI ........................................... SUCCESS [  6.467 s]
-[INFO] Forge Gui .......................................... SUCCESS [  7.548 s]
-[INFO] Forge .............................................. SUCCESS [ 35.722 s]
+[INFO] Forge Parent ....................................... SUCCESS [  7.227 s]
+[INFO] Forge Core ......................................... SUCCESS [ 13.285 s]
+[INFO] Forge Game ......................................... SUCCESS [ 16.746 s]
+[INFO] Forge AI ........................................... SUCCESS [  7.790 s]
+[INFO] Forge Gui .......................................... SUCCESS [  9.064 s]
+[INFO] Forge .............................................. SUCCESS [ 42.398 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:28 min
-[INFO] Finished at: 2026-10-13T19:17:25Z
+[INFO] Total time:  01:40 min
+[INFO] Finished at: 2026-10-13T19:23:56Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -56,8 +56,8 @@ lab-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  10.655 s
-[INFO] Finished at: 2026-10-13T19:17:37Z
+[INFO] Total time:  12.388 s
+[INFO] Finished at: 2026-10-13T19:24:10Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -97,7 +97,6 @@ smoke-test.log
 [WARN] Could not resolve deck path for: Commander 2020 - Enhanced Evolution.dck — passing bare name to Forge (may fail)
 [WARN] Could not resolve deck path for: Commander 2020 - Ruthless Regiment.dck — passing bare name to Forge (may fail)
 [WARN] Could not resolve deck path for: Commander 2020 - Timeless Wisdom.dck — passing bare name to Forge (may fail)
-[DEBUG] OUT> Error: Unable to access jarfile forge/forge-gui-desktop/target/forge-gui-desktop-2.0.12-SNAPSHOT-jar-with-dependencies.jar
 ║    Win Rate:       0.0%  (0 W / 0 L / 1 D)
 ║    Avg Turns:      N/A
 ║    Avg Mulligan:  0.00
@@ -116,8 +115,8 @@ smoke-test.log
 ║    Avg Life:      40.0
 ║
 ╠══════════════════════════════════════════════════════════╣
-║  Games: 1       Avg Turns: 1.0      Sims/sec: 20.00 
-║  Wall Time: 0.1s
+║  Games: 1       Avg Turns: 0.0      Sims/sec: 1.27  
+║  Wall Time: 0.8s
 ╚══════════════════════════════════════════════════════════╝
 
 JSON validation: PASSED
