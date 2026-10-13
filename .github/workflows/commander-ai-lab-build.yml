@@ -1,6 +1,8 @@
 name: Commander AI Lab Build Verification
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
   push:
     paths:
       - '.github/workflows/commander-ai-lab-build.yml'
