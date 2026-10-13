@@ -80,7 +80,7 @@ jobs:
           timeout 600 java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
             --forge-jar "$FORGE_JAR" \
             --forge-dir forge/forge-gui \
-            --deck1 'Commander 2020 - Arcane Maelstrom' \
+            --deck1 "$GITHUB_WORKSPACE/opponents/aesi.dck" \
             --deck2 "$GITHUB_WORKSPACE/opponents/aesi.dck" \
             --deck3 "$GITHUB_WORKSPACE/opponents/bello.dck" \
             --deck4 "$GITHUB_WORKSPACE/opponents/betor.dck" \
