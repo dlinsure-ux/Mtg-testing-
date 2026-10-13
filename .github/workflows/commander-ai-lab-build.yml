@@ -74,6 +74,9 @@ jobs:
           set -euo pipefail
           mkdir -p results
           FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
+          test -f opponents/aesi.dck
+          test -f opponents/bello.dck
+          test -f opponents/betor.dck
           timeout 600 java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
             --forge-jar "$FORGE_JAR" \
             --forge-dir forge/forge-gui \
@@ -84,6 +87,10 @@ jobs:
             --games 1 --threads 1 --clock 300 --no-db \
             --output results/smoke-test.json --verbose 2>&1 | tee smoke-test.log
           test -s results/smoke-test.json
+          if grep -Eq 'Avg Turns: 0\\.0|Could not resolve deck path' smoke-test.log; then
+            echo 'FAIL: No actual gameplay or missing deck files' >&2
+            exit 1
+          fi
       - name: Save diagnostic summary in repository
         if: always()
         uses: actions/github-script@v7
