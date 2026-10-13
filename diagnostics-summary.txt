@@ -1,4 +1,4 @@
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38457044997
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38457146837
 
 forge-build.log
 [WARNING] Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-releases (https://maven.java.net/content/repositories/releases/): (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
@@ -17,17 +17,17 @@ forge-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
 [INFO] 
-[INFO] Forge Parent ....................................... SUCCESS [  4.077 s]
-[INFO] Forge Core ......................................... SUCCESS [  8.795 s]
-[INFO] Forge Game ......................................... SUCCESS [ 11.047 s]
-[INFO] Forge AI ........................................... SUCCESS [  5.507 s]
-[INFO] Forge Gui .......................................... SUCCESS [  6.137 s]
-[INFO] Forge .............................................. SUCCESS [ 29.283 s]
+[INFO] Forge Parent ....................................... SUCCESS [  4.460 s]
+[INFO] Forge Core ......................................... SUCCESS [ 11.385 s]
+[INFO] Forge Game ......................................... SUCCESS [ 15.814 s]
+[INFO] Forge AI ........................................... SUCCESS [  8.772 s]
+[INFO] Forge Gui .......................................... SUCCESS [  8.481 s]
+[INFO] Forge .............................................. SUCCESS [ 36.989 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:07 min
-[INFO] Finished at: 2026-10-13T19:44:37Z
+[INFO] Total time:  01:28 min
+[INFO] Finished at: 2026-10-13T19:45:45Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -56,8 +56,8 @@ lab-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  8.744 s
-[INFO] Finished at: 2026-10-13T19:44:46Z
+[INFO] Total time:  10.918 s
+[INFO] Finished at: 2026-10-13T19:45:58Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -111,8 +111,8 @@ smoke-test.log
 ║    Avg Life:      40.0
 ║
 ╠══════════════════════════════════════════════════════════╣
-║  Games: 1       Avg Turns: 0.0      Sims/sec: 1.58  
-║  Wall Time: 0.6s
+║  Games: 1       Avg Turns: 0.0      Sims/sec: 1.85  
+║  Wall Time: 0.5s
 ╚══════════════════════════════════════════════════════════╝
 
 JSON validation: PASSED
