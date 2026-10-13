@@ -67,6 +67,23 @@ jobs:
         run: |
           set -euo pipefail
           java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar --help 2>&1 | tee cli-help.log
+      - name: Probe Forge directly before Lab
+        shell: bash
+        run: |
+          set -uo pipefail
+          FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
+          echo "Java: $JAVA_HOME"
+          echo "Forge jar: $FORGE_JAR"
+          ls -ld forge/forge-gui/res forge/forge-gui 2>&1 || true
+          unzip -p "$FORGE_JAR" META-INF/MANIFEST.MF | head -30
+          echo '=== Direct Forge CLI ==='
+          timeout 30 "$JAVA_HOME/bin/java" -Djava.awt.headless=true -jar "$FORGE_JAR" --help > direct-forge.log 2>&1
+          rc=$?
+          echo "Direct Forge exit: $rc"
+          cat direct-forge.log
+          echo '=== JVM crash reports ==='
+          find . -name 'hs_err_pid*.log' -print
+          exit 0
       - name: Run one four-player Forge smoke test
         env:
           TEST_RUN_MARKER: diagnostic-20261013-b
@@ -138,6 +155,7 @@ jobs:
             cli-help.log
             forge-artifacts.log
             smoke-test.log
+            direct-forge.log
             forge/forge-sim-debug.log
             results/*.json
             lab/target/*.jar
