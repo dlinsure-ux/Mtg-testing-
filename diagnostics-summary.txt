@@ -1,4 +1,4 @@
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38446803458
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38446935495
 
 forge-build.log
 [WARNING] Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-releases (https://maven.java.net/content/repositories/releases/): (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
@@ -17,28 +17,28 @@ forge-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
 [INFO] 
-[INFO] Forge Parent ....................................... SUCCESS [  6.343 s]
-[INFO] Forge Core ......................................... SUCCESS [ 10.542 s]
-[INFO] Forge Game ......................................... SUCCESS [ 13.290 s]
-[INFO] Forge AI ........................................... SUCCESS [  6.271 s]
-[INFO] Forge Gui .......................................... SUCCESS [  7.286 s]
-[INFO] Forge .............................................. SUCCESS [ 36.327 s]
+[INFO] Forge Parent ....................................... SUCCESS [  4.368 s]
+[INFO] Forge Core ......................................... SUCCESS [ 10.937 s]
+[INFO] Forge Game ......................................... SUCCESS [ 16.850 s]
+[INFO] Forge AI ........................................... SUCCESS [  8.117 s]
+[INFO] Forge Gui .......................................... SUCCESS [  7.652 s]
+[INFO] Forge .............................................. SUCCESS [ 33.403 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
 [INFO] Total time:  01:24 min
-[INFO] Finished at: 2026-10-13T18:28:41Z
+[INFO] Finished at: 2026-10-13T18:29:38Z
 [INFO] ------------------------------------------------------------------------
 
 
 lab-build.log
 [ERROR] BUILD FAILURE
 [ERROR] Failed to execute goal on project commander-ai-lab: Could not collect dependencies for project com.commanderailab:commander-ai-lab:jar:1.0.0-SNAPSHOT
-[ERROR] Failed to read artifact descriptor for forge:forge-core:jar:2.0.12-SNAPSHOT
-[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
 [ERROR] Failed to read artifact descriptor for forge:forge-ai:jar:2.0.12-SNAPSHOT
 [ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
 [ERROR] Failed to read artifact descriptor for forge:forge-game:jar:2.0.12-SNAPSHOT
+[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
+[ERROR] Failed to read artifact descriptor for forge:forge-core:jar:2.0.12-SNAPSHOT
 [ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
 [ERROR] -> [Help 1]
 [ERROR] 
@@ -54,15 +54,15 @@ lab-build.log
 [INFO] ------------------------------------------------------------------------
 [ERROR] BUILD FAILURE
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  2.443 s
-[INFO] Finished at: 2026-10-13T18:28:44Z
+[INFO] Total time:  2.525 s
+[INFO] Finished at: 2026-10-13T18:29:42Z
 [INFO] ------------------------------------------------------------------------
 [ERROR] Failed to execute goal on project commander-ai-lab: Could not collect dependencies for project com.commanderailab:commander-ai-lab:jar:1.0.0-SNAPSHOT
-[ERROR] Failed to read artifact descriptor for forge:forge-core:jar:2.0.12-SNAPSHOT
-[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
 [ERROR] Failed to read artifact descriptor for forge:forge-ai:jar:2.0.12-SNAPSHOT
 [ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
 [ERROR] Failed to read artifact descriptor for forge:forge-game:jar:2.0.12-SNAPSHOT
+[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
+[ERROR] Failed to read artifact descriptor for forge:forge-core:jar:2.0.12-SNAPSHOT
 [ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
 [ERROR] -> [Help 1]
 [ERROR] 
