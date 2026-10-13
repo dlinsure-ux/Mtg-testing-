@@ -68,6 +68,8 @@ jobs:
           set -euo pipefail
           java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar --help 2>&1 | tee cli-help.log
       - name: Run one four-player Forge smoke test
+        env:
+          TEST_RUN_MARKER: diagnostic-20261013-b
         shell: bash
         timeout-minutes: 15
         run: |
