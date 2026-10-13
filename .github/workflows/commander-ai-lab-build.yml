@@ -81,6 +81,7 @@ jobs:
           test -f opponents/betor.dck
           timeout 600 java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
             --forge-jar "$FORGE_JAR" \
+            --java17 "${JAVA_HOME}/bin/java" \
             --forge-dir forge/forge-gui \
             --deck1 "$GITHUB_WORKSPACE/opponents/aesi.dck" \
             --deck2 "$GITHUB_WORKSPACE/opponents/aesi.dck" \
