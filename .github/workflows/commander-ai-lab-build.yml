@@ -72,7 +72,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p results
-          FORGE_JAR="$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)"
+          FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
           timeout 600 java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
             --forge-jar "$FORGE_JAR" \
             --forge-dir forge/forge-gui \
