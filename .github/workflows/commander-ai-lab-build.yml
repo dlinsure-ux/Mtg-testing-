@@ -77,8 +77,8 @@ jobs:
           ls -ld forge/forge-gui/res forge/forge-gui 2>&1 || true
           unzip -p "$FORGE_JAR" META-INF/MANIFEST.MF | head -30
           echo '=== Direct Forge CLI ==='
-          timeout 30 "$JAVA_HOME/bin/java" -Djava.awt.headless=true -jar "$FORGE_JAR" --help > direct-forge.log 2>&1
-          rc=$?
+          rc=0
+          timeout 30 "$JAVA_HOME/bin/java" -Djava.awt.headless=true -jar "$FORGE_JAR" --help > direct-forge.log 2>&1 || rc=$?
           echo "Direct Forge exit: $rc"
           cat direct-forge.log
           echo '=== JVM crash reports ==='
@@ -123,7 +123,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const logs = ['forge-build.log','lab-build.log','cli-help.log','forge-artifacts.log','smoke-test.log'];
+            const logs = ['forge-build.log','lab-build.log','cli-help.log','forge-artifacts.log','direct-forge.log','smoke-test.log'];
             const sections = logs.map(file => {
               if (!fs.existsSync(file)) return file + ': not generated';
               const lines = fs.readFileSync(file,'utf8').split('\n');
