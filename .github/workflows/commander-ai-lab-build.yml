@@ -89,6 +89,12 @@ jobs:
             --games 1 --threads 1 --clock 300 --no-db \
             --output results/smoke-test.json --verbose 2>&1 | tee smoke-test.log
           test -s results/smoke-test.json
+          echo '=== Forge subprocess diagnostics ==='
+          if [ -f forge/forge-sim-debug.log ]; then cat forge/forge-sim-debug.log; fi
+          if grep -Eq 'Forge exit=[1-9]|Forge produced NO output|Turns: 0|Avg Turns: 0' smoke-test.log; then
+            echo 'FAIL: Forge did not complete a real game' >&2
+            exit 1
+          fi
           if grep -Eq 'Avg Turns: 0\\.0|Could not resolve deck path' smoke-test.log; then
             echo 'FAIL: No actual gameplay or missing deck files' >&2
             exit 1
@@ -131,6 +137,7 @@ jobs:
             cli-help.log
             forge-artifacts.log
             smoke-test.log
+            forge/forge-sim-debug.log
             results/*.json
             lab/target/*.jar
           if-no-files-found: warn
