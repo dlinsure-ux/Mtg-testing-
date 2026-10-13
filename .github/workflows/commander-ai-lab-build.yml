@@ -30,13 +30,13 @@ jobs:
       - name: Build Forge dependencies
         shell: bash
         run: |
-          set -o pipefail
+          set -euo pipefail
           cd forge
           mvn -B -ntp install -pl forge-gui-desktop -am -DskipTests -Drevision=2.0.12-SNAPSHOT 2>&1 | tee ../forge-build.log
       - name: Build Commander AI Lab
         shell: bash
         run: |
-          set -o pipefail
+          set -euo pipefail
           cd lab
           mvn -B -ntp -DskipTests package 2>&1 | tee ../lab-build.log
       - name: Verify Forge desktop artifact exists
@@ -48,7 +48,7 @@ jobs:
       - name: Verify CLI startup
         shell: bash
         run: |
-          set -o pipefail
+          set -euo pipefail
           java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar --help 2>&1 | tee cli-help.log
       - name: Save diagnostic summary in repository
         if: always()
