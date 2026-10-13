@@ -1,4 +1,4 @@
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38447048730
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38452708181
 
 forge-build.log
 [WARNING] Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-releases (https://maven.java.net/content/repositories/releases/): (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
@@ -17,62 +17,76 @@ forge-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
 [INFO] 
-[INFO] Forge Parent ....................................... SUCCESS [  4.846 s]
-[INFO] Forge Core ......................................... SUCCESS [  9.362 s]
-[INFO] Forge Game ......................................... SUCCESS [ 13.271 s]
-[INFO] Forge AI ........................................... SUCCESS [  6.677 s]
-[INFO] Forge Gui .......................................... SUCCESS [  6.541 s]
-[INFO] Forge .............................................. SUCCESS [ 32.545 s]
+[INFO] Forge Parent ....................................... SUCCESS [  5.081 s]
+[INFO] Forge Core ......................................... SUCCESS [ 11.814 s]
+[INFO] Forge Game ......................................... SUCCESS [ 16.525 s]
+[INFO] Forge AI ........................................... SUCCESS [  8.621 s]
+[INFO] Forge Gui .......................................... SUCCESS [  8.377 s]
+[INFO] Forge .............................................. SUCCESS [ 36.119 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:15 min
-[INFO] Finished at: 2026-10-13T18:30:23Z
+[INFO] Total time:  01:29 min
+[INFO] Finished at: 2026-10-13T19:12:18Z
 [INFO] ------------------------------------------------------------------------
 
 
 lab-build.log
-[ERROR] BUILD FAILURE
-[ERROR] Failed to execute goal on project commander-ai-lab: Could not collect dependencies for project com.commanderailab:commander-ai-lab:jar:1.0.0-SNAPSHOT
-[ERROR] Failed to read artifact descriptor for forge:forge-game:jar:2.0.12-SNAPSHOT
-[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
-[ERROR] Failed to read artifact descriptor for forge:forge-ai:jar:2.0.12-SNAPSHOT
-[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
-[ERROR] Failed to read artifact descriptor for forge:forge-core:jar:2.0.12-SNAPSHOT
-[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
-[ERROR] -> [Help 1]
-[ERROR] 
-[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
-[ERROR] Re-run Maven using the -X switch to enable full debug logging.
-[ERROR] 
-[ERROR] For more information about the errors and possible solutions, please read the following articles:
-[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException
-[INFO]   from pom.xml
-[INFO] --------------------------------[ jar ]---------------------------------
-[INFO] Loaded 24075 auto-discovered prefixes for remote repository central (prefixes-central.txt)
-[INFO] Loaded 74 auto-discovered prefixes for remote repository apache.snapshots (prefixes-apache.snapshots.txt)
+[INFO] Including com.google.errorprone:error_prone_annotations:jar:2.28.0 in the shaded jar.
+[WARNING] Java-WebSocket-1.5.6.jar, apfloat-1.10.1.jar, checker-qual-3.43.0.jar, commander-ai-lab-1.0.0-SNAPSHOT.jar, commons-lang3-3.18.0.jar, commons-math3-3.6.1.jar, commons-text-1.12.0.jar, error_prone_annotations-2.28.0.jar, failureaccess-1.0.2.jar, forge-ai-2.0.12-SNAPSHOT.jar, forge-core-2.0.12-SNAPSHOT.jar, forge-game-2.0.12-SNAPSHOT.jar, gson-2.10.1.jar, guava-33.3.1-android.jar, j2objc-annotations-3.0.0.jar, jgrapht-core-1.5.2.jar, jheaps-0.14.jar, jsr305-3.0.2.jar, listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar, picocli-4.7.5.jar, rssreader-3.8.2.jar, sentry-8.21.1.jar, slf4j-api-1.7.36.jar, slf4j-tinylog-2.7.0.jar, sqlite-jdbc-3.45.1.0.jar, tinylog-api-2.7.0.jar, tinylog-impl-2.7.0.jar define 1 overlapping resource: 
+[WARNING] Java-WebSocket-1.5.6.jar, commons-lang3-3.18.0.jar, commons-text-1.12.0.jar, error_prone_annotations-2.28.0.jar, gson-2.10.1.jar, j2objc-annotations-3.0.0.jar, picocli-4.7.5.jar, slf4j-tinylog-2.7.0.jar, sqlite-jdbc-3.45.1.0.jar, tinylog-api-2.7.0.jar, tinylog-impl-2.7.0.jar define 1 overlapping classes: 
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] checker-qual-3.43.0.jar, commons-lang3-3.18.0.jar, commons-math3-3.6.1.jar, commons-text-1.12.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/LICENSE.txt
+[WARNING] commons-lang3-3.18.0.jar, commons-math3-3.6.1.jar, commons-text-1.12.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/NOTICE.txt
+[WARNING] Java-WebSocket-1.5.6.jar, apfloat-1.10.1.jar, checker-qual-3.43.0.jar, commander-ai-lab-1.0.0-SNAPSHOT.jar, commons-lang3-3.18.0.jar, commons-math3-3.6.1.jar, commons-text-1.12.0.jar, error_prone_annotations-2.28.0.jar, failureaccess-1.0.2.jar, forge-ai-2.0.12-SNAPSHOT.jar, forge-core-2.0.12-SNAPSHOT.jar, forge-game-2.0.12-SNAPSHOT.jar, gson-2.10.1.jar, guava-33.3.1-android.jar, j2objc-annotations-3.0.0.jar, jgrapht-core-1.5.2.jar, jheaps-0.14.jar, jsr305-3.0.2.jar, listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar, picocli-4.7.5.jar, rssreader-3.8.2.jar, sentry-8.21.1.jar, slf4j-api-1.7.36.jar, slf4j-tinylog-2.7.0.jar, sqlite-jdbc-3.45.1.0.jar, tinylog-api-2.7.0.jar, tinylog-impl-2.7.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/MANIFEST.MF
+[WARNING] Java-WebSocket-1.5.6.jar, commons-lang3-3.18.0.jar, commons-text-1.12.0.jar, error_prone_annotations-2.28.0.jar, gson-2.10.1.jar, j2objc-annotations-3.0.0.jar, picocli-4.7.5.jar, slf4j-tinylog-2.7.0.jar, sqlite-jdbc-3.45.1.0.jar, tinylog-api-2.7.0.jar, tinylog-impl-2.7.0.jar define 1 overlapping classes: 
+[WARNING]   - META-INF.versions.9.module-info
+[WARNING] maven-shade-plugin has detected that some files are
+[WARNING] present in two or more JARs. When this happens, only one
+[WARNING] single version of the file is copied to the uber jar.
+[WARNING] Usually this is not harmful and you can skip these warnings,
+[WARNING] otherwise try to manually exclude artifacts based on
+[WARNING] mvn dependency:tree -Ddetail=true and the above output.
+[WARNING] See https://maven.apache.org/plugins/maven-shade-plugin/
+[INFO] Replacing original artifact with shaded artifact.
+[INFO] Replacing /home/runner/work/Mtg-testing-/Mtg-testing-/lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar with /home/runner/work/Mtg-testing-/Mtg-testing-/lab/target/commander-ai-lab-1.0.0-SNAPSHOT-shaded.jar
 [INFO] ------------------------------------------------------------------------
-[ERROR] BUILD FAILURE
+[INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  2.142 s
-[INFO] Finished at: 2026-10-13T18:30:26Z
+[INFO] Total time:  11.336 s
+[INFO] Finished at: 2026-10-13T19:12:30Z
 [INFO] ------------------------------------------------------------------------
-[ERROR] Failed to execute goal on project commander-ai-lab: Could not collect dependencies for project com.commanderailab:commander-ai-lab:jar:1.0.0-SNAPSHOT
-[ERROR] Failed to read artifact descriptor for forge:forge-game:jar:2.0.12-SNAPSHOT
-[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
-[ERROR] Failed to read artifact descriptor for forge:forge-ai:jar:2.0.12-SNAPSHOT
-[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
-[ERROR] Failed to read artifact descriptor for forge:forge-core:jar:2.0.12-SNAPSHOT
-[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
-[ERROR] -> [Help 1]
-[ERROR] 
-[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
-[ERROR] Re-run Maven using the -X switch to enable full debug logging.
-[ERROR] 
-[ERROR] For more information about the errors and possible solutions, please read the following articles:
-[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException
 
 
-cli-help.log: not generated
+cli-help.log
+                               snapshots for RL training
+  -n, --games=<numGames>     Number of games to simulate (default: 10)
+      --no-db                Disable SQLite persistence (results only saved to
+                               JSON file)
+  -o, --output=<outputPath>  Output JSON file path
+  -p, --profile=<profileName>
+                             AI behavior profile: default, aggro, control,
+                               combo, midrange
+      --policy-greedy        Use greedy (argmax) action selection for learned
+                               policy (default: true)
+      --policy-server=<policyServerUrl>
+                             Policy server URL (default: http://localhost:8080)
+      --policy-style=<policyStyle>
+                             Playstyle hint for learned policy: aggro, control,
+                               midrange, combo
+  -s, --seed=<seed>          Master RNG seed for reproducibility (blank for
+                               random)
+  -t, --threads=<threads>    Number of parallel threads (default: 1, 0 or -1
+                               for auto-detect based on CPU cores)
+  -v, --verbose              Show full Forge output (not just parsed results)
+  -V, --version              Print version information and exit.
+  -W, --forge-dir=<forgeWorkDir>
+                             Working directory for Forge (folder containing
+                               res/ — usually forge-gui/)
 
-forge-artifacts.log: not generated
+
+forge-artifacts.log
+forge/forge-gui-desktop/target/forge-gui-desktop-2.0.12-SNAPSHOT-jar-with-dependencies.jar
