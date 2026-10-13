@@ -1,0 +1,78 @@
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38446803458
+
+forge-build.log
+[WARNING] Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-releases (https://maven.java.net/content/repositories/releases/): (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+[WARNING] Could not transfer metadata /.meta/prefixes.txt from/to rso-public-grid (https://repository.sonatype.org/content/groups/sonatype-public-grid/): repository.sonatype.org: Name or service not known
+[WARNING] Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-snapshots (https://maven.java.net/content/repositories/snapshots): (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+[WARNING] /.meta/prefixes.txt failed to transfer from https://maven.java.net/content/repositories/snapshots during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval of jvnet-nexus-snapshots has elapsed or updates are forced. Original error: Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-snapshots (https://maven.java.net/content/repositories/snapshots): (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+[INFO] --- git-changelog-maven-plugin:2.2.0:git-changelog (GenerateGitChangelog) @ forge-gui-desktop ---
+[INFO] Extended variables:
+[INFO] #
+[INFO] # Wrote: /home/runner/work/Mtg-testing-/Mtg-testing-/forge/forge-gui-desktop/target/CHANGES.txt
+[INFO] #
+[INFO] 
+[INFO] --- install:3.0.1:install (default-install) @ forge-gui-desktop ---
+[INFO] Installing /home/runner/work/Mtg-testing-/Mtg-testing-/forge/forge-gui-desktop/pom.xml to /home/runner/.m2/repository/forge/forge-gui-desktop/2.0.12-SNAPSHOT/forge-gui-desktop-2.0.12-SNAPSHOT.pom
+[INFO] Installing /home/runner/work/Mtg-testing-/Mtg-testing-/forge/forge-gui-desktop/target/forge-gui-desktop-2.0.12-SNAPSHOT.jar to /home/runner/.m2/repository/forge/forge-gui-desktop/2.0.12-SNAPSHOT/forge-gui-desktop-2.0.12-SNAPSHOT.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
+[INFO] 
+[INFO] Forge Parent ....................................... SUCCESS [  6.343 s]
+[INFO] Forge Core ......................................... SUCCESS [ 10.542 s]
+[INFO] Forge Game ......................................... SUCCESS [ 13.290 s]
+[INFO] Forge AI ........................................... SUCCESS [  6.271 s]
+[INFO] Forge Gui .......................................... SUCCESS [  7.286 s]
+[INFO] Forge .............................................. SUCCESS [ 36.327 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:24 min
+[INFO] Finished at: 2026-10-13T18:28:41Z
+[INFO] ------------------------------------------------------------------------
+
+
+lab-build.log
+[ERROR] BUILD FAILURE
+[ERROR] Failed to execute goal on project commander-ai-lab: Could not collect dependencies for project com.commanderailab:commander-ai-lab:jar:1.0.0-SNAPSHOT
+[ERROR] Failed to read artifact descriptor for forge:forge-core:jar:2.0.12-SNAPSHOT
+[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
+[ERROR] Failed to read artifact descriptor for forge:forge-ai:jar:2.0.12-SNAPSHOT
+[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
+[ERROR] Failed to read artifact descriptor for forge:forge-game:jar:2.0.12-SNAPSHOT
+[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] Loaded 24075 auto-discovered prefixes for remote repository central (prefixes-central.txt)
+[INFO] Loaded 74 auto-discovered prefixes for remote repository apache.snapshots (prefixes-apache.snapshots.txt)
+[INFO] ------------------------------------------------------------------------
+[ERROR] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.443 s
+[INFO] Finished at: 2026-10-13T18:28:44Z
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal on project commander-ai-lab: Could not collect dependencies for project com.commanderailab:commander-ai-lab:jar:1.0.0-SNAPSHOT
+[ERROR] Failed to read artifact descriptor for forge:forge-core:jar:2.0.12-SNAPSHOT
+[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
+[ERROR] Failed to read artifact descriptor for forge:forge-ai:jar:2.0.12-SNAPSHOT
+[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
+[ERROR] Failed to read artifact descriptor for forge:forge-game:jar:2.0.12-SNAPSHOT
+[ERROR] 	Caused by: The following artifacts could not be resolved: forge:forge:pom:${revision} (absent): prefixes: Path forge/forge/${revision}/forge-${revision}.pom NOT allowed from central
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException
+
+
+cli-help.log: not generated
+
+forge-artifacts.log: not generated
