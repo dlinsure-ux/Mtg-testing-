@@ -1,6 +1,9 @@
 name: Commander AI Lab Build Verification
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/commander-ai-lab-build.yml'
 jobs:
   build:
     runs-on: ubuntu-latest
