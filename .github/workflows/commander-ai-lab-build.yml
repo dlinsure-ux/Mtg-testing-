@@ -27,13 +27,19 @@ jobs:
         run: |
           set -o pipefail
           cd forge
-          mvn -B -ntp install -pl forge-core,forge-game,forge-ai -am -DskipTests -Drevision=2.0.12-SNAPSHOT 2>&1 | tee ../forge-build.log
+          mvn -B -ntp install -pl forge-gui-desktop -am -DskipTests -Drevision=2.0.12-SNAPSHOT 2>&1 | tee ../forge-build.log
       - name: Build Commander AI Lab
         shell: bash
         run: |
           set -o pipefail
           cd lab
           mvn -B -ntp -DskipTests package 2>&1 | tee ../lab-build.log
+      - name: Verify Forge desktop artifact exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print | tee forge-artifacts.log
+          test -s forge-artifacts.log
       - name: Verify CLI startup
         shell: bash
         run: |
@@ -48,6 +54,7 @@ jobs:
             forge-build.log
             lab-build.log
             cli-help.log
+            forge-artifacts.log
             lab/target/*.jar
           if-no-files-found: warn
           retention-days: 14
