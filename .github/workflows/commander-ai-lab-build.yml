@@ -1,0 +1,48 @@
+name: Commander AI Lab Build Verification
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Check out Commander AI Lab and matching Forge fork
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 https://github.com/KoalaTrapLord/commander-ai-lab.git lab
+          git clone --depth 1 https://github.com/KoalaTrapLord/Forge-Repo.git forge
+      - name: Build Forge dependencies
+        shell: bash
+        run: |
+          set -o pipefail
+          cd forge
+          mvn -B -ntp install -pl forge-core,forge-game,forge-ai -am -DskipTests -Drevision=2.0.12-SNAPSHOT 2>&1 | tee ../forge-build.log
+      - name: Build Commander AI Lab
+        shell: bash
+        run: |
+          set -o pipefail
+          cd lab
+          mvn -B -ntp -DskipTests package 2>&1 | tee ../lab-build.log
+      - name: Verify CLI startup
+        shell: bash
+        run: |
+          set -o pipefail
+          java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar --help 2>&1 | tee cli-help.log
+      - name: Preserve build evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: commander-ai-lab-build-evidence
+          path: |
+            forge-build.log
+            lab-build.log
+            cli-help.log
+            lab/target/*.jar
+          if-no-files-found: warn
+          retention-days: 14
