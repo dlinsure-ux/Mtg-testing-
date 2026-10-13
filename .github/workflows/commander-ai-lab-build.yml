@@ -67,6 +67,10 @@ jobs:
         run: |
           set -euo pipefail
           java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar --help 2>&1 | tee cli-help.log
+      - name: Install virtual display
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb xauth
       - name: Probe Forge directly before Lab
         shell: bash
         run: |
@@ -75,10 +79,10 @@ jobs:
           echo "Java: $JAVA_HOME"
           echo "Forge jar: $FORGE_JAR"
           ls -ld forge/forge-gui/res forge/forge-gui 2>&1 || true
-          unzip -p "$FORGE_JAR" META-INF/MANIFEST.MF | head -30
+          unzip -p "$FORGE_JAR" META-INF/MANIFEST.MF | grep -E '^(Main-Class|Manifest-Version):'
           echo '=== Direct Forge CLI ==='
           rc=0
-          timeout 30 "$JAVA_HOME/bin/java" -Djava.awt.headless=true -jar "$FORGE_JAR" --help > direct-forge.log 2>&1 || rc=$?
+          timeout 30 xvfb-run -a "$JAVA_HOME/bin/java" -jar "$FORGE_JAR" --help > direct-forge.log 2>&1 || rc=$?
           echo "Direct Forge exit: $rc"
           cat direct-forge.log
           echo '=== JVM crash reports ==='
@@ -96,7 +100,7 @@ jobs:
           test -f opponents/aesi.dck
           test -f opponents/bello.dck
           test -f opponents/betor.dck
-          timeout 600 java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
+          timeout 600 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
             --forge-jar "$FORGE_JAR" \
             --java17 "${JAVA_HOME}/bin/java" \
             --forge-dir forge/forge-gui \
