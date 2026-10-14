@@ -31,7 +31,7 @@ class ValidatorTests(unittest.TestCase):
         code, out, err = check(prefix="")
         self.assertNotEqual(code, 0)
     def test_startup_timeout_warning(self):
-        code, out, err = check(prefix="java.util.concurrent.TimeoutException\nTurn: Turn 1\n")
+        code, out, err = check(prefix="java.util.concurrent.TimeoutException\n    at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:204)\n    at forge.ai.AiController.chooseSpellAbilityToPlayFromList(AiController.java:100)\nTurn: Turn 1\n")
         self.assertIn("startup", out)
         self.assertEqual(code, 0, out + err)
 
