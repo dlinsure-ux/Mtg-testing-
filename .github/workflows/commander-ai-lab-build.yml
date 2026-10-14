@@ -95,11 +95,11 @@ jobs:
           mkdir -p "$HOME/.forge/decks/commander"
           cp decks/lathiel.dck opponents/deadpool.dck opponents/winota_ultra_budget.dck opponents/shroofus.dck "$HOME/.forge/decks/commander/"
           ls -l "$HOME/.forge/decks/commander/"
-      - name: Run one four-player Forge smoke test
+      - name: Run five-game fixed-pod Forge series
         env:
-          TEST_RUN_MARKER: lathiel-random-b3-pod-20261013
+          TEST_RUN_MARKER: lathiel-fixed-pod-five-20261013
         shell: bash
-        timeout-minutes: 15
+        timeout-minutes: 55
         run: |
           set -euo pipefail
           mkdir -p results
@@ -108,7 +108,7 @@ jobs:
           test -f opponents/deadpool.dck
           test -f opponents/winota_ultra_budget.dck
           test -f opponents/shroofus.dck
-          timeout 600 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
+          timeout 3300 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
             --forge-jar "$FORGE_JAR" \
             --java17 "${JAVA_HOME}/bin/java" \
             --forge-dir forge/forge-gui \
@@ -116,9 +116,29 @@ jobs:
             --deck2 "$GITHUB_WORKSPACE/opponents/deadpool.dck" \
             --deck3 "$GITHUB_WORKSPACE/opponents/winota_ultra_budget.dck" \
             --deck4 "$GITHUB_WORKSPACE/opponents/shroofus.dck" \
-            --games 1 --threads 1 --clock 300 --no-db \
+            --games 5 --threads 1 --clock 300 --no-db \
             --output results/smoke-test.json --verbose 2>&1 | tee smoke-test.log
           test -s results/smoke-test.json
+          echo '=== Five-game outcome audit ==='
+          python3 - <<'PY'
+          from pathlib import Path
+          import re,sys
+          log=Path('smoke-test.log').read_text(errors='replace')
+          debug=Path('forge/forge-sim-debug.log').read_text(errors='replace') if Path('forge/forge-sim-debug.log').exists() else ''
+          completed=re.findall(r'\[Game (\d+)/5\] Winner: (.+?) \| Turns: (\d+) \| Time: (\d+)ms',log)
+          print('Games recorded:',len(completed))
+          for number,winner,turns,ms in completed:
+              print(f'Game {number}: winner={winner}, turns={turns}, time_ms={ms}')
+          bad=[]
+          if len(completed)!=5 or {int(x[0]) for x in completed}!={1,2,3,4,5}: bad.append('missing game results')
+          if re.search(r'Stopping slow match as draw|java\.util\.concurrent\.TimeoutException|java\.lang\.InterruptedException',log+'\n'+debug): bad.append('Forge AI timeout/interruption')
+          if re.search(r'An unsupported card was requested:',log+'\n'+debug): bad.append('unsupported card')
+          if any(int(x[3])>=300000 for x in completed): bad.append('game reached 300-second Forge clock')
+          if bad:
+              print('INVALID SERIES:', '; '.join(bad),file=sys.stderr)
+              sys.exit(1)
+          print('PASS: five completed games with no detected timeout or unsupported cards')
+          PY
           echo '=== Forge subprocess diagnostics ==='
           if [ -f forge/forge-sim-debug.log ]; then cat forge/forge-sim-debug.log; fi
           if grep -Eqi 'Could not load deck|match cannot start|No deck found|Forge exit=[1-9]|Forge produced NO output|Turns: 0|Avg Turns: 0' smoke-test.log forge/forge-sim-debug.log; then
