@@ -178,7 +178,7 @@ jobs:
               sleep 60
               if ! kill -0 "$supervisor" 2>/dev/null; then break; fi
               echo "Game $game heartbeat $sample $(date -u +%FT%TZ)"
-              ps -eo pid,ppid,lstart,etime,stat,args | grep '[j]ava' > "diagnostics/game-$game/process-$sample.txt" || true
+              pgrep -af java > "diagnostics/game-$game/process-$sample.txt" || true
               pids="$(ps -eo pid=,args= | awk '/[j]ava/ && /forge-gui-desktop|jar-with-dependencies/ && !/commander-ai-lab/ {print $1}')"
               for pid in $pids; do
                 ps -p "$pid" -o pid,ppid,lstart,etime,args >> "diagnostics/game-$game/process-$sample.txt" || true
