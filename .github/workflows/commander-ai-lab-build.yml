@@ -150,7 +150,7 @@ jobs:
           command -v jstack
       - name: Run instrumented Forge series game ${{ matrix.game }}
         env:
-          TEST_RUN_MARKER: lathiel-b3-validation-preflight-repair-v2
+          TEST_RUN_MARKER: modular-reliability-phase-a-v1
         shell: bash
         timeout-minutes: 18
         run: |
