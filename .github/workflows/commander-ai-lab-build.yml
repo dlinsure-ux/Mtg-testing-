@@ -34,7 +34,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-          cache: maven
       - name: Check out Commander AI Lab and matching Forge fork
         shell: bash
         run: |
@@ -43,6 +42,13 @@ jobs:
           git -C lab checkout --detach 54cc5e9b2e9ae6266c64b5cdf11f3302f311c701
           git clone https://github.com/KoalaTrapLord/Forge-Repo.git forge
           git -C forge checkout --detach edb28158f6d892f9eb43dc08f019aab567276027
+      - name: Cache Maven dependencies after upstream checkout
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-forge-lab-${{ hashFiles('forge/**/pom.xml', 'lab/**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-forge-lab-
       - name: Preflight three new upstream opponent decks
         shell: bash
         run: |
