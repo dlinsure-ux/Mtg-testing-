@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "pilot": "lathiel",
+  "version": "0.2",
+  "status": "specification_only",
+  "engine": "Forge built-in AI",
+  "runtime_integrated": false,
+  "priorities": {
+    "tutor": [
+      "find missing repeatable life-gain or lifelink engine",
+      "find evasion/protection when large lifelink attacker exists",
+      "find counter multiplier when gain engine and attack access are established"
+    ],
+    "commander": "deploy early when likely to survive; protect existing engine before recasting into obvious removal",
+    "combat": "prefer safe lifelink connections and profitable lethal pressure; avoid trading away engine creatures",
+    "board_wipes": "evaluate own engine loss, opponent threats, survival and post-wipe recovery before casting",
+    "protection": "prioritize saving Lathiel, Rhox Faithmender, and other established multipliers from removal when tactically meaningful"
+  },
+  "decision_guards": [
+    {
+      "id": "wipe-own-engine",
+      "rule": "Do not cast Damning Verdict when it destroys our Ohran Frostfang or Rhox Faithmender unless preventing imminent loss or materially improving win probability"
+    },
+    {
+      "id": "tutor-target-log",
+      "rule": "Record candidate targets, selected card, game state, and justification before grading tutor choice"
+    },
+    {
+      "id": "commander-uptime",
+      "rule": "Track available mana, commander tax, battlefield presence, cast opportunities, and missed casts"
+    },
+    {
+      "id": "life-engine",
+      "rule": "Track per-turn life gains, source, multipliers, counter placement and peak life total"
+    },
+    {
+      "id": "draw-trace",
+      "rule": "Track draw by source and cards stranded in hand; never infer from casts alone"
+    }
+  ],
+  "notes": "DESIGN ONLY. Forge built-in AI still pilots games. Runtime decision hooks and targeted tests are required before claiming this policy changes gameplay."
+}
