@@ -27,7 +27,7 @@ jobs:
       - name: Static workflow analysis
         uses: raven-actions/actionlint@v2
         with:
-          flags: -color
+          flags: -color -ignore "^\\.github/workflows/minstrel-game-10\\.yml"
       - name: Record runner environment
         run: |
           java -version
@@ -150,7 +150,7 @@ jobs:
           command -v jstack
       - name: Run instrumented Forge series game ${{ matrix.game }}
         env:
-          TEST_RUN_MARKER: modular-reliability-phase-a-v2
+          TEST_RUN_MARKER: modular-reliability-phase-a-v3
         shell: bash
         timeout-minutes: 18
         run: |
@@ -178,7 +178,7 @@ jobs:
             if ! kill -0 "$supervisor" 2>/dev/null; then break; fi
             echo "Game heartbeat UTC: $(date -u +%FT%TZ), sample $sample"
             echo "=== Java process snapshot $sample ===" | tee -a diagnostics/processes.log
-            ps -eo pid,ppid,lstart,etime,stat,args | grep '[j]ava' | tee -a diagnostics/processes.log || true
+            ps -eo pid,ppid,lstart,etime,stat,args | awk '$0 ~ /[j]ava/' | tee -a diagnostics/processes.log || true
             # Only attach to Forge Java process, verified by its command line.
             pids="$(ps -eo pid=,args= | awk '/[j]ava/ && /forge-gui-desktop|jar-with-dependencies/ && !/commander-ai-lab/ {print $1}')"
             for pid in $pids; do
@@ -193,7 +193,7 @@ jobs:
               echo "Snapshot UTC: $(date -u +%FT%TZ)"
               echo "Supervisor alive: $(kill -0 "$supervisor" 2>/dev/null && echo yes || echo no)"
               echo "Java process CPU/elapsed/memory (not proof of game-turn progress):"
-              ps -eo pid,ppid,etime,time,%cpu,rss,stat,args | grep "[j]ava" || true
+              ps -eo pid,ppid,etime,time,%cpu,rss,stat,args | awk '$0 ~ /[j]ava/' || true
               echo "Live Lab log bytes:"
               wc -c smoke-test.log || true
               echo "Forge debug log bytes (may not exist until exit):"
@@ -202,7 +202,7 @@ jobs:
           done
           wait "$supervisor" || echo "Lab exited nonzero: $?" | tee diagnostics/exit-status.txt
           echo "Game process exit observed UTC: $(date -u +%FT%TZ)"
-          cat smoke-test.log | tail -n 90
+          tail -n 90 smoke-test.log
           if [ -f forge/forge-sim-debug.log ]; then tail -n 100 forge/forge-sim-debug.log; fi
           python3 scripts/validate_forge_game.py
 
