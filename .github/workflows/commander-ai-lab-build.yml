@@ -93,7 +93,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.forge/decks/commander"
-          cp decks/lathiel.dck opponents/deadpool.dck opponents/winota_ultra_budget.dck opponents/shroofus.dck "$HOME/.forge/decks/commander/"
+          cp decks/lathiel.dck opponents/aesi.dck opponents/bello.dck opponents/betor.dck "$HOME/.forge/decks/commander/"
           ls -l "$HOME/.forge/decks/commander/"
       - name: Install JVM diagnostics tools
         shell: bash
@@ -102,7 +102,7 @@ jobs:
           command -v jstack
       - name: Run one instrumented Forge diagnostic game
         env:
-          TEST_RUN_MARKER: lathiel-java-diagnostic-one-game
+          TEST_RUN_MARKER: lathiel-b3-aesi-bello-betor-one-game
         shell: bash
         timeout-minutes: 18
         run: |
@@ -115,9 +115,9 @@ jobs:
             --java17 "${JAVA_HOME}/bin/java" \
             --forge-dir forge/forge-gui \
             --deck1 "$GITHUB_WORKSPACE/decks/lathiel.dck" \
-            --deck2 "$GITHUB_WORKSPACE/opponents/deadpool.dck" \
-            --deck3 "$GITHUB_WORKSPACE/opponents/winota_ultra_budget.dck" \
-            --deck4 "$GITHUB_WORKSPACE/opponents/shroofus.dck" \
+            --deck2 "$GITHUB_WORKSPACE/opponents/aesi.dck" \
+            --deck3 "$GITHUB_WORKSPACE/opponents/bello.dck" \
+            --deck4 "$GITHUB_WORKSPACE/opponents/betor.dck" \
             --games 1 --threads 1 --clock 600 --no-db \
             --output results/diagnostic-game.json --verbose > smoke-test.log 2>&1 &
           supervisor=$!
