@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        game: [1]
+        game: [1, 2, 3, 4, 5]
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -151,7 +151,7 @@ jobs:
           command -v jstack
       - name: Run instrumented Forge series game ${{ matrix.game }}
         env:
-          TEST_RUN_MARKER: single-game-card-compatibility-smoke-v3
+          TEST_RUN_MARKER: five-game-fixed-pod-series-v4
         shell: bash
         timeout-minutes: 18
         run: |
