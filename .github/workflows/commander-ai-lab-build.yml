@@ -8,14 +8,9 @@ permissions:
   contents: write
 jobs:
   build:
-    name: Diagnostic game ${{ matrix.game }}
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        game: [1, 2, 3, 4, 5]
+    name: Five-game sequential series
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - name: Preflight validator compilation and offline tests
@@ -39,6 +34,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+          cache: maven
       - name: Check out Commander AI Lab and matching Forge fork
         shell: bash
         run: |
@@ -154,97 +150,68 @@ jobs:
         run: |
           command -v jcmd
           command -v jstack
-      - name: Run instrumented Forge series game ${{ matrix.game }}
-        env:
-          TEST_RUN_MARKER: lathiel-five-game-repeat-baseline-v8
+      - name: Run five sequential validated Forge games
         shell: bash
-        timeout-minutes: 18
+        timeout-minutes: 85
         run: |
           set -euo pipefail
           mkdir -p results diagnostics
-          echo "Series game: ${{ matrix.game }} / 5; fixed pod Lathiel, Hakbal, Anikthea, Caesar"
           FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
-          # Start Lab separately; find the actual Forge Java child, not the xvfb wrapper.
-          timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
-            --forge-jar "$FORGE_JAR" \
-            --java17 "${JAVA_HOME}/bin/java" \
-            --forge-dir forge/forge-gui \
-            --deck1 "$GITHUB_WORKSPACE/decks/lathiel.dck" \
-            --deck2 "$GITHUB_WORKSPACE/lab/precon-decks/Explorers_of_the_Deep.dck" \
-            --deck3 "$GITHUB_WORKSPACE/lab/precon-decks/Enduring_Enchantments.dck" \
-            --deck4 "$GITHUB_WORKSPACE/lab/precon-decks/Hail,_Caesar.dck" \
-            --games 1 --threads 1 --clock 600 --no-db \
-            --output results/diagnostic-game.json --verbose > smoke-test.log 2>&1 &
-          supervisor=$!
-          echo "Supervisor PID: $supervisor"
-          echo "Game launch UTC: $(date -u +%FT%TZ)"
-          echo "Forge debug file is written after Forge exits; snapshots use JVM process evidence."
-          for sample in 1 2 3 4 5 6 7 8; do
-            if ! kill -0 "$supervisor" 2>/dev/null; then break; fi
-            sleep 65
-            if ! kill -0 "$supervisor" 2>/dev/null; then break; fi
-            echo "Game heartbeat UTC: $(date -u +%FT%TZ), sample $sample"
-            echo "=== Java process snapshot $sample ===" | tee -a diagnostics/processes.log
-            ps -eo pid,ppid,lstart,etime,stat,args | awk '$0 ~ /[j]ava/' | tee -a diagnostics/processes.log || true
-            # Only attach to Forge Java process, verified by its command line.
-            pids="$(ps -eo pid=,args= | awk '/[j]ava/ && /forge-gui-desktop|jar-with-dependencies/ && !/commander-ai-lab/ {print $1}')"
-            for pid in $pids; do
-              echo "PID $pid, sample $sample" >> diagnostics/processes.log
-              ps -p "$pid" -o pid,ppid,lstart,etime,args >> diagnostics/processes.log || true
-              timeout 20 jcmd "$pid" Thread.print -l > "diagnostics/thread-${sample}-${pid}.txt" 2>&1 || {
-                echo "jcmd failed for PID $pid" >> diagnostics/processes.log
-                timeout 20 jstack -l "$pid" > "diagnostics/jstack-${sample}-${pid}.txt" 2>&1 || kill -3 "$pid" || true
-              }
+          failed=0
+          for game in 1 2 3 4 5; do
+            echo "::group::Game $game / 5"
+            echo "Starting game $game at $(date -u +%FT%TZ)"
+            rm -f forge/forge-sim-debug.log
+            mkdir -p "results/game-$game" "diagnostics/game-$game"
+            timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
+              --forge-jar "$FORGE_JAR" \
+              --java17 "${JAVA_HOME}/bin/java" \
+              --forge-dir forge/forge-gui \
+              --deck1 "$GITHUB_WORKSPACE/decks/lathiel.dck" \
+              --deck2 "$GITHUB_WORKSPACE/lab/precon-decks/Explorers_of_the_Deep.dck" \
+              --deck3 "$GITHUB_WORKSPACE/lab/precon-decks/Enduring_Enchantments.dck" \
+              --deck4 "$GITHUB_WORKSPACE/lab/precon-decks/Hail,_Caesar.dck" \
+              --games 1 --threads 1 --clock 600 --no-db \
+              --output "results/game-$game/diagnostic-game.json" --verbose > "results/game-$game/smoke-test.log" 2>&1 &
+            supervisor=$!
+            for sample in 1 2 3 4 5 6 7 8 9 10 11 12 13; do
+              sleep 60
+              if ! kill -0 "$supervisor" 2>/dev/null; then break; fi
+              echo "Game $game heartbeat $sample $(date -u +%FT%TZ)"
+              ps -eo pid,ppid,lstart,etime,stat,args | grep '[j]ava' > "diagnostics/game-$game/process-$sample.txt" || true
+              pids="$(ps -eo pid=,args= | awk '/[j]ava/ && /forge-gui-desktop|jar-with-dependencies/ && !/commander-ai-lab/ {print $1}')"
+              for pid in $pids; do
+                ps -p "$pid" -o pid,ppid,lstart,etime,args >> "diagnostics/game-$game/process-$sample.txt" || true
+                timeout 15 jcmd "$pid" Thread.print -l > "diagnostics/game-$game/thread-$sample-$pid.txt" 2>&1 || timeout 15 jstack -l "$pid" > "diagnostics/game-$game/jstack-$sample-$pid.txt" 2>&1 || true
+              done
+              wc -c "results/game-$game/smoke-test.log" > "diagnostics/game-$game/log-bytes-$sample.txt" || true
             done
-            {
-              echo "Snapshot UTC: $(date -u +%FT%TZ)"
-              echo "Supervisor alive: $(kill -0 "$supervisor" 2>/dev/null && echo yes || echo no)"
-              echo "Java process CPU/elapsed/memory (not proof of game-turn progress):"
-              ps -eo pid,ppid,etime,time,%cpu,rss,stat,args | awk '$0 ~ /[j]ava/' || true
-              echo "Live Lab log bytes:"
-              wc -c smoke-test.log || true
-              echo "Forge debug log bytes (may not exist until exit):"
-              wc -c forge/forge-sim-debug.log || true
-            } > "diagnostics/progress-${sample}.txt"
+            rc=0
+            wait "$supervisor" || rc=$?
+            echo "Lab exit code: $rc"
+            cp forge/forge-sim-debug.log "results/game-$game/forge-sim-debug.log" 2>/dev/null || true
+            tail -n 30 "results/game-$game/smoke-test.log" || true
+            if [ "$rc" -ne 0 ]; then failed=1; fi
+            # Validator expects root-level Lab and Forge logs; stage only this game's logs.
+            cp "results/game-$game/smoke-test.log" smoke-test.log
+            cp "results/game-$game/diagnostic-game.json" results/diagnostic-game.json 2>/dev/null || true
+            cp "results/game-$game/forge-sim-debug.log" forge/forge-sim-debug.log 2>/dev/null || true
+            if SEAT_2_PATH=lab/precon-decks/Explorers_of_the_Deep.dck SEAT_3_PATH=lab/precon-decks/Enduring_Enchantments.dck SEAT_4_PATH=lab/precon-decks/Hail,_Caesar.dck python3 scripts/validate_forge_game.py; then
+              echo "Game $game: strict validation passed"
+            else
+              echo "Game $game: strict validation FAILED"
+              failed=1
+            fi
+            cp results/validation-report.json "results/game-$game/validation-report.json" 2>/dev/null || true
+            echo "::endgroup::"
           done
-          wait "$supervisor" || echo "Lab exited nonzero: $?" | tee diagnostics/exit-status.txt
-          echo "Game process exit observed UTC: $(date -u +%FT%TZ)"
-          tail -n 90 smoke-test.log
-          if [ -f forge/forge-sim-debug.log ]; then tail -n 100 forge/forge-sim-debug.log; fi
-          SEAT_2_PATH=lab/precon-decks/Explorers_of_the_Deep.dck SEAT_3_PATH=lab/precon-decks/Enduring_Enchantments.dck SEAT_4_PATH=lab/precon-decks/Hail,_Caesar.dck python3 scripts/validate_forge_game.py
-
-      - name: Save diagnostic summary in repository
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const logs = ['results/validation-report.json','forge-build.log','lab-build.log','cli-help.log','forge-artifacts.log','direct-forge.log','smoke-test.log'];
-            const sections = logs.map(file => {
-              if (!fs.existsSync(file)) return file + ': not generated';
-              const lines = fs.readFileSync(file,'utf8').split('\n');
-              const errors = lines.filter(line => /ERROR|BUILD FAILURE|Exception|Could not|Failed to|fatal:/i.test(line)).slice(-60);
-              return file + '\n' + [...errors,...lines.slice(-25)].join('\n');
-            });
-            const body = 'Diagnostic game: ${{ matrix.game }}\n' + 'Run: ' + context.serverUrl + '/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId + '\n\n' + sections.join('\n\n');
-            const path = 'diagnostics-series-game-${{ matrix.game }}.txt';
-            let sha;
-            try {
-              const old = await github.rest.repos.getContent({...context.repo,path});
-              sha = old.data.sha;
-            } catch (e) {
-              if (e.status !== 404) throw e;
-            }
-            await github.rest.repos.createOrUpdateFileContents({
-              ...context.repo, path, sha,
-              message: 'Record Commander AI Lab build diagnostics',
-              content: Buffer.from(body).toString('base64')
-            });
+          echo "All five games attempted; any invalid game makes this job fail."
+          exit "$failed"
       - name: Preserve build evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: lathiel-b3-timeout-fix-game-${{ matrix.game }}-evidence
+          name: lathiel-five-game-series-evidence
           path: |
             forge-build.log
             lab-build.log
@@ -253,7 +220,7 @@ jobs:
             smoke-test.log
             direct-forge.log
             forge/forge-sim-debug.log
-            results/*.json
+            results/**
             diagnostics/**
             lab/target/*.jar
           if-no-files-found: warn
