@@ -1,0 +1,44 @@
+name: Forge Workflow Preflight
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - 'scripts/**'
+      - 'tests/**'
+  push:
+    paths:
+      - '.github/workflows/**'
+      - 'scripts/**'
+      - 'tests/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Python syntax and validator regression tests
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/validate_forge_game.py tests/test_validator_patterns.py scripts/preflight_selected_decks.py
+          python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
+      - name: Validate workflow YAML and embedded shell
+        uses: raven-actions/actionlint@v2
+        with:
+          flags: -color .github/workflows/*.yml
+      - name: Verify build and cache step ordering
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s = Path('.github/workflows/commander-ai-lab-build.yml').read_text()
+          if 'cache: maven' in s:
+              raise SystemExit('Do not use setup-java Maven caching before upstream pom.xml checkout')
+          required = ['Check out Commander AI Lab and matching Forge fork', 'Cache Maven dependencies after upstream checkout', 'Build Forge dependencies', 'Build Commander AI Lab']
+          positions = [s.find('name: ' + x) for x in required]
+          assert all(x >= 0 for x in positions), 'Missing required workflow step'
+          assert positions == sorted(positions), 'Checkout, cache, and build ordering regression'
+          assert 'GAME VALID' in Path('scripts/validate_forge_game.py').read_text() or 'Lab and Forge agree on one terminal winner' in Path('scripts/validate_forge_game.py').read_text()
+          print('Workflow dependency order and strict validator present')
+          PY
