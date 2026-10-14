@@ -10,7 +10,7 @@ forge = Path("forge/forge-sim-debug.log").read_text(errors="replace") if Path("f
 # Parse only terminal outcomes from Forge, not historical text or workflow shell commands.
 lab_results = re.findall(r"^\[Game 1/1\] Winner: (.*?) \| Turns: (\d+) \| Time: (\d+)ms\s*$", lab, re.M)
 forge_results = re.findall(r"^Game Result: Game 1 ended in (\d+) ms\. Ai\((\d+)\)-(.+?) has won!\s*$", forge, re.M)
-outcomes = re.findall(r"^Game Outcome: Ai\((\d+)\)-(.+?) has won (.+)$", forge, re.M)
+outcomes = re.findall(r"^Game Outcome: Ai\((\d+)\)-((?:(?! has (?:won|lost) ).)+) has won (because |due to effect of )([^\n]+)$", forge, re.M)
 # Classify timeouts by phase. Startup AI evaluation timeouts are retained as
 # warnings, not mistaken for whole-game interruption after a clean terminal result.
 first_turn = re.search(r"^(?:Turn: Turn 1\b|Turn: 1\b|Turn 1 \()", forge, re.M)
@@ -38,7 +38,7 @@ if exit_status: errors.append("nonzero Lab/supervisor exit: " + exit_status)
 if lab_results and forge_results and outcomes:
     lab_winner, lab_turns, lab_ms = lab_results[0]
     forge_ms, forge_seat, forge_winner = forge_results[0]
-    outcome_seat, outcome_winner, _ = outcomes[0]
+    outcome_seat, outcome_winner, _, _ = outcomes[0]
     if lab_winner == "DRAW": errors.append("Lab reports DRAW despite Forge terminal winner")
     if forge_seat != outcome_seat: errors.append("Forge final winner seat differs from outcome")
     if forge_winner != outcome_winner: errors.append("Forge final winner name differs from outcome")
