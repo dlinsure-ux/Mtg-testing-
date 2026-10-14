@@ -1,7 +1,33 @@
-Series game: 4 of 5
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38546153445
+Diagnostic game: 4
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38553811709
 
-results/validation-report.json: not generated
+results/validation-report.json
+  "errors": [],
+      "64734"
+    ]
+  ],
+  "forge_result": [
+    [
+      "64734",
+      "4",
+      "Betor B3 Exact"
+    ]
+  ],
+  "forge_winning_outcomes": [
+    [
+      "4",
+      "Betor B3 Exact",
+      "because all opponents have lost"
+    ]
+  ],
+  "startup_ai_decision_timeouts": 0,
+  "in_game_ai_decision_timeouts": 0,
+  "whole_game_timeout": false,
+  "warnings": [],
+  "unsupported_cards": [],
+  "supervisor_exit": ""
+}
+
 
 forge-build.log
 [WARNING] Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-releases (https://maven.java.net/content/repositories/releases/): (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
@@ -20,17 +46,17 @@ forge-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
 [INFO] 
-[INFO] Forge Parent ....................................... SUCCESS [  4.729 s]
-[INFO] Forge Core ......................................... SUCCESS [ 11.174 s]
-[INFO] Forge Game ......................................... SUCCESS [ 17.062 s]
-[INFO] Forge AI ........................................... SUCCESS [  8.606 s]
-[INFO] Forge Gui .......................................... SUCCESS [  8.467 s]
-[INFO] Forge .............................................. SUCCESS [ 36.020 s]
+[INFO] Forge Parent ....................................... SUCCESS [  4.824 s]
+[INFO] Forge Core ......................................... SUCCESS [  8.248 s]
+[INFO] Forge Game ......................................... SUCCESS [ 10.595 s]
+[INFO] Forge AI ........................................... SUCCESS [  5.309 s]
+[INFO] Forge Gui .......................................... SUCCESS [  6.699 s]
+[INFO] Forge .............................................. SUCCESS [ 33.331 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:30 min
-[INFO] Finished at: 2026-10-14T10:07:17Z
+[INFO] Total time:  01:11 min
+[INFO] Finished at: 2026-10-14T11:16:57Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -59,8 +85,8 @@ lab-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  10.258 s
-[INFO] Finished at: 2026-10-14T10:07:29Z
+[INFO] Total time:  8.488 s
+[INFO] Finished at: 2026-10-14T11:17:06Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -98,38 +124,39 @@ forge/forge-gui-desktop/target/forge-gui-desktop-2.0.12-SNAPSHOT-jar-with-depend
 direct-forge.log
 Error handling registered!
 Error handling registered!
-10:07:35 [INFO ] GuiBase: ##########################################
-10:07:35 [INFO ] GuiBase: APP: Forge v.2.0.12-SNAPSHOT-10.14
-10:07:35 [INFO ] GuiBase: Java: 17.0.20.1 (Eclipse Adoptium)
-10:07:35 [INFO ] GuiBase: OS: Linux 6.17.0-1022-azure amd64
-10:07:35 [INFO ] GuiBase: RAM: 3998 MB max, 4 CPUs
-10:07:35 [INFO ] GuiBase: ##########################################
+11:17:13 [INFO ] GuiBase: ##########################################
+11:17:13 [INFO ] GuiBase: APP: Forge v.2.0.12-SNAPSHOT-10.14
+11:17:13 [INFO ] GuiBase: Java: 17.0.20.1 (Eclipse Adoptium)
+11:17:13 [INFO ] GuiBase: OS: Linux 6.17.0-1022-azure amd64
+11:17:13 [INFO ] GuiBase: RAM: 3998 MB max, 4 CPUs
+11:17:13 [INFO ] GuiBase: ##########################################
 Unknown mode.
 Known mode is 'sim', 'parse' 
 
 
 smoke-test.log
-╚══════════════════════════════════════════════════╝
+[DEBUG] OUT> Error handling registered!
+║    Avg Turns:      N/A
+║    Avg Mulligan:  1.00
+║    Avg Life:       0.0
+║
+║  Seat 2: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/bello.dck     ║
+║    Win Rate:       0.0%  (0 W / 1 L / 0 D)
+║    Avg Turns:      N/A
+║    Avg Mulligan:  1.00
+║    Avg Life:       0.0
+║
+║  Seat 3: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/betor.dck     ║
+║    Win Rate:     100.0%  (1 W / 0 L / 0 D)
+║    Avg Turns:     21.0
+║    Avg Mulligan:  2.00
+║    Avg Life:      46.0
+║    Win By: Combat=1  CmdrDmg=0  Combo=0  Drain=0  Mill=0
+║
+╠══════════════════════════════════════════════════════════╣
+║  Games: 1       Avg Turns: 21.0     Sims/sec: 0.01  
+║  Wall Time: 68.0s
+╚══════════════════════════════════════════════════════════╝
 
-  [Meta] No commander-meta.json found, using built-in defaults.
-  [Meta] Loaded 15 built-in commander defaults
-Pod:       /home/runner/work/Mtg-testing-/Mtg-testing-/decks/lathiel.dck  vs  /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/aesi.dck  vs  /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/bello.dck
-Games:     1
-Threads:   1
-Clock:     600s per game
-
-AI Policy: forge-builtin
-AI Profile: default — Balanced — Forge's default AI behavior
-Engine:    Forge sim (headless)
-
-Java:      /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64/bin/java
-
-Running 1 games (single thread)...
-
-[DECK] Resolved: /home/runner/work/Mtg-testing-/Mtg-testing-/decks/lathiel.dck -> Forge name: 'Lathiel'
-[DECK] Resolved: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/aesi.dck -> Forge name: 'Aesi'
-[DECK] Resolved: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/bello.dck -> Forge name: 'Bello, Bard of the Brambles - archived complete Moxfield mirror'
-[DECK] Resolved: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/betor.dck -> Forge name: 'Betor B3 Exact'
-[DEBUG] Forge command: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64/bin/java -Xmx4096m -XX:+UseSerialGC -XX:TieredStopAtLevel=1 -Dio.netty.tryReflectionSetAccessible=true -Dfile.encoding=UTF-8 --add-opens java.desktop/java.beans=ALL-UNNAMED --add-opens java.desktop/javax.swing.border=ALL-UNNAMED --add-opens java.desktop/javax.swing.event=ALL-UNNAMED --add-opens java.desktop/sun.swing=ALL-UNNAMED --add-opens java.desktop/java.awt.image=ALL-UNNAMED --add-opens java.desktop/java.awt.color=ALL-UNNAMED --add-opens java.desktop/sun.awt.image=ALL-UNNAMED --add-opens java.desktop/javax.swing=ALL-UNNAMED --add-opens java.desktop/java.awt=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.reflect=ALL-UNNAMED --add-opens java.base/java.text=ALL-UNNAMED --add-opens java.desktop/java.awt.font=ALL-UNNAMED --add-opens java.base/jdk.internal.misc=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.math=ALL-UNNAMED --add-opens java.base/java.util.concurrent=ALL-UNNAMED --add-opens java.base/java.net=ALL-UNNAMED -jar /home/runner/work/Mtg-testing-/Mtg-testing-/forge/forge-gui-desktop/target/forge-gui-desktop-2.0.12-SNAPSHOT-jar-with-dependencies.jar sim -d Lathiel Aesi Bello, Bard of the Brambles - archived complete Moxfield mirror Betor B3 Exact -f commander -n 1 -c 600
-[DEBUG] Working dir: forge/forge-gui
-[PERF] JVM startup: 15ms
+JSON validation: PASSED
+Output written to: results/diagnostic-game.json
