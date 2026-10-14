@@ -11,9 +11,10 @@ NAME = "Bello, Bard of the Brambles - archived complete Moxfield mirror"
 def check(lab_winner="opponents/bello.dck", prefix="Turn: Turn 1\n", suffix=""):
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
-        (root / "lab.log").write_text(f"[Game 1/1] Winner: {lab_winner} | Turns: 17 | Time: 99759ms\n")
-        (root / "forge.log").write_text(prefix + f"Game Outcome: Turn 17\nGame Outcome: Ai(3)-{NAME} has won because all opponents have lost\nGame Result: Game 1 ended in 99759 ms. Ai(3)-{NAME} has won!\n" + suffix)
-        result = subprocess.run([sys.executable, str(SCRIPT), "--lab", str(root / "lab.log"), "--forge", str(root / "forge.log"), "--report", str(root / "report.json")], capture_output=True, text=True)
+        (root / "smoke-test.log").write_text(f"[Game 1/1] Winner: {lab_winner} | Turns: 17 | Time: 99759ms\n")
+        (root / "forge").mkdir()
+        (root / "forge" / "forge-sim-debug.log").write_text(prefix + f"Game Outcome: Turn 17\nGame Outcome: Ai(3)-{NAME} has won because all opponents have lost\nGame Result: Game 1 ended in 99759 ms. Ai(3)-{NAME} has won!\n" + suffix)
+        result = subprocess.run([sys.executable, str(SCRIPT)], cwd=root, capture_output=True, text=True)
         return result.returncode, result.stdout, result.stderr
 
 class ValidatorTests(unittest.TestCase):
