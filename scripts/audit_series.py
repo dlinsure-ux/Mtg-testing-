@@ -19,10 +19,13 @@ for n in range(1,6):
     winner,turns,ms=lab[0]
     if not winner or winner=='DRAW':
         raise SystemExit(f'INVALID game {n}: no terminal winner')
-    if d.get('in_game_ai_decision_timeouts',0) or d.get('whole_game_timeout') or d.get('unsupported_cards'):\n        raise SystemExit(f'INVALID game {n}: forbidden timeout or unsupported cards')\n    rows.append({'game':n,'winner_deck':winner,'turns':int(turns),'duration_ms':int(ms),
+    if d.get('in_game_ai_decision_timeouts',0) or d.get('whole_game_timeout') or d.get('unsupported_cards'):
+        raise SystemExit(f'INVALID game {n}: forbidden timeout or unsupported cards')
+    rows.append({'game':n,'winner_deck':winner,'turns':int(turns),'duration_ms':int(ms),
                  'startup_ai_timeouts':d.get('startup_ai_decision_timeouts',0),
                  'in_game_ai_timeouts':d.get('in_game_ai_decision_timeouts',0)})
 report={'classification':'VALID','games':rows,'lathiel_wins':sum('lathiel.dck' in r['winner_deck'] for r in rows)}
 out=root/'series-audit.json'
-out.write_text(json.dumps(report,indent=2)+'\n')
+out.write_text(json.dumps(report,indent=2)+'
+')
 print(json.dumps(report,indent=2))
