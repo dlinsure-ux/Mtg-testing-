@@ -179,3 +179,10 @@ Useful links:
 - Regression fixtures and four negative tests committed: `8f312a8a21b4b408fece300c5937e101c7b294c3` (`tests/test_series_audit.py`). Fixture now supplies Forge terminal and winning outcome evidence.
 - **Verification not yet completed:** GitHub connector returned no PR-triggered Actions runs for the second commit at inspection time; this does NOT prove tests passed. Run unit tests and preflight at the latest branch SHA; then replay and actual one-game/five-game release gates per `docs/RELEASE_GATES.md`. Do not merge or claim production promotion without evidence.
 - Preserve `baseline/verified-five-game-210e5db` and main; neither was changed by these commits. PR #1 remains experimental until gates are verified.
+
+## 13. Replay trigger follow-up — 2026-10-14
+
+- Experimental workflow `experimental-watchdog-replay.yml` changed at commit `cf27f7c5e0d913609da67a880218c7b8ce03ba44` so changes to `scripts/audit_series.py` or `tests/test_series_audit.py` also trigger real-log watchdog replay. The workflow-file commit itself is also within the workflow's push path filters.
+- Confirmed green preflight runs: `38637848016` at regression-test commit `8f312a8`, and `38637876616` at handoff commit `59a4f83`; latest preflight job steps all succeeded.
+- The GitHub connector's commit-run lookup returns only pull-request-triggered runs and showed none immediately for `cf27f7c`; this does **not** establish whether a push-triggered replay ran or passed. Inspect GitHub Actions for the new SHA directly before claiming success.
+- Still required: verified new replay result, real one-game gate, real five-game gate, hash manifest and pilot telemetry comparison. Do not merge PR #1 yet. Preserve historical baseline and main.
