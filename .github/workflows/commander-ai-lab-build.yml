@@ -138,7 +138,7 @@ jobs:
           command -v jstack
       - name: Run instrumented Forge series game ${{ matrix.game }}
         env:
-          TEST_RUN_MARKER: lathiel-b3-timeout-classification-single-diagnostic
+          TEST_RUN_MARKER: lathiel-b3-alternate-win-parser-regression
         shell: bash
         timeout-minutes: 18
         run: |
