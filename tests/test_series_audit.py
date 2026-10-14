@@ -15,6 +15,8 @@ class SeriesAuditTests(unittest.TestCase):
             "classification": classification,
             "errors": errors or [],
             "lab_result": [[f"/tmp/decks/{'lathiel' if game == 1 else 'hakbal'}.dck", "21", "1000"]],
+            "forge_result": [["1000", "1", "Lathiel" if game == 1 else "Hakbal"]],
+            "forge_winning_outcomes": [["1", "Lathiel" if game == 1 else "Hakbal", "because ", "damage"]],
             "in_game_ai_decision_timeouts": 0,
             "whole_game_timeout": False,
             "unsupported_cards": []
@@ -49,6 +51,40 @@ class SeriesAuditTests(unittest.TestCase):
             for game in range(1,6): self.make_report(root,game)
             p=root/"game-2"/"validation-report.json"
             d=json.loads(p.read_text()); d["in_game_ai_decision_timeouts"]=1
+            p.write_text(json.dumps(d))
+            self.assertNotEqual(self.run_audit(root).returncode,0)
+
+    def test_corrupt_json_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for game in range(1,6): self.make_report(root,game)
+            (root/"game-3"/"validation-report.json").write_text("{bad")
+            self.assertNotEqual(self.run_audit(root).returncode,0)
+
+    def test_missing_forge_result_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for game in range(1,6): self.make_report(root,game)
+            p=root/"game-3"/"validation-report.json"
+            d=json.loads(p.read_text()); d.pop("forge_result")
+            p.write_text(json.dumps(d))
+            self.assertNotEqual(self.run_audit(root).returncode,0)
+
+    def test_conflicting_forge_winners_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for game in range(1,6): self.make_report(root,game)
+            p=root/"game-3"/"validation-report.json"
+            d=json.loads(p.read_text()); d["forge_winning_outcomes"][0][1]="Different Winner"
+            p.write_text(json.dumps(d))
+            self.assertNotEqual(self.run_audit(root).returncode,0)
+
+    def test_invalid_turns_fail_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for game in range(1,6): self.make_report(root,game)
+            p=root/"game-3"/"validation-report.json"
+            d=json.loads(p.read_text()); d["lab_result"][0][1]="0"
             p.write_text(json.dumps(d))
             self.assertNotEqual(self.run_audit(root).returncode,0)
 
