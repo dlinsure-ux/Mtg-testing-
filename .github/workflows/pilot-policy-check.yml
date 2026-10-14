@@ -1,0 +1,26 @@
+name: Pilot Policy Validation
+on:
+  push:
+    paths:
+      - 'pilots/**'
+      - 'scripts/validate_pilot_config.py'
+      - 'tests/test_pilot_config.py'
+  pull_request:
+    paths:
+      - 'pilots/**'
+      - 'scripts/validate_pilot_config.py'
+      - 'tests/test_pilot_config.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate isolated pilot specification
+        run: |
+          set -euo pipefail
+          python3 scripts/validate_pilot_config.py pilots/lathiel/v0.1.json
+          python3 -m unittest discover -s tests -p 'test_pilot_config.py' -v
