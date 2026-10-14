@@ -122,9 +122,12 @@ jobs:
             --output results/diagnostic-game.json --verbose > smoke-test.log 2>&1 &
           supervisor=$!
           echo "Supervisor PID: $supervisor"
+          echo "Game launch UTC: $(date -u +%FT%TZ)"
           for sample in 1 2 3 4 5 6 7 8; do
+            if ! kill -0 "$supervisor" 2>/dev/null; then break; fi
             sleep 65
             if ! kill -0 "$supervisor" 2>/dev/null; then break; fi
+            echo "Game heartbeat UTC: $(date -u +%FT%TZ), sample $sample"
             echo "=== Java process snapshot $sample ===" | tee -a diagnostics/processes.log
             ps -eo pid,ppid,lstart,etime,stat,args | grep '[j]ava' | tee -a diagnostics/processes.log || true
             # Only attach to Forge Java process, verified by its command line.
@@ -140,30 +143,18 @@ jobs:
             tail -n 12 forge/forge-sim-debug.log > "diagnostics/progress-${sample}.txt" 2>/dev/null || true
           done
           wait "$supervisor" || echo "Lab exited nonzero: $?" | tee diagnostics/exit-status.txt
+          echo "Game process exit observed UTC: $(date -u +%FT%TZ)"
           cat smoke-test.log | tail -n 90
           if [ -f forge/forge-sim-debug.log ]; then tail -n 100 forge/forge-sim-debug.log; fi
-          python3 - <<'PY'
-          from pathlib import Path
-          import re,sys
-          a=Path('smoke-test.log').read_text(errors='replace')
-          b=Path('forge/forge-sim-debug.log').read_text(errors='replace') if Path('forge/forge-sim-debug.log').exists() else ''
-          bad=[]
-          if re.search(r'Stopping slow match as draw|TimeoutException|InterruptedException',a+'\n'+b):bad.append('timeout/interruption')
-          if re.search(r'An unsupported card was requested:',a+'\n'+b):bad.append('unsupported card')
-          if len(re.findall(r'\[Game 1/1\] Winner:',a))!=1:bad.append('no single Lab result')
-          if len(re.findall(r'\[OUTCOME-LINE\] Game Outcome: Ai\(\d+\).*has won',a))!=1:bad.append('multiple or missing Forge winners')
-          if bad:
-              print('DIAGNOSTIC GAME INVALID:',', '.join(bad))
-              sys.exit(1)
-          print('DIAGNOSTIC GAME VALID')
-          PY
+          python3 scripts/validate_forge_game.py
+
       - name: Save diagnostic summary in repository
         if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const logs = ['forge-build.log','lab-build.log','cli-help.log','forge-artifacts.log','direct-forge.log','smoke-test.log'];
+            const logs = ['results/validation-report.json','forge-build.log','lab-build.log','cli-help.log','forge-artifacts.log','direct-forge.log','smoke-test.log'];
             const sections = logs.map(file => {
               if (!fs.existsSync(file)) return file + ': not generated';
               const lines = fs.readFileSync(file,'utf8').split('\n');
