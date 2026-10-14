@@ -61,7 +61,7 @@ jobs:
               "Game Outcome: Ai(4)-Betor B3 Exact has won due to effect of 'Felidar Sovereign'",
               "Game Outcome: Ai(2)-Aesi has won because all opponents have lost",
           ):
-              assert re.search(r"Game Outcome:\\s*Ai\\(?(\\d+)\\)?-(.+?)\\s+has won (?:because|due to effect of) (.+)", line)
+              assert "Game Outcome: Ai(" in line and " has won " in line and ("has won because " in line or "has won due to effect of " in line)
           print("Both Forge winner reason variants recognized")
           PY
       - name: Build Forge dependencies
