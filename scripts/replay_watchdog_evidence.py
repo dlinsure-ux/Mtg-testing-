@@ -3,7 +3,7 @@
 import json
 import sys
 from pathlib import Path
-from scripts.game_progress_watchdog import progress_markers
+from game_progress_watchdog import progress_markers
 
 root = Path(sys.argv[1])
 results = []
