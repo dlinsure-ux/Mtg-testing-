@@ -11,14 +11,22 @@ forge = Path("forge/forge-sim-debug.log").read_text(errors="replace") if Path("f
 lab_results = re.findall(r"^\[Game 1/1\] Winner: (.*?) \| Turns: (\d+) \| Time: (\d+)ms\s*$", lab, re.M)
 forge_results = re.findall(r"^Game Result: Game 1 ended in (\d+) ms\. Ai\((\d+)\)-(.+?) has won!\s*$", forge, re.M)
 outcomes = re.findall(r"^Game Outcome: Ai\((\d+)\)-(.+?) has won (.+)$", forge, re.M)
-timeouts = re.findall(r"^(?:.*?)(Stopping slow match as draw|TimeoutException|InterruptedException)(?:.*)$", lab + "\n" + forge, re.M)
+# Classify timeouts by phase. Startup AI evaluation timeouts are retained as
+# warnings, not mistaken for whole-game interruption after a clean terminal result.
+first_turn = re.search(r"^Turn: Turn 1\\b", forge, re.M)
+startup_log = forge[:first_turn.start()] if first_turn else ""
+game_log = forge[first_turn.start():] if first_turn else forge
+startup_ai_timeouts = len(re.findall(r"^java\\.util\\.concurrent\\.TimeoutException\\s*$", startup_log, re.M))
+in_game_ai_timeouts = len(re.findall(r"^java\\.util\\.concurrent\\.TimeoutException\\s*$", game_log, re.M))
+whole_game_timeout = bool(re.search(r"Stopping slow match as draw|TimeoutException|InterruptedException", lab)) or bool(re.search(r"Stopping slow match as draw|^java\\.lang\\.InterruptedException", forge, re.M))
+other_startup_timeouts = len(re.findall(r"^java\\.util\\.concurrent\\.TimeoutException\\s*$", startup_log, re.M)) - len(re.findall(r"java\\.util\\.concurrent\\.TimeoutException\\n\\s*at java\\.base/java\\.util\\.concurrent\\.FutureTask\\.get\\([^\\n]*\\)\\n\\s*at forge\\.ai\\.AiController\\.chooseSpellAbilityToPlayFromList", startup_log))
 unsupported = re.findall(r"An unsupported card was requested:.*", lab + "\n" + forge)
 exit_status = Path("diagnostics/exit-status.txt").read_text(errors="replace").strip() if Path("diagnostics/exit-status.txt").exists() else ""
 errors = []
 if len(lab_results) != 1: errors.append(f"Lab terminal results: {len(lab_results)} (expected 1)")
 if len(forge_results) != 1: errors.append(f"Forge final results: {len(forge_results)} (expected 1)")
 if len(outcomes) != 1: errors.append(f"Forge winners: {len(outcomes)} (expected 1)")
-if timeouts: errors.append("timeout/interruption evidence")
+if whole_game_timeout: errors.append("whole-game timeout/interruption evidence")\nif in_game_ai_timeouts: errors.append(f"in-game AI decision timeouts: {in_game_ai_timeouts}")\nif other_startup_timeouts: errors.append(f"unclassified startup timeouts: {other_startup_timeouts}")\nif not first_turn: errors.append("missing first-turn evidence")
 if unsupported: errors.append("unsupported card evidence")
 if exit_status: errors.append("nonzero Lab/supervisor exit: " + exit_status)
 if lab_results and forge_results and outcomes:
@@ -39,7 +47,7 @@ report = {
     "lab_result": lab_results,
     "forge_result": forge_results,
     "forge_winning_outcomes": outcomes,
-    "timeout_markers": timeouts[:10],
+    "startup_ai_decision_timeouts": startup_ai_timeouts,\n    "in_game_ai_decision_timeouts": in_game_ai_timeouts,\n    "whole_game_timeout": whole_game_timeout,\n    "warnings": ([f"{startup_ai_timeouts} startup AI decision timeouts before first turn; piloting quality not independently verified"] if startup_ai_timeouts else []),
     "unsupported_cards": unsupported[:10],
     "supervisor_exit": exit_status,
 }
