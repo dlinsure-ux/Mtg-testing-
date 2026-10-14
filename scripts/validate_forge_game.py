@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fail-closed reconciliation of one Commander AI Lab game and Forge terminal outcome."""
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -44,7 +45,7 @@ if lab_results and forge_results and outcomes:
     if forge_winner != outcome_winner: errors.append("Forge final winner name differs from outcome")
     if abs(int(lab_ms) - int(forge_ms)) > 1000: errors.append("Lab/Forge elapsed time differs")
     # Lab winner is a deck path; compare seat name against the selected deck's metadata.
-    seat_paths = {1:"decks/lathiel.dck",2:"opponents/aesi.dck",3:"opponents/bello.dck",4:"opponents/betor.dck"}
+    seat_paths = {1:os.environ.get("SEAT_1_PATH", "decks/lathiel.dck"),2:os.environ.get("SEAT_2_PATH", "opponents/aesi.dck"),3:os.environ.get("SEAT_3_PATH", "opponents/bello.dck"),4:os.environ.get("SEAT_4_PATH", "opponents/betor.dck")}
     expected = seat_paths.get(int(forge_seat), "")
     if not expected or not lab_winner.endswith(expected): errors.append("Lab winner deck disagrees with Forge winner seat")
 report = {
