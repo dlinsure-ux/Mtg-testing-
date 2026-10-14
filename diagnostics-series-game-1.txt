@@ -1,27 +1,7 @@
 Diagnostic game: 1
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38551069497
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38551126431
 
-results/validation-report.json
-  "errors": [
-{
-  "classification": "INVALID",
-  "errors": [
-    "Lab terminal results: 0 (expected 1)",
-    "Forge final results: 0 (expected 1)",
-    "Forge winners: 0 (expected 1)",
-    "missing first-turn evidence; timeout phase unknown"
-  ],
-  "lab_result": [],
-  "forge_result": [],
-  "forge_winning_outcomes": [],
-  "startup_ai_decision_timeouts": 0,
-  "in_game_ai_decision_timeouts": 0,
-  "whole_game_timeout": false,
-  "warnings": [],
-  "unsupported_cards": [],
-  "supervisor_exit": ""
-}
-
+results/validation-report.json: not generated
 
 forge-build.log: not generated
 
