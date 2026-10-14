@@ -8,12 +8,12 @@ permissions:
   contents: write
 jobs:
   build:
-    name: Game ${{ matrix.game }} of 5
+    name: Diagnostic game ${{ matrix.game }}
     strategy:
       fail-fast: false
       max-parallel: 2
       matrix:
-        game: [1, 2, 3, 4, 5]
+        game: [1]
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -108,7 +108,7 @@ jobs:
           command -v jstack
       - name: Run instrumented Forge series game ${{ matrix.game }}
         env:
-          TEST_RUN_MARKER: lathiel-b3-aesi-bello-betor-five-game-series
+          TEST_RUN_MARKER: lathiel-b3-timeout-classification-single-diagnostic
         shell: bash
         timeout-minutes: 18
         run: |
@@ -128,7 +128,7 @@ jobs:
             --output results/diagnostic-game.json --verbose > smoke-test.log 2>&1 &
           supervisor=$!
           echo "Supervisor PID: $supervisor"
-          echo "Game launch UTC: $(date -u +%FT%TZ)"
+          echo "Game launch UTC: $(date -u +%FT%TZ)"\n          echo "Forge debug file is written after Forge exits; snapshots use JVM process evidence."
           for sample in 1 2 3 4 5 6 7 8; do
             if ! kill -0 "$supervisor" 2>/dev/null; then break; fi
             sleep 65
@@ -146,7 +146,7 @@ jobs:
                 timeout 20 jstack -l "$pid" > "diagnostics/jstack-${sample}-${pid}.txt" 2>&1 || kill -3 "$pid" || true
               }
             done
-            tail -n 12 forge/forge-sim-debug.log > "diagnostics/progress-${sample}.txt" 2>/dev/null || true
+            {\n              echo "Snapshot UTC: $(date -u +%FT%TZ)"\n              echo "Supervisor alive: $(kill -0 "$supervisor" 2>/dev/null && echo yes || echo no)"\n              echo "Java process CPU/elapsed/memory (not proof of game-turn progress):"\n              ps -eo pid,ppid,etime,time,%cpu,rss,stat,args | grep "[j]ava" || true\n              echo "Live Lab log bytes:"\n              wc -c smoke-test.log || true\n              echo "Forge debug log bytes (may not exist until exit):"\n              wc -c forge/forge-sim-debug.log || true\n            } > "diagnostics/progress-${sample}.txt"
           done
           wait "$supervisor" || echo "Lab exited nonzero: $?" | tee diagnostics/exit-status.txt
           echo "Game process exit observed UTC: $(date -u +%FT%TZ)"
@@ -167,7 +167,7 @@ jobs:
               const errors = lines.filter(line => /ERROR|BUILD FAILURE|Exception|Could not|Failed to|fatal:/i.test(line)).slice(-60);
               return file + '\n' + [...errors,...lines.slice(-25)].join('\n');
             });
-            const body = 'Series game: ${{ matrix.game }} of 5\n' + 'Run: ' + context.serverUrl + '/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId + '\n\n' + sections.join('\n\n');
+            const body = 'Diagnostic game: ${{ matrix.game }}\n' + 'Run: ' + context.serverUrl + '/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId + '\n\n' + sections.join('\n\n');
             const path = 'diagnostics-series-game-${{ matrix.game }}.txt';
             let sha;
             try {
@@ -185,7 +185,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: lathiel-b3-series-game-${{ matrix.game }}-evidence
+          name: lathiel-b3-timeout-fix-game-${{ matrix.game }}-evidence
           path: |
             forge-build.log
             lab-build.log
