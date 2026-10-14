@@ -156,7 +156,7 @@ jobs:
           command -v jstack
       - name: Run instrumented Forge series game ${{ matrix.game }}
         env:
-          TEST_RUN_MARKER: sequential-new-upstream-precons-v7
+          TEST_RUN_MARKER: lathiel-five-game-repeat-baseline-v8
         shell: bash
         timeout-minutes: 18
         run: |
