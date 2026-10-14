@@ -1,0 +1,37 @@
+name: Experimental Watchdog Evidence Replay
+on:
+  push:
+    branches:
+      - experiment/guardrails-watchdog-v1
+    paths:
+      - 'scripts/replay_watchdog_evidence.py'
+      - 'scripts/game_progress_watchdog.py'
+      - '.github/workflows/experimental-watchdog-replay.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download verified five-game run evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p historical-evidence
+          gh run download 38623230136 --repo "$GITHUB_REPOSITORY" --name lathiel-five-game-series-evidence --dir historical-evidence
+      - name: Replay watchdog over all five actual game logs
+        run: |
+          set -euo pipefail
+          python3 scripts/replay_watchdog_evidence.py historical-evidence | tee watchdog-replay-report.json
+      - name: Save replay result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watchdog-real-log-replay
+          path: watchdog-replay-report.json
+          if-no-files-found: warn
