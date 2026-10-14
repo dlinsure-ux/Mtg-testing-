@@ -97,7 +97,7 @@ jobs:
           ls -l "$HOME/.forge/decks/commander/"
       - name: Run one four-player Forge smoke test
         env:
-          TEST_RUN_MARKER: diagnostic-20261013-b
+          TEST_RUN_MARKER: deck-install-validation-20261013
         shell: bash
         timeout-minutes: 15
         run: |
