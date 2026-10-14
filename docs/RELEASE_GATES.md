@@ -17,3 +17,6 @@
 
 ## Not yet enforced
 GitHub branch protection requires repository settings/API permissions not available to this connector. The pilot's Forge runtime adapter and decision hooks do not yet exist. Golden cases are **specification checks only** until those hooks are instrumented. Do not claim these gates are fully enforced.
+
+## Watchdog validation
+The experimental watchdog is observation-only. Its unit tests exercise synthetic examples matching Forge's expected log syntax; these are not yet a replay of the real run artifact. Do not claim real-log verification or merge readiness until an artifact-based replay has passed. The watchdog is not wired into production.
