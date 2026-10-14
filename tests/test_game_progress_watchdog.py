@@ -17,6 +17,21 @@ class ProgressWatchdogTests(unittest.TestCase):
         result=progress_markers("Game Result: Game 1 ended in 1234 ms. Ai(1)-Lathiel has won!\n")
         self.assertTrue(result['terminal_result'])
 
+    def test_representative_forge_log_progression(self):
+        log = ("Turn: Turn 1 - Player 1\\n"
+               "Turn: Turn 2 - Player 2\\n"
+               "Game Outcome: Ai(2)-Hakbal has won because opponents lost\\n"
+               "Game Result: Game 1 ended in 1500 ms. Ai(2)-Hakbal has won!\\n")
+        result = progress_markers(log)
+        self.assertEqual(result['last_turn'],2)
+        self.assertTrue(result['terminal_result'])
+
+    def test_repeated_turn_header_counts_as_activity_but_not_advancement(self):
+        log = "Turn: Turn 1\\nTurn: Turn 1\\n"
+        result = progress_markers(log)
+        self.assertEqual(result['last_turn'],1)
+        self.assertEqual(result['turn_markers'],2)
+
     def test_empty_log_has_no_progress(self):
         result=progress_markers("")
         self.assertIsNone(result['last_turn'])
