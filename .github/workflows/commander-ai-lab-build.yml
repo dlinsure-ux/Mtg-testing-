@@ -93,17 +93,18 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.forge/decks/commander"
-          cp opponents/aesi.dck opponents/bello.dck opponents/betor.dck "$HOME/.forge/decks/commander/"
+          cp decks/lathiel.dck opponents/aesi.dck opponents/bello.dck opponents/betor.dck "$HOME/.forge/decks/commander/"
           ls -l "$HOME/.forge/decks/commander/"
       - name: Run one four-player Forge smoke test
         env:
-          TEST_RUN_MARKER: deck-install-validation-20261013
+          TEST_RUN_MARKER: lathiel-first-smoke-20261013
         shell: bash
         timeout-minutes: 15
         run: |
           set -euo pipefail
           mkdir -p results
           FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
+          test -f decks/lathiel.dck
           test -f opponents/aesi.dck
           test -f opponents/bello.dck
           test -f opponents/betor.dck
@@ -111,7 +112,7 @@ jobs:
             --forge-jar "$FORGE_JAR" \
             --java17 "${JAVA_HOME}/bin/java" \
             --forge-dir forge/forge-gui \
-            --deck1 "$GITHUB_WORKSPACE/opponents/aesi.dck" \
+            --deck1 "$GITHUB_WORKSPACE/decks/lathiel.dck" \
             --deck2 "$GITHUB_WORKSPACE/opponents/aesi.dck" \
             --deck3 "$GITHUB_WORKSPACE/opponents/bello.dck" \
             --deck4 "$GITHUB_WORKSPACE/opponents/betor.dck" \
