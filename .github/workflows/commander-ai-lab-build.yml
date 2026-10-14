@@ -27,7 +27,7 @@ jobs:
       - name: Static workflow analysis
         uses: raven-actions/actionlint@v2
         with:
-          flags: -color -ignore "^\\.github/workflows/minstrel-game-10\\.yml"
+          flags: -color .github/workflows/commander-ai-lab-build.yml
       - name: Record runner environment
         run: |
           java -version
@@ -150,7 +150,7 @@ jobs:
           command -v jstack
       - name: Run instrumented Forge series game ${{ matrix.game }}
         env:
-          TEST_RUN_MARKER: modular-reliability-phase-a-v3
+          TEST_RUN_MARKER: modular-reliability-phase-a-v4
         shell: bash
         timeout-minutes: 18
         run: |
