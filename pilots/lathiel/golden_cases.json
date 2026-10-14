@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "pilot": "lathiel",
+  "cases": [
+    {
+      "id": "tutor-engine",
+      "state": {
+        "tutor_available": true,
+        "engine_present": false
+      },
+      "expected": {
+        "priority": "life-gain engine"
+      }
+    },
+    {
+      "id": "tutor-counters",
+      "state": {
+        "tutor_available": true,
+        "engine_present": true,
+        "counter_multiplier_present": false
+      },
+      "expected": {
+        "priority": "counter multiplier"
+      }
+    },
+    {
+      "id": "tutor-protection",
+      "state": {
+        "tutor_available": true,
+        "engine_present": true,
+        "counter_multiplier_present": true
+      },
+      "expected": {
+        "priority": "protection"
+      }
+    }
+  ],
+  "runtime_assertions_enabled": false
+}
