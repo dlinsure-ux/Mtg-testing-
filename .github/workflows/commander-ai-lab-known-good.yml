@@ -1,0 +1,257 @@
+name: Commander AI Lab Known-Good Baseline
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    name: Diagnostic game ${{ matrix.game }}
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        game: [1, 2, 3, 4, 5]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preflight validator compilation and offline tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/validate_forge_game.py tests/test_validator_patterns.py scripts/preflight_selected_decks.py
+          python3 scripts/preflight_selected_decks.py decks/lathiel.dck opponents/deadpool.dck opponents/shroofus.dck opponents/winota_ultra_budget.dck
+          python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
+      - name: Static workflow analysis
+        uses: raven-actions/actionlint@v2
+        with:
+          flags: -color .github/workflows/commander-ai-lab-build.yml
+      - name: Record runner environment
+        run: |
+          java -version
+          mvn -version
+          echo "Run ID: ${GITHUB_RUN_ID}"
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Check out Commander AI Lab and matching Forge fork
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone https://github.com/KoalaTrapLord/commander-ai-lab.git lab
+          git -C lab checkout --detach 54cc5e9b2e9ae6266c64b5cdf11f3302f311c701
+          git clone https://github.com/KoalaTrapLord/Forge-Repo.git forge
+          git -C forge checkout --detach edb28158f6d892f9eb43dc08f019aab567276027
+      - name: Preflight three new upstream opponent decks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/preflight_selected_decks.py decks/lathiel.dck lab/precon-decks/Explorers_of_the_Deep.dck lab/precon-decks/Enduring_Enchantments.dck 'lab/precon-decks/Hail,_Caesar.dck'
+      - name: Patch Commander AI Lab alternate-win outcome parsing
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("lab/src/main/java/commanderailab/batch/BatchRunner.java")
+          source = p.read_text()
+          old = 'has won because (.+)'
+          new = 'has won (?:because|due to effect of) (.+)'
+          assert source.count(old) == 1, "Unexpected upstream winner parser; stop rather than patch blindly"
+          p.write_text(source.replace(old, new))
+          assert new in p.read_text()
+          print("Patched Lab outcome parser for effect-based alternate wins")
+          PY
+      - name: Verify Lab winner parser regression
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          source = Path("lab/src/main/java/commanderailab/batch/BatchRunner.java").read_text()
+          assert 'has won (?:because|due to effect of) (.+)' in source
+          for line in (
+              "Game Outcome: Ai(4)-Betor B3 Exact has won due to effect of 'Felidar Sovereign'",
+              "Game Outcome: Ai(2)-Aesi has won because all opponents have lost",
+          ):
+              assert "Game Outcome: Ai(" in line and " has won " in line and ("has won because " in line or "has won due to effect of " in line)
+          print("Both Forge winner reason variants recognized")
+          PY
+      - name: Build Forge dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd forge
+          mvn -B -ntp install -pl forge-gui-desktop -am -DskipTests -Drevision=2.0.12-SNAPSHOT 2>&1 | tee ../forge-build.log
+      - name: Repair installed Forge parent POM version
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path.home()/'.m2/repository/forge'
+          fixed=[]
+          for pom in root.rglob('*.pom'):
+              source=pom.read_text()
+              if '${revision}' in source:
+                  pom.write_text(source.replace('${revision}', '2.0.12-SNAPSHOT'))
+                  fixed.append(str(pom))
+          print('Repaired Forge POM descriptors:', len(fixed))
+          for item in fixed: print(item)
+          PY
+      - name: Build Commander AI Lab
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd lab
+          mvn -B -ntp -DskipTests -Drevision=2.0.12-SNAPSHOT package 2>&1 | tee ../lab-build.log
+      - name: Verify Forge desktop artifact exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print | tee forge-artifacts.log
+          test -s forge-artifacts.log
+      - name: Verify CLI startup
+        shell: bash
+        run: |
+          set -euo pipefail
+          java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar --help 2>&1 | tee cli-help.log
+      - name: Install virtual display
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y xvfb xauth
+      - name: Probe Forge directly before Lab
+        shell: bash
+        run: |
+          set -uo pipefail
+          FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
+          echo "Java: $JAVA_HOME"
+          echo "Forge jar: $FORGE_JAR"
+          ls -ld forge/forge-gui/res forge/forge-gui 2>&1 || true
+          unzip -p "$FORGE_JAR" META-INF/MANIFEST.MF | grep -E '^(Main-Class|Manifest-Version):'
+          echo '=== Direct Forge CLI ==='
+          rc=0
+          timeout 30 xvfb-run -a "$JAVA_HOME/bin/java" -jar "$FORGE_JAR" --help > direct-forge.log 2>&1 || rc=$?
+          echo "Direct Forge exit: $rc"
+          cat direct-forge.log
+          echo '=== JVM crash reports ==='
+          find . -name 'hs_err_pid*.log' -print
+          exit 0
+      - name: Install Commander decks in Forge user library
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.forge/decks/commander"
+          cp decks/lathiel.dck lab/precon-decks/Explorers_of_the_Deep.dck lab/precon-decks/Enduring_Enchantments.dck 'lab/precon-decks/Hail,_Caesar.dck' "$HOME/.forge/decks/commander/"
+          ls -l "$HOME/.forge/decks/commander/"
+      - name: Install JVM diagnostics tools
+        shell: bash
+        run: |
+          command -v jcmd
+          command -v jstack
+      - name: Run instrumented Forge series game ${{ matrix.game }}
+        env:
+          TEST_RUN_MARKER: sequential-new-upstream-precons-v7
+        shell: bash
+        timeout-minutes: 18
+        run: |
+          set -euo pipefail
+          mkdir -p results diagnostics
+          echo "Series game: ${{ matrix.game }} / 5; fixed pod Lathiel, Hakbal, Anikthea, Caesar"
+          FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
+          # Start Lab separately; find the actual Forge Java child, not the xvfb wrapper.
+          timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
+            --forge-jar "$FORGE_JAR" \
+            --java17 "${JAVA_HOME}/bin/java" \
+            --forge-dir forge/forge-gui \
+            --deck1 "$GITHUB_WORKSPACE/decks/lathiel.dck" \
+            --deck2 "$GITHUB_WORKSPACE/lab/precon-decks/Explorers_of_the_Deep.dck" \
+            --deck3 "$GITHUB_WORKSPACE/lab/precon-decks/Enduring_Enchantments.dck" \
+            --deck4 "$GITHUB_WORKSPACE/lab/precon-decks/Hail,_Caesar.dck" \
+            --games 1 --threads 1 --clock 600 --no-db \
+            --output results/diagnostic-game.json --verbose > smoke-test.log 2>&1 &
+          supervisor=$!
+          echo "Supervisor PID: $supervisor"
+          echo "Game launch UTC: $(date -u +%FT%TZ)"
+          echo "Forge debug file is written after Forge exits; snapshots use JVM process evidence."
+          for sample in 1 2 3 4 5 6 7 8; do
+            if ! kill -0 "$supervisor" 2>/dev/null; then break; fi
+            sleep 65
+            if ! kill -0 "$supervisor" 2>/dev/null; then break; fi
+            echo "Game heartbeat UTC: $(date -u +%FT%TZ), sample $sample"
+            echo "=== Java process snapshot $sample ===" | tee -a diagnostics/processes.log
+            ps -eo pid,ppid,lstart,etime,stat,args | awk '$0 ~ /[j]ava/' | tee -a diagnostics/processes.log || true
+            # Only attach to Forge Java process, verified by its command line.
+            pids="$(ps -eo pid=,args= | awk '/[j]ava/ && /forge-gui-desktop|jar-with-dependencies/ && !/commander-ai-lab/ {print $1}')"
+            for pid in $pids; do
+              echo "PID $pid, sample $sample" >> diagnostics/processes.log
+              ps -p "$pid" -o pid,ppid,lstart,etime,args >> diagnostics/processes.log || true
+              timeout 20 jcmd "$pid" Thread.print -l > "diagnostics/thread-${sample}-${pid}.txt" 2>&1 || {
+                echo "jcmd failed for PID $pid" >> diagnostics/processes.log
+                timeout 20 jstack -l "$pid" > "diagnostics/jstack-${sample}-${pid}.txt" 2>&1 || kill -3 "$pid" || true
+              }
+            done
+            {
+              echo "Snapshot UTC: $(date -u +%FT%TZ)"
+              echo "Supervisor alive: $(kill -0 "$supervisor" 2>/dev/null && echo yes || echo no)"
+              echo "Java process CPU/elapsed/memory (not proof of game-turn progress):"
+              ps -eo pid,ppid,etime,time,%cpu,rss,stat,args | awk '$0 ~ /[j]ava/' || true
+              echo "Live Lab log bytes:"
+              wc -c smoke-test.log || true
+              echo "Forge debug log bytes (may not exist until exit):"
+              wc -c forge/forge-sim-debug.log || true
+            } > "diagnostics/progress-${sample}.txt"
+          done
+          wait "$supervisor" || echo "Lab exited nonzero: $?" | tee diagnostics/exit-status.txt
+          echo "Game process exit observed UTC: $(date -u +%FT%TZ)"
+          tail -n 90 smoke-test.log
+          if [ -f forge/forge-sim-debug.log ]; then tail -n 100 forge/forge-sim-debug.log; fi
+          SEAT_2_PATH=lab/precon-decks/Explorers_of_the_Deep.dck SEAT_3_PATH=lab/precon-decks/Enduring_Enchantments.dck SEAT_4_PATH=lab/precon-decks/Hail,_Caesar.dck python3 scripts/validate_forge_game.py
+
+      - name: Save diagnostic summary in repository
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const logs = ['results/validation-report.json','forge-build.log','lab-build.log','cli-help.log','forge-artifacts.log','direct-forge.log','smoke-test.log'];
+            const sections = logs.map(file => {
+              if (!fs.existsSync(file)) return file + ': not generated';
+              const lines = fs.readFileSync(file,'utf8').split('\n');
+              const errors = lines.filter(line => /ERROR|BUILD FAILURE|Exception|Could not|Failed to|fatal:/i.test(line)).slice(-60);
+              return file + '\n' + [...errors,...lines.slice(-25)].join('\n');
+            });
+            const body = 'Diagnostic game: ${{ matrix.game }}\n' + 'Run: ' + context.serverUrl + '/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId + '\n\n' + sections.join('\n\n');
+            const path = 'diagnostics-series-game-${{ matrix.game }}.txt';
+            let sha;
+            try {
+              const old = await github.rest.repos.getContent({...context.repo,path});
+              sha = old.data.sha;
+            } catch (e) {
+              if (e.status !== 404) throw e;
+            }
+            await github.rest.repos.createOrUpdateFileContents({
+              ...context.repo, path, sha,
+              message: 'Record Commander AI Lab build diagnostics',
+              content: Buffer.from(body).toString('base64')
+            });
+      - name: Preserve build evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lathiel-b3-timeout-fix-game-${{ matrix.game }}-evidence
+          path: |
+            forge-build.log
+            lab-build.log
+            cli-help.log
+            forge-artifacts.log
+            smoke-test.log
+            direct-forge.log
+            forge/forge-sim-debug.log
+            results/*.json
+            diagnostics/**
+            lab/target/*.jar
+          if-no-files-found: warn
+          retention-days: 14
