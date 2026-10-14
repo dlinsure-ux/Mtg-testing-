@@ -1,11 +1,16 @@
 Diagnostic game: 4
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38560039954
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38581035139
 
 results/validation-report.json
-  "errors": [
-      "because ",
-      "all opponents have lost"
-    ],
+  "errors": [],
+  "forge_result": [
+    [
+      "463680",
+      "4",
+      "Winota Ultra Budget B3 Exact Mirror"
+    ]
+  ],
+  "forge_winning_outcomes": [
     [
       "4",
       "Winota Ultra Budget B3 Exact Mirror",
@@ -13,18 +18,13 @@ results/validation-report.json
       "all opponents have lost"
     ]
   ],
-  "startup_ai_decision_timeouts": 3,
+  "startup_ai_decision_timeouts": 10,
   "in_game_ai_decision_timeouts": 0,
-  "whole_game_timeout": true,
+  "whole_game_timeout": false,
   "warnings": [
-    "3 startup AI decision timeouts before first turn; piloting quality not independently verified"
+    "10 startup AI decision timeouts before first turn; piloting quality not independently verified"
   ],
-  "unsupported_cards": [
-    "An unsupported card was requested: \"Smaug, Wicked Worm\" from \"null\". ",
-    "An unsupported card was requested: \"Miss Highwater\" from \"null\". ",
-    "An unsupported card was requested: \"Miss Highwater\" from \"[N.A.]\". ",
-    "An unsupported card was requested: \"Smaug, Wicked Worm\" from \"[N.A.]\". "
-  ],
+  "unsupported_cards": [],
   "supervisor_exit": ""
 }
 
@@ -46,17 +46,17 @@ forge-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
 [INFO] 
-[INFO] Forge Parent ....................................... SUCCESS [  4.625 s]
-[INFO] Forge Core ......................................... SUCCESS [ 11.846 s]
-[INFO] Forge Game ......................................... SUCCESS [ 17.242 s]
-[INFO] Forge AI ........................................... SUCCESS [  8.222 s]
-[INFO] Forge Gui .......................................... SUCCESS [  8.433 s]
-[INFO] Forge .............................................. SUCCESS [ 35.100 s]
+[INFO] Forge Parent ....................................... SUCCESS [  6.059 s]
+[INFO] Forge Core ......................................... SUCCESS [ 10.016 s]
+[INFO] Forge Game ......................................... SUCCESS [ 12.156 s]
+[INFO] Forge AI ........................................... SUCCESS [  6.212 s]
+[INFO] Forge Gui .......................................... SUCCESS [  7.815 s]
+[INFO] Forge .............................................. SUCCESS [ 38.461 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:28 min
-[INFO] Finished at: 2026-10-14T12:05:18Z
+[INFO] Total time:  01:23 min
+[INFO] Finished at: 2026-10-14T14:45:47Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -85,8 +85,8 @@ lab-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  10.589 s
-[INFO] Finished at: 2026-10-14T12:05:30Z
+[INFO] Total time:  10.370 s
+[INFO] Finished at: 2026-10-14T14:45:58Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -124,38 +124,38 @@ forge/forge-gui-desktop/target/forge-gui-desktop-2.0.12-SNAPSHOT-jar-with-depend
 direct-forge.log
 Error handling registered!
 Error handling registered!
-12:05:37 [INFO ] GuiBase: ##########################################
-12:05:37 [INFO ] GuiBase: APP: Forge v.2.0.12-SNAPSHOT-10.14
-12:05:37 [INFO ] GuiBase: Java: 17.0.20.1 (Eclipse Adoptium)
-12:05:37 [INFO ] GuiBase: OS: Linux 6.17.0-1022-azure amd64
-12:05:37 [INFO ] GuiBase: RAM: 3998 MB max, 4 CPUs
-12:05:37 [INFO ] GuiBase: ##########################################
+14:46:10 [INFO ] GuiBase: ##########################################
+14:46:10 [INFO ] GuiBase: APP: Forge v.2.0.12-SNAPSHOT-10.14
+14:46:10 [INFO ] GuiBase: Java: 17.0.20.1 (Eclipse Adoptium)
+14:46:10 [INFO ] GuiBase: OS: Linux 6.17.0-1022-azure amd64
+14:46:10 [INFO ] GuiBase: RAM: 3998 MB max, 4 CPUs
+14:46:10 [INFO ] GuiBase: ##########################################
 Unknown mode.
 Known mode is 'sim', 'parse' 
 
 
 smoke-test.log
 [DEBUG] OUT> Error handling registered!
-║    Win Rate:       0.0%  (0 W / 1 L / 0 D)
 ║    Avg Turns:      N/A
-║    Avg Mulligan:  3.00
+║    Avg Mulligan:  1.00
 ║    Avg Life:       0.0
 ║
 ║  Seat 2: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/shroofus.dck     ║
 ║    Win Rate:       0.0%  (0 W / 1 L / 0 D)
 ║    Avg Turns:      N/A
-║    Avg Mulligan:  2.00
-║    Avg Life:      37.0
+║    Avg Mulligan:  1.00
+║    Avg Life:       0.0
 ║
 ║  Seat 3: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/winota_ultra_budget.dck     ║
-║    Win Rate:       0.0%  (0 W / 1 L / 0 D)
-║    Avg Turns:      N/A
-║    Avg Mulligan:  4.00
-║    Avg Life:      27.0
+║    Win Rate:     100.0%  (1 W / 0 L / 0 D)
+║    Avg Turns:     15.0
+║    Avg Mulligan:  1.00
+║    Avg Life:     124.0
+║    Win By: Combat=1  CmdrDmg=0  Combo=0  Drain=0  Mill=0
 ║
 ╠══════════════════════════════════════════════════════════╣
 ║  Games: 1       Avg Turns: 15.0     Sims/sec: 0.00  
-║  Wall Time: 605.2s
+║  Wall Time: 467.0s
 ╚══════════════════════════════════════════════════════════╝
 
 JSON validation: PASSED
