@@ -1,5 +1,5 @@
 Diagnostic game: 1
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38549052987
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38549266528
 
 results/validation-report.json: not generated
 
