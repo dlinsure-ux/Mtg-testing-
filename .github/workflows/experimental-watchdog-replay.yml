@@ -6,6 +6,8 @@ on:
     paths:
       - 'scripts/replay_watchdog_evidence.py'
       - 'scripts/game_progress_watchdog.py'
+      - 'scripts/audit_series.py'
+      - 'tests/test_series_audit.py'
       - '.github/workflows/experimental-watchdog-replay.yml'
   workflow_dispatch:
 permissions:
