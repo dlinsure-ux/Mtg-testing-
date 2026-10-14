@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        game: [1, 2, 3, 4, 5]
+        game: [1]
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -22,7 +22,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 -m py_compile scripts/validate_forge_game.py tests/test_validator_patterns.py
+          python3 -m py_compile scripts/validate_forge_game.py tests/test_validator_patterns.py scripts/preflight_selected_decks.py
+          python3 scripts/preflight_selected_decks.py decks/lathiel.dck opponents/deadpool.dck opponents/shroofus.dck opponents/winota_ultra_budget.dck
           python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
       - name: Static workflow analysis
         uses: raven-actions/actionlint@v2
@@ -150,7 +151,7 @@ jobs:
           command -v jstack
       - name: Run instrumented Forge series game ${{ matrix.game }}
         env:
-          TEST_RUN_MARKER: fixed-pod-five-game-series-v2-preflight-retry
+          TEST_RUN_MARKER: single-game-card-compatibility-smoke-v3
         shell: bash
         timeout-minutes: 18
         run: |
