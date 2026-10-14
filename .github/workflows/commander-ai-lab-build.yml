@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        game: [1]
+        game: [1, 2, 3, 4, 5]
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -150,12 +150,13 @@ jobs:
           command -v jstack
       - name: Run instrumented Forge series game ${{ matrix.game }}
         env:
-          TEST_RUN_MARKER: modular-reliability-phase-a-v4
+          TEST_RUN_MARKER: fixed-pod-five-game-series-v1
         shell: bash
         timeout-minutes: 18
         run: |
           set -euo pipefail
           mkdir -p results diagnostics
+          echo "Series game: ${{ matrix.game }} / 5; fixed pod Lathiel, Aesi, Bello, Betor"
           FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
           # Start Lab separately; find the actual Forge Java child, not the xvfb wrapper.
           timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
