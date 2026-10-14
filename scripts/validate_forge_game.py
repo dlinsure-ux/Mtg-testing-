@@ -13,13 +13,13 @@ forge_results = re.findall(r"^Game Result: Game 1 ended in (\d+) ms\. Ai\((\d+)\
 outcomes = re.findall(r"^Game Outcome: Ai\((\d+)\)-(.+?) has won (.+)$", forge, re.M)
 # Classify timeouts by phase. Startup AI evaluation timeouts are retained as
 # warnings, not mistaken for whole-game interruption after a clean terminal result.
-first_turn = re.search(r"^Turn: Turn 1\\b", forge, re.M)
+first_turn = re.search(r"^(?:Turn: Turn 1\b|Turn: 1\b|Turn 1 \()", forge, re.M)
 startup_log = forge[:first_turn.start()] if first_turn else ""
 game_log = forge[first_turn.start():] if first_turn else forge
-startup_ai_timeouts = len(re.findall(r"^java\\.util\\.concurrent\\.TimeoutException\\s*$", startup_log, re.M))
-in_game_ai_timeouts = len(re.findall(r"^java\\.util\\.concurrent\\.TimeoutException\\s*$", game_log, re.M))
+startup_ai_timeouts = len(re.findall(r"^java\.util\.concurrent\.TimeoutException\s*$", startup_log, re.M))
+in_game_ai_timeouts = len(re.findall(r"^java\.util\.concurrent\.TimeoutException\s*$", game_log, re.M))
 whole_game_timeout = bool(re.search(r"Stopping slow match as draw|TimeoutException|InterruptedException", lab)) or bool(re.search(r"Stopping slow match as draw|^java\\.lang\\.InterruptedException", forge, re.M))
-other_startup_timeouts = len(re.findall(r"^java\\.util\\.concurrent\\.TimeoutException\\s*$", startup_log, re.M)) - len(re.findall(r"java\\.util\\.concurrent\\.TimeoutException\\n\\s*at java\\.base/java\\.util\\.concurrent\\.FutureTask\\.get\\([^\\n]*\\)\\n\\s*at forge\\.ai\\.AiController\\.chooseSpellAbilityToPlayFromList", startup_log))
+other_startup_timeouts = len(re.findall(r"^java\.util\.concurrent\.TimeoutException\s*$", startup_log, re.M)) - len(re.findall(r"java\.util\.concurrent\.TimeoutException\n\s*at java\.base/java\.util\.concurrent\.FutureTask\.get\([^\n]*\)\n\s*at forge\.ai\.AiController\.chooseSpellAbilityToPlayFromList", startup_log))
 unsupported = re.findall(r"An unsupported card was requested:.*", lab + "\n" + forge)
 exit_status = Path("diagnostics/exit-status.txt").read_text(errors="replace").strip() if Path("diagnostics/exit-status.txt").exists() else ""
 errors = []
@@ -28,8 +28,11 @@ if len(forge_results) != 1: errors.append(f"Forge final results: {len(forge_resu
 if len(outcomes) != 1: errors.append(f"Forge winners: {len(outcomes)} (expected 1)")
 if whole_game_timeout: errors.append("whole-game timeout/interruption evidence")
 if in_game_ai_timeouts: errors.append(f"in-game AI decision timeouts: {in_game_ai_timeouts}")
-if other_startup_timeouts: errors.append(f"unclassified startup timeouts: {other_startup_timeouts}")
-if not first_turn: errors.append("missing first-turn evidence")
+if other_startup_timeouts > 0: errors.append(f"unclassified startup timeouts: {other_startup_timeouts}")
+if not first_turn: errors.append("missing first-turn evidence; timeout phase unknown")
+if lab_results and re.search(r"^Game Outcome: Turn (\\d+)", forge, re.M):
+    terminal_turn = re.findall(r"^Game Outcome: Turn (\\d+)", forge, re.M)
+    if len(terminal_turn) != 1 or int(lab_results[0][1]) != int(terminal_turn[0]): errors.append("Lab/Forge terminal turn mismatch")
 if unsupported: errors.append("unsupported card evidence")
 if exit_status: errors.append("nonzero Lab/supervisor exit: " + exit_status)
 if lab_results and forge_results and outcomes:
