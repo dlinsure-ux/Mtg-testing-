@@ -150,7 +150,7 @@ jobs:
           command -v jstack
       - name: Run instrumented Forge series game ${{ matrix.game }}
         env:
-          TEST_RUN_MARKER: fixed-pod-five-game-series-v2-new-opponents
+          TEST_RUN_MARKER: fixed-pod-five-game-series-v2-preflight-retry
         shell: bash
         timeout-minutes: 18
         run: |
