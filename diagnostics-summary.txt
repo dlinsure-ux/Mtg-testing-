@@ -1,4 +1,4 @@
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38499269070
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38500466303
 
 forge-build.log
 [WARNING] Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-releases (https://maven.java.net/content/repositories/releases/): (certificate_unknown) PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
@@ -17,17 +17,17 @@ forge-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
 [INFO] 
-[INFO] Forge Parent ....................................... SUCCESS [  5.824 s]
-[INFO] Forge Core ......................................... SUCCESS [ 10.940 s]
-[INFO] Forge Game ......................................... SUCCESS [ 16.611 s]
-[INFO] Forge AI ........................................... SUCCESS [  9.029 s]
-[INFO] Forge Gui .......................................... SUCCESS [  8.486 s]
-[INFO] Forge .............................................. SUCCESS [ 39.079 s]
+[INFO] Forge Parent ....................................... SUCCESS [  5.774 s]
+[INFO] Forge Core ......................................... SUCCESS [ 11.228 s]
+[INFO] Forge Game ......................................... SUCCESS [ 14.648 s]
+[INFO] Forge AI ........................................... SUCCESS [  7.037 s]
+[INFO] Forge Gui .......................................... SUCCESS [  7.363 s]
+[INFO] Forge .............................................. SUCCESS [ 39.516 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:32 min
-[INFO] Finished at: 2026-10-14T02:08:11Z
+[INFO] Total time:  01:28 min
+[INFO] Finished at: 2026-10-14T02:21:52Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -56,8 +56,8 @@ lab-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  12.078 s
-[INFO] Finished at: 2026-10-14T02:08:24Z
+[INFO] Total time:  10.272 s
+[INFO] Finished at: 2026-10-14T02:22:04Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -95,12 +95,12 @@ forge/forge-gui-desktop/target/forge-gui-desktop-2.0.12-SNAPSHOT-jar-with-depend
 direct-forge.log
 Error handling registered!
 Error handling registered!
-02:08:31 [INFO ] GuiBase: ##########################################
-02:08:31 [INFO ] GuiBase: APP: Forge v.2.0.12-SNAPSHOT-10.14
-02:08:31 [INFO ] GuiBase: Java: 17.0.20.1 (Eclipse Adoptium)
-02:08:31 [INFO ] GuiBase: OS: Linux 6.17.0-1022-azure amd64
-02:08:31 [INFO ] GuiBase: RAM: 3998 MB max, 4 CPUs
-02:08:31 [INFO ] GuiBase: ##########################################
+02:22:13 [INFO ] GuiBase: ##########################################
+02:22:13 [INFO ] GuiBase: APP: Forge v.2.0.12-SNAPSHOT-10.14
+02:22:13 [INFO ] GuiBase: Java: 17.0.20.1 (Eclipse Adoptium)
+02:22:13 [INFO ] GuiBase: OS: Linux 6.17.0-1022-azure amd64
+02:22:13 [INFO ] GuiBase: RAM: 3998 MB max, 4 CPUs
+02:22:13 [INFO ] GuiBase: ##########################################
 Unknown mode.
 Known mode is 'sim', 'parse' 
 
@@ -113,20 +113,20 @@ smoke-test.log
 ║
 ║  Seat 2: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/bello.dck     ║
 ║    Win Rate:     100.0%  (1 W / 0 L / 0 D)
-║    Avg Turns:     16.0
-║    Avg Mulligan:  2.00
-║    Avg Life:      31.0
+║    Avg Turns:     15.0
+║    Avg Mulligan:  1.00
+║    Avg Life:      38.0
 ║    Win By: Combat=1  CmdrDmg=0  Combo=0  Drain=0  Mill=0
 ║
 ║  Seat 3: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/betor.dck     ║
 ║    Win Rate:       0.0%  (0 W / 1 L / 0 D)
 ║    Avg Turns:      N/A
-║    Avg Mulligan:  2.00
+║    Avg Mulligan:  1.00
 ║    Avg Life:       0.0
 ║
 ╠══════════════════════════════════════════════════════════╣
-║  Games: 1       Avg Turns: 16.0     Sims/sec: 0.01  
-║  Wall Time: 116.4s
+║  Games: 1       Avg Turns: 15.0     Sims/sec: 0.02  
+║  Wall Time: 50.1s
 ╚══════════════════════════════════════════════════════════╝
 
 JSON validation: PASSED
