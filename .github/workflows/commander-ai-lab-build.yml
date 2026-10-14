@@ -88,6 +88,13 @@ jobs:
           echo '=== JVM crash reports ==='
           find . -name 'hs_err_pid*.log' -print
           exit 0
+      - name: Install Commander decks in Forge user library
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.forge/decks/commander"
+          cp opponents/aesi.dck opponents/bello.dck opponents/betor.dck "$HOME/.forge/decks/commander/"
+          ls -l "$HOME/.forge/decks/commander/"
       - name: Run one four-player Forge smoke test
         env:
           TEST_RUN_MARKER: diagnostic-20261013-b
@@ -113,8 +120,12 @@ jobs:
           test -s results/smoke-test.json
           echo '=== Forge subprocess diagnostics ==='
           if [ -f forge/forge-sim-debug.log ]; then cat forge/forge-sim-debug.log; fi
-          if grep -Eq 'Forge exit=[1-9]|Forge produced NO output|Turns: 0|Avg Turns: 0' smoke-test.log; then
+          if grep -Eqi 'Could not load deck|match cannot start|No deck found|Forge exit=[1-9]|Forge produced NO output|Turns: 0|Avg Turns: 0' smoke-test.log forge/forge-sim-debug.log; then
             echo 'FAIL: Forge did not complete a real game' >&2
+            exit 1
+          fi
+          if ! grep -Eq 'Game Result: Game [0-9]+ ended in .*has won!' forge/forge-sim-debug.log; then
+            echo 'FAIL: No real Forge game winner recorded' >&2
             exit 1
           fi
           if grep -Eq 'Avg Turns: 0\\.0|Could not resolve deck path' smoke-test.log; then
