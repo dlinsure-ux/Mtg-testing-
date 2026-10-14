@@ -186,3 +186,10 @@ Useful links:
 - Confirmed green preflight runs: `38637848016` at regression-test commit `8f312a8`, and `38637876616` at handoff commit `59a4f83`; latest preflight job steps all succeeded.
 - The GitHub connector's commit-run lookup returns only pull-request-triggered runs and showed none immediately for `cf27f7c`; this does **not** establish whether a push-triggered replay ran or passed. Inspect GitHub Actions for the new SHA directly before claiming success.
 - Still required: verified new replay result, real one-game gate, real five-game gate, hash manifest and pilot telemetry comparison. Do not merge PR #1 yet. Preserve historical baseline and main.
+
+## 14. Live-game release gate trigger — 2026-10-14
+
+- Updated experimental `.github/workflows/commander-ai-lab-build.yml` with a nonfunctional comment to trigger its push-path GitHub Actions run. Commit `0b927032d2cf1642174c1b677d6b8cd83acd9dc6`.
+- This workflow is a real Forge/Lab build and sequential five-game run. It validates game 1 and aborts remaining games if invalid. It is not a standalone one-game workflow; do not claim separate one-game gate evidence without checking actual logs.
+- GitHub connector `fetch_commit_workflow_runs` returns only pull-request-triggered runs, so immediate empty results for `0b92703` do NOT prove a run started, completed or failed. Check https://github.com/dlinsure-ux/Mtg-testing-/actions and capture exact run ID, SHA, step outcomes, manifest, and per-game validation before claiming any game results.
+- Previous `cf27f7c` preflight run `38638172412` passed; archived watchdog replay at that SHA still needs separate outcome verification. Preserve baseline and leave PR #1 unmerged until gates pass.
