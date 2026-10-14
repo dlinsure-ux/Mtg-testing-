@@ -31,7 +31,7 @@ if in_game_ai_timeouts: errors.append(f"in-game AI decision timeouts: {in_game_a
 if other_startup_timeouts > 0: errors.append(f"unclassified startup timeouts: {other_startup_timeouts}")
 if not first_turn: errors.append("missing first-turn evidence; timeout phase unknown")
 if lab_results and re.search(r"^Game Outcome: Turn (\d+)", forge, re.M):
-    terminal_turn = re.findall(r"^Game Outcome: Turn (\\d+)", forge, re.M)
+    terminal_turn = re.findall(r"^Game Outcome: Turn (\d+)", forge, re.M)
     if len(terminal_turn) != 1 or int(lab_results[0][1]) != int(terminal_turn[0]): errors.append("Lab/Forge terminal turn mismatch")
 if unsupported: errors.append("unsupported card evidence")
 if exit_status: errors.append("nonzero Lab/supervisor exit: " + exit_status)
