@@ -60,6 +60,26 @@ class ValidatorTests(unittest.TestCase):
                     self.assertEqual(len(report["forge_winning_outcomes"]), 1)
                     self.assertEqual(report["forge_winning_outcomes"][0][0], "4")
 
+    def test_clock_expiry_and_conflicting_winners_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "smoke-test.log").write_text(
+                "[Game 1/1] Winner: opponents/winota_ultra_budget.dck | Turns: 13 | Time: 600080ms\\n"
+                "Stopping slow match as draw\\n"
+            )
+            (root / "forge").mkdir()
+            (root / "forge" / "forge-sim-debug.log").write_text(
+                "Turn: Turn 1\\nGame Outcome: Turn 13\\n"
+                "Game Outcome: Ai(3)-Shroofus has won because all opponents have lost\\n"
+                "Game Outcome: Ai(4)-Winota has won because all opponents have lost\\n"
+                "Game Result: Game 1 ended in 600080 ms. Ai(4)-Winota has won!\\n"
+            )
+            result = subprocess.run([sys.executable, str(SCRIPT)], cwd=root, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            report = json.loads((root / "results" / "validation-report.json").read_text())
+            self.assertIn("whole-game timeout/interruption evidence", report["errors"])
+            self.assertIn("Forge winners: 2 (expected 1)", report["errors"])
+
     def test_duplicate_genuine_winner_rejected(self):
         duplicate = f"Game Outcome: Ai(4)-Betor B3 Exact has won because all opponents have lost\n"
         code, out, err = check(suffix=duplicate)
