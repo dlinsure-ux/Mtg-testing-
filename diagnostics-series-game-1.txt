@@ -1,30 +1,30 @@
 Diagnostic game: 1
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38553811709
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38560039954
 
 results/validation-report.json
-  "errors": [],
-  ],
-  "forge_result": [
-    [
-      "564716",
-      "1",
-      "Lathiel"
+  "errors": [
     ]
   ],
   "forge_winning_outcomes": [
     [
-      "1",
-      "Lathiel",
-      "because all opponents have lost"
+      "3",
+      "The Mycelial Network - Shroofus June 2 2026 mirror",
+      "because ",
+      "all opponents have lost"
     ]
   ],
-  "startup_ai_decision_timeouts": 9,
+  "startup_ai_decision_timeouts": 7,
   "in_game_ai_decision_timeouts": 0,
   "whole_game_timeout": false,
   "warnings": [
-    "9 startup AI decision timeouts before first turn; piloting quality not independently verified"
+    "7 startup AI decision timeouts before first turn; piloting quality not independently verified"
   ],
-  "unsupported_cards": [],
+  "unsupported_cards": [
+    "An unsupported card was requested: \"Smaug, Wicked Worm\" from \"null\". ",
+    "An unsupported card was requested: \"Miss Highwater\" from \"null\". ",
+    "An unsupported card was requested: \"Miss Highwater\" from \"[N.A.]\". ",
+    "An unsupported card was requested: \"Smaug, Wicked Worm\" from \"[N.A.]\". "
+  ],
   "supervisor_exit": ""
 }
 
@@ -46,17 +46,17 @@ forge-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
 [INFO] 
-[INFO] Forge Parent ....................................... SUCCESS [  4.103 s]
-[INFO] Forge Core ......................................... SUCCESS [  8.951 s]
-[INFO] Forge Game ......................................... SUCCESS [ 13.506 s]
-[INFO] Forge AI ........................................... SUCCESS [  5.957 s]
-[INFO] Forge Gui .......................................... SUCCESS [  6.461 s]
-[INFO] Forge .............................................. SUCCESS [ 30.516 s]
+[INFO] Forge Parent ....................................... SUCCESS [  5.070 s]
+[INFO] Forge Core ......................................... SUCCESS [  8.188 s]
+[INFO] Forge Game ......................................... SUCCESS [  9.369 s]
+[INFO] Forge AI ........................................... SUCCESS [  5.027 s]
+[INFO] Forge Gui .......................................... SUCCESS [  5.875 s]
+[INFO] Forge .............................................. SUCCESS [ 32.016 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:12 min
-[INFO] Finished at: 2026-10-14T11:04:59Z
+[INFO] Total time:  01:07 min
+[INFO] Finished at: 2026-10-14T11:57:44Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -85,8 +85,8 @@ lab-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  8.232 s
-[INFO] Finished at: 2026-10-14T11:05:08Z
+[INFO] Total time:  8.519 s
+[INFO] Finished at: 2026-10-14T11:57:54Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -124,51 +124,38 @@ forge/forge-gui-desktop/target/forge-gui-desktop-2.0.12-SNAPSHOT-jar-with-depend
 direct-forge.log
 Error handling registered!
 Error handling registered!
-11:05:17 [INFO ] GuiBase: ##########################################
-11:05:17 [INFO ] GuiBase: APP: Forge v.2.0.12-SNAPSHOT-10.14
-11:05:17 [INFO ] GuiBase: Java: 17.0.20.1 (Eclipse Adoptium)
-11:05:17 [INFO ] GuiBase: OS: Linux 6.17.0-1022-azure amd64
-11:05:17 [INFO ] GuiBase: RAM: 3998 MB max, 4 CPUs
-11:05:17 [INFO ] GuiBase: ##########################################
+11:58:01 [INFO ] GuiBase: ##########################################
+11:58:01 [INFO ] GuiBase: APP: Forge v.2.0.12-SNAPSHOT-10.14
+11:58:01 [INFO ] GuiBase: Java: 17.0.20.1 (Eclipse Adoptium)
+11:58:01 [INFO ] GuiBase: OS: Linux 6.17.0-1022-azure amd64
+11:58:01 [INFO ] GuiBase: RAM: 3998 MB max, 4 CPUs
+11:58:01 [INFO ] GuiBase: ##########################################
 Unknown mode.
 Known mode is 'sim', 'parse' 
 
 
 smoke-test.log
 [DEBUG] OUT> Error handling registered!
-[COMBAT-LINE] Add To Stack: Ai(4)-Betor B3 Exact cast Valgavoth, Terror Eater
-[COMBAT-LINE] Damage: Valgavoth, Terror Eater (360) deals 9 combat damage to Ai(1)-Lathiel.
-[COMBAT-LINE] Add To Stack: Ai(2)-Aesi triggered Kiri-Onna targeting [Valgavoth, Terror Eater (360)]
-[COMBAT-LINE] Add To Stack: Ai(4)-Betor B3 Exact triggered Valgavoth, Terror Eater
-[COMBAT-LINE] Add To Stack: Ai(4)-Betor B3 Exact triggered Valgavoth, Terror Eater
-[COMBAT-LINE] Resolve Stack: Ward Sacrifice three nonland permanents (Whenever this permanent becomes the target of a spell or ability an opponent controls, counter it unless that player pays Sacrifice three nonland permanents.) [Source: Kiri-Onna (189), Target: Valgavoth, Terror Eater (360)]
-[COMBAT-LINE] Add To Stack: Ai(2)-Aesi triggered Kiri-Onna targeting [Valgavoth, Terror Eater (360)]
-[COMBAT-LINE] Add To Stack: Ai(4)-Betor B3 Exact triggered Valgavoth, Terror Eater
-[COMBAT-LINE] Resolve Stack: Ward Sacrifice three nonland permanents (Whenever this permanent becomes the target of a spell or ability an opponent controls, counter it unless that player pays Sacrifice three nonland permanents.) [Source: Kiri-Onna (189), Target: Valgavoth, Terror Eater (360)]
-[COMBAT-LINE] Add To Stack: Ai(2)-Aesi triggered Kiri-Onna targeting [Valgavoth, Terror Eater (360)]
-[COMBAT-LINE] Add To Stack: Ai(4)-Betor B3 Exact triggered Valgavoth, Terror Eater
-[COMBAT-LINE] Resolve Stack: Ward Sacrifice three nonland permanents (Whenever this permanent becomes the target of a spell or ability an opponent controls, counter it unless that player pays Sacrifice three nonland permanents.) [Source: Kiri-Onna (189), Target: Valgavoth, Terror Eater (360)]
-[COMBAT-LINE] Damage: Valgavoth, Terror Eater (360) deals 13 combat damage to Ai(1)-Lathiel.
-║    Win Rate:       0.0%  (0 W / 1 L / 0 D)
 ║    Avg Turns:      N/A
 ║    Avg Mulligan:  1.00
 ║    Avg Life:       0.0
 ║
-║  Seat 2: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/bello.dck     ║
-║    Win Rate:       0.0%  (0 W / 1 L / 0 D)
-║    Avg Turns:      N/A
-║    Avg Mulligan:  2.00
-║    Avg Life:       0.0
+║  Seat 2: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/shroofus.dck     ║
+║    Win Rate:     100.0%  (1 W / 0 L / 0 D)
+║    Avg Turns:     19.0
+║    Avg Mulligan:  1.00
+║    Avg Life:      25.0
+║    Win By: Combat=1  CmdrDmg=0  Combo=0  Drain=0  Mill=0
 ║
-║  Seat 3: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/betor.dck     ║
+║  Seat 3: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/winota_ultra_budget.dck     ║
 ║    Win Rate:       0.0%  (0 W / 1 L / 0 D)
 ║    Avg Turns:      N/A
 ║    Avg Mulligan:  1.00
-║    Avg Life:       5.0
+║    Avg Life:       0.0
 ║
 ╠══════════════════════════════════════════════════════════╣
-║  Games: 1       Avg Turns: 24.0     Sims/sec: 0.00  
-║  Wall Time: 569.1s
+║  Games: 1       Avg Turns: 19.0     Sims/sec: 0.00  
+║  Wall Time: 249.5s
 ╚══════════════════════════════════════════════════════════╝
 
 JSON validation: PASSED
