@@ -1,21 +1,21 @@
 Diagnostic game: 3
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38590772642
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38603813177
 
 results/validation-report.json
   "errors": [],
   "forge_result": [
     [
-      "219018",
-      "2",
-      "Explorers of the Deep"
+      "124134",
+      "1",
+      "Lathiel"
     ]
   ],
   "forge_winning_outcomes": [
     [
-      "2",
-      "Explorers of the Deep",
-      "due to effect of ",
-      "'Simic Ascendancy'"
+      "1",
+      "Lathiel",
+      "because ",
+      "all opponents have lost"
     ]
   ],
   "startup_ai_decision_timeouts": 1,
@@ -46,17 +46,17 @@ forge-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
 [INFO] 
-[INFO] Forge Parent ....................................... SUCCESS [  4.866 s]
-[INFO] Forge Core ......................................... SUCCESS [ 11.383 s]
-[INFO] Forge Game ......................................... SUCCESS [ 16.303 s]
-[INFO] Forge AI ........................................... SUCCESS [  8.554 s]
-[INFO] Forge Gui .......................................... SUCCESS [  8.090 s]
-[INFO] Forge .............................................. SUCCESS [ 38.952 s]
+[INFO] Forge Parent ....................................... SUCCESS [  6.048 s]
+[INFO] Forge Core ......................................... SUCCESS [  9.313 s]
+[INFO] Forge Game ......................................... SUCCESS [ 11.152 s]
+[INFO] Forge AI ........................................... SUCCESS [  4.951 s]
+[INFO] Forge Gui .......................................... SUCCESS [  6.404 s]
+[INFO] Forge .............................................. SUCCESS [ 35.202 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:31 min
-[INFO] Finished at: 2026-10-14T16:02:22Z
+[INFO] Total time:  01:16 min
+[INFO] Finished at: 2026-10-14T17:24:12Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -85,8 +85,8 @@ lab-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  10.452 s
-[INFO] Finished at: 2026-10-14T16:02:34Z
+[INFO] Total time:  9.315 s
+[INFO] Finished at: 2026-10-14T17:24:22Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -124,38 +124,38 @@ forge/forge-gui-desktop/target/forge-gui-desktop-2.0.12-SNAPSHOT-jar-with-depend
 direct-forge.log
 Error handling registered!
 Error handling registered!
-16:02:40 [INFO ] GuiBase: ##########################################
-16:02:40 [INFO ] GuiBase: APP: Forge v.2.0.12-SNAPSHOT-10.14
-16:02:40 [INFO ] GuiBase: Java: 17.0.20.1 (Eclipse Adoptium)
-16:02:40 [INFO ] GuiBase: OS: Linux 6.17.0-1022-azure amd64
-16:02:40 [INFO ] GuiBase: RAM: 3998 MB max, 4 CPUs
-16:02:40 [INFO ] GuiBase: ##########################################
+17:24:32 [INFO ] GuiBase: ##########################################
+17:24:32 [INFO ] GuiBase: APP: Forge v.2.0.12-SNAPSHOT-10.14
+17:24:32 [INFO ] GuiBase: Java: 17.0.20.1 (Eclipse Adoptium)
+17:24:32 [INFO ] GuiBase: OS: Linux 6.17.0-1022-azure amd64
+17:24:32 [INFO ] GuiBase: RAM: 3998 MB max, 4 CPUs
+17:24:32 [INFO ] GuiBase: ##########################################
 Unknown mode.
 Known mode is 'sim', 'parse' 
 
 
 smoke-test.log
 [DEBUG] OUT> Error handling registered!
-║    Avg Turns:     20.0
+║    Win Rate:       0.0%  (0 W / 1 L / 0 D)
+║    Avg Turns:      N/A
 ║    Avg Mulligan:  1.00
-║    Avg Life:      24.0
-║    Win By: Combat=1  CmdrDmg=0  Combo=0  Drain=0  Mill=0
+║    Avg Life:       0.0
 ║
 ║  Seat 2: /home/runner/work/Mtg-testing-/Mtg-testing-/lab/precon-decks/Enduring_Enchantments.dck     ║
 ║    Win Rate:       0.0%  (0 W / 1 L / 0 D)
 ║    Avg Turns:      N/A
 ║    Avg Mulligan:  1.00
-║    Avg Life:      14.0
+║    Avg Life:       0.0
 ║
 ║  Seat 3: /home/runner/work/Mtg-testing-/Mtg-testing-/lab/precon-decks/Hail,_Caesar.dck     ║
 ║    Win Rate:       0.0%  (0 W / 1 L / 0 D)
 ║    Avg Turns:      N/A
 ║    Avg Mulligan:  1.00
-║    Avg Life:      21.0
+║    Avg Life:       0.0
 ║
 ╠══════════════════════════════════════════════════════════╣
-║  Games: 1       Avg Turns: 20.0     Sims/sec: 0.00  
-║  Wall Time: 224.1s
+║  Games: 1       Avg Turns: 22.0     Sims/sec: 0.01  
+║  Wall Time: 127.7s
 ╚══════════════════════════════════════════════════════════╝
 
 JSON validation: PASSED
