@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "pilot": "lathiel",
+  "version": "0.1",
+  "status": "specification_only",
+  "engine": "Forge built-in AI",
+  "runtime_integrated": false,
+  "priorities": {
+    "tutor": [
+      "life-gain engine",
+      "counter multiplier",
+      "protection"
+    ],
+    "commander": "deploy early when safe",
+    "combat": "prioritize life gain and survival"
+  },
+  "notes": "This is NOT an active decision-making plugin. No Forge AI behavior changes until adapter and execution hooks are implemented and tested."
+}
