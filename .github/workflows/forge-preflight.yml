@@ -24,6 +24,7 @@ jobs:
           set -euo pipefail
           python3 -m py_compile scripts/validate_forge_game.py tests/test_validator_patterns.py scripts/preflight_selected_decks.py
           python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
+          python3 -m unittest discover -s tests -p 'test_series_audit.py' -v
       - name: Validate workflow YAML and embedded shell
         uses: raven-actions/actionlint@v2
         with:
