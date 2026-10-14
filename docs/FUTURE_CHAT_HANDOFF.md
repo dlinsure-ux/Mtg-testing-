@@ -164,3 +164,11 @@ Useful links:
 - [ ] Preserved failure logs and diagnostic evidence.
 - [ ] Updated this file with new commits, runs, proven facts, unknowns and next action.
 - [ ] Never declared the entire project complete while pilot runtime integration and telemetry remain unfinished.
+
+## 11. Live continuation audit — 2026-10-14
+
+- Inspected current GitHub state: main at `ab23a817f771320faa82277c2e6880a712ba26a8` (README formatting after verified gameplay); experimental branch at `e909a862d9081e93f3c7dd05e3f148a8d9e6f160` before this documentation update. PR #1 is OPEN, DRAFT, NOT MERGED; GitHub reports `mergeable:false`. No merge attempted.
+- Latest inspected PR preflight run `38636779860` completed SUCCESS on experimental SHA `e909a862`. This is static/preflight evidence, not a new Forge game or a fresh watchdog replay. Historical five-game main run `38623230136` remains the last documented verified gameplay series.
+- Reviewed release gates and pilot isolation; read experimental `audit_series.py`, `game_progress_watchdog.py`, `replay_watchdog_evidence.py` and audit tests. The watchdog is still observation-only and cannot establish actual JVM deadlock. Runtime pilot integration remains false.
+- Review finding: `audit_series.py` trusts a report's `classification:VALID` and its Lab tuple without independently revalidating Forge winner evidence; that trust boundary depends on the upstream strict per-game validator. The replay checks turn/terminal markers but does not demonstrate a live stall. Before promotion, add negative tests for malformed reports, false-positive progress, and terminal markers without unique winners; verify actual five-game run on candidate code.
+- Historical baseline `baseline/verified-five-game-210e5db` and production workflow/decks were not modified. This update documents review only; no gameplay, regression execution or pilot fix is claimed. Next: isolate a fail-closed audit hardening change with tests, run preflight and replay on its new SHA, then use the release gates before considering merge.
