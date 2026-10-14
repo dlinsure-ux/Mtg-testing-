@@ -26,6 +26,5 @@ for n in range(1,6):
                  'in_game_ai_timeouts':d.get('in_game_ai_decision_timeouts',0)})
 report={'classification':'VALID','games':rows,'lathiel_wins':sum('lathiel.dck' in r['winner_deck'] for r in rows)}
 out=root/'series-audit.json'
-out.write_text(json.dumps(report,indent=2)+'
-')
+out.write_text(json.dumps(report,indent=2)+chr(10))
 print(json.dumps(report,indent=2))
