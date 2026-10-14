@@ -1,0 +1,44 @@
+name: Revalidate Original Series 45
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/revalidate-series-45.yml'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  revalidate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        game: [2, 3]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run validator regression tests
+        run: python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
+      - name: Download original evidence (no replay)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run download 38553811709 --repo "${{ github.repository }}" --name "lathiel-b3-timeout-fix-game-${{ matrix.game }}-evidence" --dir original
+          test -s original/smoke-test.log
+          test -s original/forge/forge-sim-debug.log
+      - name: Revalidate original game
+        run: |
+          set -euo pipefail
+          mkdir -p forge diagnostics results
+          cp original/smoke-test.log smoke-test.log
+          cp original/forge/forge-sim-debug.log forge/forge-sim-debug.log
+          if [ -f original/diagnostics/exit-status.txt ]; then cp original/diagnostics/exit-status.txt diagnostics/exit-status.txt; fi
+          python3 scripts/validate_forge_game.py
+      - name: Preserve revalidation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: series-45-game-${{ matrix.game }}-revalidated
+          path: results/validation-report.json
+          if-no-files-found: warn
+          retention-days: 30
