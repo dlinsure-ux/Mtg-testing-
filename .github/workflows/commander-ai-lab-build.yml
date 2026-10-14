@@ -8,6 +8,12 @@ permissions:
   contents: write
 jobs:
   build:
+    name: Game ${{ matrix.game }} of 5
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        game: [1, 2, 3, 4, 5]
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
@@ -100,9 +106,9 @@ jobs:
         run: |
           command -v jcmd
           command -v jstack
-      - name: Run one instrumented Forge diagnostic game
+      - name: Run instrumented Forge series game ${{ matrix.game }}
         env:
-          TEST_RUN_MARKER: lathiel-b3-aesi-bello-betor-one-game
+          TEST_RUN_MARKER: lathiel-b3-aesi-bello-betor-five-game-series
         shell: bash
         timeout-minutes: 18
         run: |
@@ -161,8 +167,8 @@ jobs:
               const errors = lines.filter(line => /ERROR|BUILD FAILURE|Exception|Could not|Failed to|fatal:/i.test(line)).slice(-60);
               return file + '\n' + [...errors,...lines.slice(-25)].join('\n');
             });
-            const body = 'Run: ' + context.serverUrl + '/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId + '\n\n' + sections.join('\n\n');
-            const path = 'diagnostics-summary.txt';
+            const body = 'Series game: ${{ matrix.game }} of 5\n' + 'Run: ' + context.serverUrl + '/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId + '\n\n' + sections.join('\n\n');
+            const path = 'diagnostics-series-game-${{ matrix.game }}.txt';
             let sha;
             try {
               const old = await github.rest.repos.getContent({...context.repo,path});
@@ -179,7 +185,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: commander-ai-lab-build-evidence
+          name: lathiel-b3-series-game-${{ matrix.game }}-evidence
           path: |
             forge-build.log
             lab-build.log
