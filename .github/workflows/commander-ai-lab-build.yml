@@ -30,7 +30,7 @@ jobs:
           names=['Check out Commander AI Lab and matching Forge fork','Cache Maven dependencies after upstream checkout','Build Forge dependencies','Build Commander AI Lab']
           positions=[s.find('name: '+name) for name in names]
           assert all(p>=0 for p in positions) and positions==sorted(positions), 'Build dependency ordering invalid'
-          assert 'cache: maven' not in s, 'Premature setup-java Maven cache'
+          assert not any(line.strip() == ('cache:' + ' maven') for line in s.splitlines()), 'Premature setup-java Maven cache'
           print('Preflight passed')
           PY
   build:
