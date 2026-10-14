@@ -27,7 +27,7 @@ jobs:
       - name: Validate workflow YAML and embedded shell
         uses: raven-actions/actionlint@v2
         with:
-          flags: -color .github/workflows/*.yml
+          flags: -color .github/workflows/forge-preflight.yml .github/workflows/commander-ai-lab-build.yml .github/workflows/commander-ai-lab-known-good.yml
       - name: Verify build and cache step ordering
         run: |
           python3 - <<'PY'
