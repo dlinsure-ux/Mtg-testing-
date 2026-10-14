@@ -1,4 +1,5 @@
 name: Commander AI Lab Build Verification
+# Experimental release-gate run: strict game-one validation before remaining fixed-pod games.
 on:
   workflow_dispatch:
   push:
