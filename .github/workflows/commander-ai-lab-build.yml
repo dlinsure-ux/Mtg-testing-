@@ -189,6 +189,26 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p results diagnostics
+          python3 - <<'PY'
+          import hashlib, json, subprocess
+          from pathlib import Path
+          files = {
+              'workflow': Path('.github/workflows/commander-ai-lab-build.yml'),
+              'validator': Path('scripts/validate_forge_game.py'),
+              'pilot_spec': Path('pilots/lathiel/v0.1.json'),
+              'deck_lathiel': Path('decks/lathiel.dck'),
+              'deck_hakbal': Path('lab/precon-decks/Explorers_of_the_Deep.dck'),
+              'deck_anikthea': Path('lab/precon-decks/Enduring_Enchantments.dck'),
+              'deck_caesar': Path('lab/precon-decks/Hail,_Caesar.dck'),
+          }
+          manifest = {'schema_version': 1, 'runtime_pilot_integrated': False,
+                      'forge_commit': subprocess.check_output(['git','-C','forge','rev-parse','HEAD'],text=True).strip(),
+                      'lab_commit': subprocess.check_output(['git','-C','lab','rev-parse','HEAD'],text=True).strip(),
+                      'harness_commit': subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+                      'sha256': {k: hashlib.sha256(v.read_bytes()).hexdigest() for k,v in files.items()}}
+          Path('results/version-manifest.json').write_text(json.dumps(manifest,indent=2)+'\\n')
+          print('Saved exact source and deck version manifest')
+          PY
           FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
           failed=0
           for game in 1 2 3 4 5; do
