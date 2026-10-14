@@ -1,29 +1,29 @@
 Diagnostic game: 4
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38581035139
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38585052671
 
 results/validation-report.json
   "errors": [],
+    ]
+  ],
   "forge_result": [
     [
-      "463680",
+      "43303",
       "4",
-      "Winota Ultra Budget B3 Exact Mirror"
+      "Betor B3 Exact"
     ]
   ],
   "forge_winning_outcomes": [
     [
       "4",
-      "Winota Ultra Budget B3 Exact Mirror",
+      "Betor B3 Exact",
       "because ",
       "all opponents have lost"
     ]
   ],
-  "startup_ai_decision_timeouts": 10,
+  "startup_ai_decision_timeouts": 0,
   "in_game_ai_decision_timeouts": 0,
   "whole_game_timeout": false,
-  "warnings": [
-    "10 startup AI decision timeouts before first turn; piloting quality not independently verified"
-  ],
+  "warnings": [],
   "unsupported_cards": [],
   "supervisor_exit": ""
 }
@@ -46,17 +46,17 @@ forge-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
 [INFO] 
-[INFO] Forge Parent ....................................... SUCCESS [  6.059 s]
-[INFO] Forge Core ......................................... SUCCESS [ 10.016 s]
-[INFO] Forge Game ......................................... SUCCESS [ 12.156 s]
-[INFO] Forge AI ........................................... SUCCESS [  6.212 s]
-[INFO] Forge Gui .......................................... SUCCESS [  7.815 s]
-[INFO] Forge .............................................. SUCCESS [ 38.461 s]
+[INFO] Forge Parent ....................................... SUCCESS [  6.980 s]
+[INFO] Forge Core ......................................... SUCCESS [  9.865 s]
+[INFO] Forge Game ......................................... SUCCESS [ 12.023 s]
+[INFO] Forge AI ........................................... SUCCESS [  5.138 s]
+[INFO] Forge Gui .......................................... SUCCESS [  7.223 s]
+[INFO] Forge .............................................. SUCCESS [ 37.783 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:23 min
-[INFO] Finished at: 2026-10-14T14:45:47Z
+[INFO] Total time:  01:22 min
+[INFO] Finished at: 2026-10-14T15:19:24Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -85,8 +85,8 @@ lab-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  10.370 s
-[INFO] Finished at: 2026-10-14T14:45:58Z
+[INFO] Total time:  9.920 s
+[INFO] Finished at: 2026-10-14T15:19:35Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -124,38 +124,51 @@ forge/forge-gui-desktop/target/forge-gui-desktop-2.0.12-SNAPSHOT-jar-with-depend
 direct-forge.log
 Error handling registered!
 Error handling registered!
-14:46:10 [INFO ] GuiBase: ##########################################
-14:46:10 [INFO ] GuiBase: APP: Forge v.2.0.12-SNAPSHOT-10.14
-14:46:10 [INFO ] GuiBase: Java: 17.0.20.1 (Eclipse Adoptium)
-14:46:10 [INFO ] GuiBase: OS: Linux 6.17.0-1022-azure amd64
-14:46:10 [INFO ] GuiBase: RAM: 3998 MB max, 4 CPUs
-14:46:10 [INFO ] GuiBase: ##########################################
+15:19:43 [INFO ] GuiBase: ##########################################
+15:19:43 [INFO ] GuiBase: APP: Forge v.2.0.12-SNAPSHOT-10.14
+15:19:43 [INFO ] GuiBase: Java: 17.0.20.1 (Eclipse Adoptium)
+15:19:43 [INFO ] GuiBase: OS: Linux 6.17.0-1022-azure amd64
+15:19:43 [INFO ] GuiBase: RAM: 3998 MB max, 4 CPUs
+15:19:43 [INFO ] GuiBase: ##########################################
 Unknown mode.
 Known mode is 'sim', 'parse' 
 
 
 smoke-test.log
 [DEBUG] OUT> Error handling registered!
+[COMBAT-LINE] Add To Stack: Ai(4)-Betor B3 Exact cast Valgavoth, Terror Eater
+[COMBAT-LINE] Add To Stack: Ai(4)-Betor B3 Exact cast Khalni Ambush targeting [Valgavoth, Terror Eater (360)] [Aesi, Tyrant of Gyre Strait (201)]
+[COMBAT-LINE] Damage: Valgavoth, Terror Eater (360) deals 9 damage to Aesi, Tyrant of Gyre Strait (201).
+[COMBAT-LINE] Damage: Aesi, Tyrant of Gyre Strait (201) deals 5 damage to Valgavoth, Terror Eater (360).
+[COMBAT-LINE] Add To Stack: Ai(4)-Betor B3 Exact triggered Scorn-Blade Berserker targeting [Valgavoth, Terror Eater (360)]
+[COMBAT-LINE] Damage: Valgavoth, Terror Eater (360) deals 10 combat damage to Ai(3)-Bello, Bard of the Brambles - archived complete Moxfield mirror.
+[COMBAT-LINE] Resolve Stack: Whenever a creature deals combat damage to you, its controller becomes the monarch. [Damage Source: Valgavoth, Terror Eater (360), Damaged: Ai(3)-Bello, Bard of the Brambles - archived complete Moxfield mirror, Amount: 10]
+[COMBAT-LINE] Add To Stack: Ai(4)-Betor B3 Exact triggered Betor, Ancestor's Voice targeting [Valgavoth, Terror Eater (360)] [Scorn-Blade Berserker (393)]
+[COMBAT-LINE] Add To Stack: Ai(4)-Betor B3 Exact triggered Scorn-Blade Berserker targeting [Valgavoth, Terror Eater (360)]
+[COMBAT-LINE] Add To Stack: Ai(4)-Betor B3 Exact cast Bridgeworks Battle targeting [Valgavoth, Terror Eater (360)] [Bello, Bard of the Brambles (302)]
+[COMBAT-LINE] Damage: Valgavoth, Terror Eater (360) deals 32 damage to Bello, Bard of the Brambles (302).
+[COMBAT-LINE] Damage: Bello, Bard of the Brambles (302) deals 3 damage to Valgavoth, Terror Eater (360).
+[COMBAT-LINE] Damage: Valgavoth, Terror Eater (360) deals 32 combat damage to Ai(3)-Bello, Bard of the Brambles - archived complete Moxfield mirror.
 ║    Avg Turns:      N/A
 ║    Avg Mulligan:  1.00
 ║    Avg Life:       0.0
 ║
-║  Seat 2: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/shroofus.dck     ║
+║  Seat 2: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/bello.dck     ║
 ║    Win Rate:       0.0%  (0 W / 1 L / 0 D)
 ║    Avg Turns:      N/A
-║    Avg Mulligan:  1.00
+║    Avg Mulligan:  2.00
 ║    Avg Life:       0.0
 ║
-║  Seat 3: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/winota_ultra_budget.dck     ║
+║  Seat 3: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/betor.dck     ║
 ║    Win Rate:     100.0%  (1 W / 0 L / 0 D)
 ║    Avg Turns:     15.0
 ║    Avg Mulligan:  1.00
-║    Avg Life:     124.0
+║    Avg Life:      94.0
 ║    Win By: Combat=1  CmdrDmg=0  Combo=0  Drain=0  Mill=0
 ║
 ╠══════════════════════════════════════════════════════════╣
-║  Games: 1       Avg Turns: 15.0     Sims/sec: 0.00  
-║  Wall Time: 467.0s
+║  Games: 1       Avg Turns: 15.0     Sims/sec: 0.02  
+║  Wall Time: 46.8s
 ╚══════════════════════════════════════════════════════════╝
 
 JSON validation: PASSED
