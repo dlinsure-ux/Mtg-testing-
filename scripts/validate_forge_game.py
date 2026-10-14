@@ -26,7 +26,10 @@ errors = []
 if len(lab_results) != 1: errors.append(f"Lab terminal results: {len(lab_results)} (expected 1)")
 if len(forge_results) != 1: errors.append(f"Forge final results: {len(forge_results)} (expected 1)")
 if len(outcomes) != 1: errors.append(f"Forge winners: {len(outcomes)} (expected 1)")
-if whole_game_timeout: errors.append("whole-game timeout/interruption evidence")\nif in_game_ai_timeouts: errors.append(f"in-game AI decision timeouts: {in_game_ai_timeouts}")\nif other_startup_timeouts: errors.append(f"unclassified startup timeouts: {other_startup_timeouts}")\nif not first_turn: errors.append("missing first-turn evidence")
+if whole_game_timeout: errors.append("whole-game timeout/interruption evidence")
+if in_game_ai_timeouts: errors.append(f"in-game AI decision timeouts: {in_game_ai_timeouts}")
+if other_startup_timeouts: errors.append(f"unclassified startup timeouts: {other_startup_timeouts}")
+if not first_turn: errors.append("missing first-turn evidence")
 if unsupported: errors.append("unsupported card evidence")
 if exit_status: errors.append("nonzero Lab/supervisor exit: " + exit_status)
 if lab_results and forge_results and outcomes:
