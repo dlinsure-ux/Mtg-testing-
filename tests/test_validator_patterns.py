@@ -64,15 +64,15 @@ class ValidatorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "smoke-test.log").write_text(
-                "[Game 1/1] Winner: opponents/winota_ultra_budget.dck | Turns: 13 | Time: 600080ms\\n"
-                "Stopping slow match as draw\\n"
+                "[Game 1/1] Winner: opponents/winota_ultra_budget.dck | Turns: 13 | Time: 600080ms\n"
+                "Stopping slow match as draw\n"
             )
             (root / "forge").mkdir()
             (root / "forge" / "forge-sim-debug.log").write_text(
-                "Turn: Turn 1\\nGame Outcome: Turn 13\\n"
-                "Game Outcome: Ai(3)-Shroofus has won because all opponents have lost\\n"
-                "Game Outcome: Ai(4)-Winota has won because all opponents have lost\\n"
-                "Game Result: Game 1 ended in 600080 ms. Ai(4)-Winota has won!\\n"
+                "Turn: Turn 1\nGame Outcome: Turn 13\n"
+                "Game Outcome: Ai(3)-Shroofus has won because all opponents have lost\n"
+                "Game Outcome: Ai(4)-Winota has won because all opponents have lost\n"
+                "Game Result: Game 1 ended in 600080 ms. Ai(4)-Winota has won!\n"
             )
             result = subprocess.run([sys.executable, str(SCRIPT)], cwd=root, capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)
