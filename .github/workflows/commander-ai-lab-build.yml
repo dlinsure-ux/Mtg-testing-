@@ -1,6 +1,6 @@
 name: Commander AI Lab Build Verification
 # Experimental release-gate run: strict game-one validation before remaining fixed-pod games.
-# Retry after integrating observation-only live progress telemetry.
+# Five-game regression rerun after Lathiel v0.2 policy draft; runtime pilot unchanged.
 on:
   workflow_dispatch:
   push:
