@@ -1,5 +1,5 @@
 import unittest
-from scripts.validate_forge_game import re
+import re
 
 class ValidatorRegexTests(unittest.TestCase):
     def test_first_turn(self):
