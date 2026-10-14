@@ -1,37 +1,28 @@
-Series game: 2 of 5
-Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38546153445
+Diagnostic game: 2
+Run: https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38553811709
 
 results/validation-report.json
   "errors": [
-    "TimeoutException",
-    "TimeoutException",
-    "TimeoutException",
-    "TimeoutException",
-    "TimeoutException",
-    "TimeoutException",
-    "TimeoutException",
-    "TimeoutException",
-    "TimeoutException"
-      "Aesi"
+      "Betor B3 Exact"
     ]
   ],
   "forge_winning_outcomes": [
     [
       "2",
-      "Aesi",
-      "because all opponents have lost"
+      "Aesi has lost because an opponent",
+      "by spell 'Felidar Sovereign'"
+    ],
+    [
+      "4",
+      "Betor B3 Exact",
+      "due to effect of 'Felidar Sovereign'"
     ]
   ],
-  "timeout_markers": [
-    "TimeoutException",
-    "TimeoutException",
-    "TimeoutException",
-    "TimeoutException",
-    "TimeoutException",
-    "TimeoutException",
-    "TimeoutException",
-    "TimeoutException",
-    "TimeoutException"
+  "startup_ai_decision_timeouts": 12,
+  "in_game_ai_decision_timeouts": 0,
+  "whole_game_timeout": false,
+  "warnings": [
+    "12 startup AI decision timeouts before first turn; piloting quality not independently verified"
   ],
   "unsupported_cards": [],
   "supervisor_exit": ""
@@ -55,17 +46,17 @@ forge-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for Forge Parent 2.0.12-SNAPSHOT:
 [INFO] 
-[INFO] Forge Parent ....................................... SUCCESS [  5.110 s]
-[INFO] Forge Core ......................................... SUCCESS [ 10.947 s]
-[INFO] Forge Game ......................................... SUCCESS [ 16.808 s]
-[INFO] Forge AI ........................................... SUCCESS [  7.924 s]
-[INFO] Forge Gui .......................................... SUCCESS [  8.023 s]
-[INFO] Forge .............................................. SUCCESS [ 34.881 s]
+[INFO] Forge Parent ....................................... SUCCESS [  4.914 s]
+[INFO] Forge Core ......................................... SUCCESS [ 12.979 s]
+[INFO] Forge Game ......................................... SUCCESS [ 15.975 s]
+[INFO] Forge AI ........................................... SUCCESS [  8.403 s]
+[INFO] Forge Gui .......................................... SUCCESS [  9.093 s]
+[INFO] Forge .............................................. SUCCESS [ 37.433 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:26 min
-[INFO] Finished at: 2026-10-14T09:59:30Z
+[INFO] Total time:  01:32 min
+[INFO] Finished at: 2026-10-14T11:05:24Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -94,8 +85,8 @@ lab-build.log
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  11.415 s
-[INFO] Finished at: 2026-10-14T09:59:43Z
+[INFO] Total time:  10.267 s
+[INFO] Finished at: 2026-10-14T11:05:35Z
 [INFO] ------------------------------------------------------------------------
 
 
@@ -133,46 +124,43 @@ forge/forge-gui-desktop/target/forge-gui-desktop-2.0.12-SNAPSHOT-jar-with-depend
 direct-forge.log
 Error handling registered!
 Error handling registered!
-09:59:49 [INFO ] GuiBase: ##########################################
-09:59:49 [INFO ] GuiBase: APP: Forge v.2.0.12-SNAPSHOT-10.14
-09:59:49 [INFO ] GuiBase: Java: 17.0.20.1 (Eclipse Adoptium)
-09:59:49 [INFO ] GuiBase: OS: Linux 6.17.0-1022-azure amd64
-09:59:49 [INFO ] GuiBase: RAM: 3998 MB max, 4 CPUs
-09:59:49 [INFO ] GuiBase: ##########################################
+11:05:42 [INFO ] GuiBase: ##########################################
+11:05:42 [INFO ] GuiBase: APP: Forge v.2.0.12-SNAPSHOT-10.14
+11:05:42 [INFO ] GuiBase: Java: 17.0.20.1 (Eclipse Adoptium)
+11:05:42 [INFO ] GuiBase: OS: Linux 6.17.0-1022-azure amd64
+11:05:42 [INFO ] GuiBase: RAM: 3998 MB max, 4 CPUs
+11:05:42 [INFO ] GuiBase: ##########################################
 Unknown mode.
 Known mode is 'sim', 'parse' 
 
 
 smoke-test.log
 [DEBUG] OUT> Error handling registered!
-[COMBAT-LINE] Uyo, Silent Prophet (113) - [Couldn't add to stack, failed to target] - {2}, Return two lands you control to their owner's hand: Copy target instant or sorcery spell. You may choose new targets for the copy.[[Choose one —
-[COMBAT-LINE] Uyo, Silent Prophet (113) - [Couldn't add to stack, failed to target] - {2}, Return two lands you control to their owner's hand: Copy target instant or sorcery spell. You may choose new targets for the copy.[[Choose one —
-[COMBAT-LINE] Uyo, Silent Prophet (113) - [Couldn't add to stack, failed to target] - {2}, Return two lands you control to their owner's hand: Copy target instant or sorcery spell. You may choose new targets for the copy.[[Choose one —
-[COMBAT-LINE] Uyo, Silent Prophet (113) - [Couldn't add to stack, failed to target] - {2}, Return two lands you control to their owner's hand: Copy target instant or sorcery spell. You may choose new targets for the copy.[[Choose one —
-[COMBAT-LINE] Add To Stack: Uyo, Silent Prophet (113) - [Couldn't add to stack, failed to target] - {2}, Return two lands you control to their owner's hand: Copy target instant or sorcery spell. You may choose new targets for the copy.
-[COMBAT-LINE] Add To Stack: Uyo, Silent Prophet (113) - [Couldn't add to stack, failed to target] - {2}, Return two lands you control to their owner's hand: Copy target instant or sorcery spell. You may choose new targets for the copy.
-[COMBAT-LINE] Add To Stack: Uyo, Silent Prophet (113) - [Couldn't add to stack, failed to target] - {2}, Return two lands you control to their owner's hand: Copy target instant or sorcery spell. You may choose new targets for the copy.
-[COMBAT-LINE] Add To Stack: Uyo, Silent Prophet (113) - [Couldn't add to stack, failed to target] - {2}, Return two lands you control to their owner's hand: Copy target instant or sorcery spell. You may choose new targets for the copy.
-║    Avg Turns:     18.0
+[COMBAT-LINE] Resolve Stack: Whenever a creature an opponent controls enters, you may have that player lose 1 life. [Zone Changer: Valgavoth, Terror Eater (360)]
+[COMBAT-LINE] Add To Stack: Ai(4)-Betor B3 Exact triggered Lathiel, the Bounteous Dawn targeting [Valgavoth, Terror Eater (360), Savanti Romero, Time's Exile (350), Angel of Indemnity (366), Betor, Ancestor's Voice (403), Overlord of the Balemurk (307), Witch Enchanter (326), Vito, Thorn of the Dusk Rose (395)]
+[COMBAT-LINE] Add To Stack: Ai(4)-Betor B3 Exact triggered Betor, Ancestor's Voice targeting [Valgavoth, Terror Eater (360)] []
+[COMBAT-LINE] Damage: Valgavoth, Terror Eater (360) deals 15 damage to Kira, Great Glass-Spinner (137).
+[COMBAT-LINE] Damage: Kira, Great Glass-Spinner (137) deals 2 damage to Valgavoth, Terror Eater (360).
+║    Avg Turns:      N/A
 ║    Avg Mulligan:  1.00
-║    Avg Life:      15.0
-║    Win By: Combat=1  CmdrDmg=0  Combo=0  Drain=0  Mill=0
+║    Avg Life:       3.0
 ║
 ║  Seat 2: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/bello.dck     ║
 ║    Win Rate:       0.0%  (0 W / 1 L / 0 D)
 ║    Avg Turns:      N/A
-║    Avg Mulligan:  2.00
-║    Avg Life:       0.0
-║
-║  Seat 3: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/betor.dck     ║
-║    Win Rate:       0.0%  (0 W / 1 L / 0 D)
-║    Avg Turns:      N/A
 ║    Avg Mulligan:  1.00
 ║    Avg Life:       0.0
 ║
+║  Seat 3: /home/runner/work/Mtg-testing-/Mtg-testing-/opponents/betor.dck     ║
+║    Win Rate:     100.0%  (1 W / 0 L / 0 D)
+║    Avg Turns:     19.0
+║    Avg Mulligan:  2.00
+║    Avg Life:      54.0
+║    Win By: Combat=1  CmdrDmg=0  Combo=0  Drain=0  Mill=0
+║
 ╠══════════════════════════════════════════════════════════╣
-║  Games: 1       Avg Turns: 18.0     Sims/sec: 0.00  
-║  Wall Time: 222.7s
+║  Games: 1       Avg Turns: 19.0     Sims/sec: 0.00  
+║  Wall Time: 405.9s
 ╚══════════════════════════════════════════════════════════╝
 
 JSON validation: PASSED
