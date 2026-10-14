@@ -23,7 +23,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m py_compile scripts/validate_forge_game.py tests/test_validator_patterns.py scripts/preflight_selected_decks.py
-          python3 scripts/preflight_selected_decks.py decks/lathiel.dck
+          python3 scripts/preflight_selected_decks.py decks/lathiel.dck opponents/deadpool.dck opponents/shroofus.dck opponents/winota_ultra_budget.dck
           python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
       - name: Static workflow analysis
         uses: raven-actions/actionlint@v2
