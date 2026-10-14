@@ -141,7 +141,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.forge/decks/commander"
-          cp decks/lathiel.dck opponents/aesi.dck opponents/bello.dck opponents/betor.dck "$HOME/.forge/decks/commander/"
+          cp decks/lathiel.dck opponents/deadpool.dck opponents/shroofus.dck opponents/winota_ultra_budget.dck "$HOME/.forge/decks/commander/"
           ls -l "$HOME/.forge/decks/commander/"
       - name: Install JVM diagnostics tools
         shell: bash
@@ -150,13 +150,13 @@ jobs:
           command -v jstack
       - name: Run instrumented Forge series game ${{ matrix.game }}
         env:
-          TEST_RUN_MARKER: fixed-pod-five-game-series-v1
+          TEST_RUN_MARKER: fixed-pod-five-game-series-v2-new-opponents
         shell: bash
         timeout-minutes: 18
         run: |
           set -euo pipefail
           mkdir -p results diagnostics
-          echo "Series game: ${{ matrix.game }} / 5; fixed pod Lathiel, Aesi, Bello, Betor"
+          echo "Series game: ${{ matrix.game }} / 5; fixed pod Lathiel, Deadpool, Shroofus, Winota"
           FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
           # Start Lab separately; find the actual Forge Java child, not the xvfb wrapper.
           timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
@@ -164,9 +164,9 @@ jobs:
             --java17 "${JAVA_HOME}/bin/java" \
             --forge-dir forge/forge-gui \
             --deck1 "$GITHUB_WORKSPACE/decks/lathiel.dck" \
-            --deck2 "$GITHUB_WORKSPACE/opponents/aesi.dck" \
-            --deck3 "$GITHUB_WORKSPACE/opponents/bello.dck" \
-            --deck4 "$GITHUB_WORKSPACE/opponents/betor.dck" \
+            --deck2 "$GITHUB_WORKSPACE/opponents/deadpool.dck" \
+            --deck3 "$GITHUB_WORKSPACE/opponents/shroofus.dck" \
+            --deck4 "$GITHUB_WORKSPACE/opponents/winota_ultra_budget.dck" \
             --games 1 --threads 1 --clock 600 --no-db \
             --output results/diagnostic-game.json --verbose > smoke-test.log 2>&1 &
           supervisor=$!
@@ -205,7 +205,7 @@ jobs:
           echo "Game process exit observed UTC: $(date -u +%FT%TZ)"
           tail -n 90 smoke-test.log
           if [ -f forge/forge-sim-debug.log ]; then tail -n 100 forge/forge-sim-debug.log; fi
-          python3 scripts/validate_forge_game.py
+          SEAT_2_PATH=opponents/deadpool.dck SEAT_3_PATH=opponents/shroofus.dck SEAT_4_PATH=opponents/winota_ultra_budget.dck python3 scripts/validate_forge_game.py
 
       - name: Save diagnostic summary in repository
         if: always()
