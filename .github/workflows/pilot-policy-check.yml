@@ -23,4 +23,4 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/validate_pilot_config.py pilots/lathiel/v0.1.json
-          python3 -m unittest discover -s tests -p 'test_pilot_config.py' -v
+          python3 -m unittest discover -s tests -p 'test_pilot_*.py' -v
