@@ -172,3 +172,10 @@ Useful links:
 - Reviewed release gates and pilot isolation; read experimental `audit_series.py`, `game_progress_watchdog.py`, `replay_watchdog_evidence.py` and audit tests. The watchdog is still observation-only and cannot establish actual JVM deadlock. Runtime pilot integration remains false.
 - Review finding: `audit_series.py` trusts a report's `classification:VALID` and its Lab tuple without independently revalidating Forge winner evidence; that trust boundary depends on the upstream strict per-game validator. The replay checks turn/terminal markers but does not demonstrate a live stall. Before promotion, add negative tests for malformed reports, false-positive progress, and terminal markers without unique winners; verify actual five-game run on candidate code.
 - Historical baseline `baseline/verified-five-game-210e5db` and production workflow/decks were not modified. This update documents review only; no gameplay, regression execution or pilot fix is claimed. Next: isolate a fail-closed audit hardening change with tests, run preflight and replay on its new SHA, then use the release gates before considering merge.
+
+## 12. Continuation commits — 2026-10-14
+
+- Experimental-only series audit hardening committed: `4e79ef67228803762fbc526e4b096fe8513f05f9` (`scripts/audit_series.py`). Adds fail-closed checks for malformed JSON, absent/contradictory Forge terminal evidence, invalid turn counts and elapsed-time disagreement.
+- Regression fixtures and four negative tests committed: `8f312a8a21b4b408fece300c5937e101c7b294c3` (`tests/test_series_audit.py`). Fixture now supplies Forge terminal and winning outcome evidence.
+- **Verification not yet completed:** GitHub connector returned no PR-triggered Actions runs for the second commit at inspection time; this does NOT prove tests passed. Run unit tests and preflight at the latest branch SHA; then replay and actual one-game/five-game release gates per `docs/RELEASE_GATES.md`. Do not merge or claim production promotion without evidence.
+- Preserve `baseline/verified-five-game-210e5db` and main; neither was changed by these commits. PR #1 remains experimental until gates are verified.
