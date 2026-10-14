@@ -263,6 +263,7 @@ jobs:
             fi
           done
           echo "All five games attempted; any invalid game makes this job fail."
+          if [ "$failed" -eq 0 ]; then python3 scripts/audit_series.py results; fi
           exit "$failed"
       - name: Preserve build evidence
         if: always()
