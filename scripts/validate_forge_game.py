@@ -50,7 +50,10 @@ report = {
     "lab_result": lab_results,
     "forge_result": forge_results,
     "forge_winning_outcomes": outcomes,
-    "startup_ai_decision_timeouts": startup_ai_timeouts,\n    "in_game_ai_decision_timeouts": in_game_ai_timeouts,\n    "whole_game_timeout": whole_game_timeout,\n    "warnings": ([f"{startup_ai_timeouts} startup AI decision timeouts before first turn; piloting quality not independently verified"] if startup_ai_timeouts else []),
+    "startup_ai_decision_timeouts": startup_ai_timeouts,
+    "in_game_ai_decision_timeouts": in_game_ai_timeouts,
+    "whole_game_timeout": whole_game_timeout,
+    "warnings": ([f"{startup_ai_timeouts} startup AI decision timeouts before first turn; piloting quality not independently verified"] if startup_ai_timeouts else []),
     "unsupported_cards": unsupported[:10],
     "supervisor_exit": exit_status,
 }
