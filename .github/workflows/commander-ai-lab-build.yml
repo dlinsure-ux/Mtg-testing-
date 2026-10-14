@@ -8,7 +8,17 @@ on:
       - '.github/workflows/commander-ai-lab-build.yml'
 permissions:
   contents: write
+  issues: write
 jobs:
+  publish-run-start:
+    name: Publish run ID for future chats
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record run ID in dashboard issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/issues/2/comments" -f body="RUN_START workflow=commander-ai-lab-build run_id=$GITHUB_RUN_ID run_number=$GITHUB_RUN_NUMBER sha=$GITHUB_SHA url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" || echo "::warning::Run dashboard comment could not be posted"
   preflight:
     name: Validate workflow before expensive build
     runs-on: ubuntu-latest
@@ -276,6 +286,12 @@ jobs:
           echo "All five games attempted; any invalid game makes this job fail."
           if [ "$failed" -eq 0 ]; then python3 scripts/audit_series.py results; fi
           exit "$failed"
+      - name: Publish run outcome in dashboard issue
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/issues/2/comments" -f body="RUN_BUILD_STEP_FINISHED run_id=$GITHUB_RUN_ID sha=$GITHUB_SHA job_status=${{ job.status }} url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" || echo "::warning::Run dashboard outcome comment could not be posted"
       - name: Preserve build evidence
         if: always()
         uses: actions/upload-artifact@v4
