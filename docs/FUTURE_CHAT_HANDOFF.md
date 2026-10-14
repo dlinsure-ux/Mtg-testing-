@@ -193,3 +193,10 @@ Useful links:
 - This workflow is a real Forge/Lab build and sequential five-game run. It validates game 1 and aborts remaining games if invalid. It is not a standalone one-game workflow; do not claim separate one-game gate evidence without checking actual logs.
 - GitHub connector `fetch_commit_workflow_runs` returns only pull-request-triggered runs, so immediate empty results for `0b92703` do NOT prove a run started, completed or failed. Check https://github.com/dlinsure-ux/Mtg-testing-/actions and capture exact run ID, SHA, step outcomes, manifest, and per-game validation before claiming any game results.
 - Previous `cf27f7c` preflight run `38638172412` passed; archived watchdog replay at that SHA still needs separate outcome verification. Preserve baseline and leave PR #1 unmerged until gates pass.
+
+## 15. Cancelled run #62 and live watchdog diagnosis (2026-10-14)
+
+- User screenshot showed `Commander AI Lab Build Verification #62`, PR-triggered, SHA `0b92703`, preflight success and five-game build job still in progress at about 10 minutes; user subsequently cancelled. This is **not** evidence of a game stall or valid game. No run ID or game logs were obtained.
+- Reviewed upstream Commander AI Lab docs: real Forge uses Java subprocesses and can be slow. Existing live workflow collected periodic Java thread dumps but never invoked `scripts/game_progress_watchdog.py`. This is an observability gap, not proven root cause of cancellation/slowdown.
+- Commit `c6cc70d40aba46301963033e8155ac0db8d6b2de` starts the observation-only progress watchdog alongside each live game, saves `diagnostics/game-N/progress-watchdog.json`, and terminates only the observer after game exit. Existing `diagnostics/**` artifact upload includes these reports. No game-killing policy introduced.
+- Next: inspect new GitHub Actions run and preflight; audit watchdog output against actual Forge turn and action logs. Separate Maven build time from game time. Verify that Forge progress markers match the actual log format; false stale reports are possible. Preserve baseline; no pilot change or merge without validated game evidence.
