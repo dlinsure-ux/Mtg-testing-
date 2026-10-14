@@ -34,6 +34,36 @@ jobs:
           set -euo pipefail
           git clone --depth 1 https://github.com/KoalaTrapLord/commander-ai-lab.git lab
           git clone --depth 1 https://github.com/KoalaTrapLord/Forge-Repo.git forge
+      - name: Patch Commander AI Lab alternate-win outcome parsing
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("lab/src/main/java/commanderailab/batch/BatchRunner.java")
+          source = p.read_text()
+          old = 'has won because (.+)'
+          new = 'has won (?:because|due to effect of) (.+)'
+          assert source.count(old) == 1, "Unexpected upstream winner parser; stop rather than patch blindly"
+          p.write_text(source.replace(old, new))
+          assert new in p.read_text()
+          print("Patched Lab outcome parser for effect-based alternate wins")
+          PY
+      - name: Verify Lab winner parser regression
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          source = Path("lab/src/main/java/commanderailab/batch/BatchRunner.java").read_text()
+          assert 'has won (?:because|due to effect of) (.+)' in source
+          for line in (
+              "Game Outcome: Ai(4)-Betor B3 Exact has won due to effect of 'Felidar Sovereign'",
+              "Game Outcome: Ai(2)-Aesi has won because all opponents have lost",
+          ):
+              assert re.search(r"Game Outcome:\\s*Ai\\(?(\\d+)\\)?-(.+?)\\s+has won (?:because|due to effect of) (.+)", line)
+          print("Both Forge winner reason variants recognized")
+          PY
       - name: Build Forge dependencies
         shell: bash
         run: |
