@@ -7,7 +7,34 @@ on:
 permissions:
   contents: write
 jobs:
+  preflight:
+    name: Validate workflow before expensive build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python and offline regression tests
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/validate_forge_game.py tests/test_validator_patterns.py scripts/preflight_selected_decks.py
+          python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
+      - name: Lint workflow and shell scripts
+        uses: raven-actions/actionlint@v2
+        with:
+          flags: -color .github/workflows/commander-ai-lab-build.yml
+      - name: Verify cache and build ordering
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('.github/workflows/commander-ai-lab-build.yml').read_text()
+          names=['Check out Commander AI Lab and matching Forge fork','Cache Maven dependencies after upstream checkout','Build Forge dependencies','Build Commander AI Lab']
+          positions=[s.find('name: '+name) for name in names]
+          assert all(p>=0 for p in positions) and positions==sorted(positions), 'Build dependency ordering invalid'
+          assert 'cache: maven' not in s, 'Premature setup-java Maven cache'
+          print('Preflight passed')
+          PY
   build:
+    needs: preflight
     name: Five-game sequential series
     runs-on: ubuntu-latest
     timeout-minutes: 120
@@ -210,6 +237,10 @@ jobs:
             fi
             cp results/validation-report.json "results/game-$game/validation-report.json" 2>/dev/null || true
             echo "::endgroup::"
+            if [ "$game" -eq 1 ] && [ "$failed" -ne 0 ]; then
+              echo "::error::Smoke game failed; aborting remaining four games"
+              exit 1
+            fi
           done
           echo "All five games attempted; any invalid game makes this job fail."
           exit "$failed"
