@@ -106,3 +106,17 @@ Paste this exact request:
 - Commit `b9be6219`: included those tests in both existing workflow preflight locations. This workflow-file commit triggers a new Actions run; inspect its actual run SHA and results before claiming validation.
 - Evidence artifact from run `38806749643` was confirmed present (artifact `12006638829`, 29,243,282 bytes, expires 2026-10-29). Its contents have **not yet** been inspected or archived in this continuation.
 - **Status:** patch extraction committed; offline and CI test outcomes not yet verified at time of writing. No Forge AI performance fix claimed. Next: check triggered run, examine preserved diagnostic artifact, then extract the next patch only after validation.
+
+## 10. 2026-10-15 follow-up — code and failure audit
+
+Direct GitHub job log inspection of run 38806749643 (job 116669549179) confirms two Maven BUILD SUCCESS messages, then GAME INVALID from 10 in-game AI decision timeout contexts. The logged contexts are Shroofus 6 (turns 20/24; upkeep/main/draw/combat) and Winota 4 (turn 27; upkeep/draw/main/combat); Lathiel 0. Supervisor summary: terminal turn 15, 741 action markers, strict validation INVALID. The log reports startup trace count 10 **and** in-game context count 10; these overlap in classification and must not be summed. Job log alone is not full raw stack/JFR evidence.
+
+Audit risks requiring tests, not speculative shortcuts:
+- Workflow remains over 650 lines and contains multiple inline Python Java source rewrites. Extract one patch at a time with exact pinned-source checks.
+- `scripts/validate_forge_game.py` uses positional regex reconciliation, buffered-log-sensitive startup classification, and no explicit verification of three distinct losing seats. A genuine in-game timeout must always invalidate.
+- `scripts/game_progress_watchdog.py` selects whichever log has most action markers; this can hide progress in another log and can treat a single terminal marker as sufficient to stop observing. It is observational, not a deadlock detector.
+- Current workflow contains unverified semantics-changing no-blocker fast path and removal of a defensive attacker-list copy. Preserve current behavior until equivalence tests or controlled rollback.
+- Cache and workflow triggers still need review; workflow-file commits may start an expensive default five-game run.
+- Extracted Lab parser script has tests committed but no new CI run was independently verified in this audit. Do not claim it passed.
+
+Next: inspect/download artifact 12006638829 before expiry; aggregate real per-method timings and stack evidence; establish deterministic workload or a replay fixture; add validator and patch regression tests before gameplay optimization. No changes to protected baseline, canonical decks, AI time budget or PR #1.
