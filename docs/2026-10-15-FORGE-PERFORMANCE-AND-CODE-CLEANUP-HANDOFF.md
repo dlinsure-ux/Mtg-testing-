@@ -96,3 +96,13 @@ Paste this exact request:
 - No background monitoring is implied. Explicitly check GitHub Actions for results when asked.
 - Avoid changing cards/decks to work around an AI performance defect.
 - Always preserve actual source and evidence links, not just chat summaries.
+
+## 9. 2026-10-15 continuation — first cleanup slice
+
+- Working branch only: `experiment/guardrails-watchdog-v1`. Protected baseline and canonical decks untouched; PR #1 not merged.
+- Commit `58e0362b`: extracted the existing Commander AI Lab alternate-win parser replacement into `scripts/patch_lab_winner_parser.py`. It preserves the original replacement text, asserts an exact upstream anchor, refuses ambiguous source, and supports idempotent reapplication.
+- Commit `7a6816ad`: replaced the inline YAML patch with a call to that script. No intentional gameplay change.
+- Commit `2bdc54c0`: added offline tests for exact replacement, idempotence and malformed upstream anchors.
+- Commit `b9be6219`: included those tests in both existing workflow preflight locations. This workflow-file commit triggers a new Actions run; inspect its actual run SHA and results before claiming validation.
+- Evidence artifact from run `38806749643` was confirmed present (artifact `12006638829`, 29,243,282 bytes, expires 2026-10-29). Its contents have **not yet** been inspected or archived in this continuation.
+- **Status:** patch extraction committed; offline and CI test outcomes not yet verified at time of writing. No Forge AI performance fix claimed. Next: check triggered run, examine preserved diagnostic artifact, then extract the next patch only after validation.
