@@ -324,9 +324,24 @@ PYPROGRESS
               failed=1
             fi
             cp results/validation-report.json "results/game-$game/validation-report.json" 2>/dev/null || true
+            # Reconcile the final Forge log even if the observer exited between samples.
+            python3 - "$game" <<'PYFINAL'
+import json,sys
+from pathlib import Path
+from scripts.game_progress_watchdog import progress_markers
+game=sys.argv[1]
+log=Path(f"results/game-{game}/forge-sim-debug.log")
+markers=progress_markers(log.read_text(errors="replace")) if log.exists() else {}
+report=Path(f"results/game-{game}/validation-report.json")
+validation=json.loads(report.read_text()) if report.exists() else {}
+summary={"game":int(game),"progress":markers,"validation":validation}
+out=Path(f"results/game-{game}/game-summary.json")
+out.write_text(json.dumps(summary,indent=2,default=str)+"\\n")
+print(f"GAME_SUMMARY game={game} final_turn={markers.get('last_turn')} actions={markers.get('action_markers')} terminal={markers.get('terminal_result')} validation={validation.get('classification')} startup_timeouts={validation.get('startup_ai_decision_timeouts')} in_game_timeouts={validation.get('in_game_ai_decision_timeouts')}",flush=True)
+PYFINAL
             echo "::endgroup::"
-            if [ "$game" -eq 1 ] && [ "$failed" -ne 0 ]; then
-              echo "::error::Smoke game failed; aborting remaining four games"
+            if [ "$failed" -ne 0 ]; then
+              echo "::error::Game $game failed; stopping series to preserve evidence"
               exit 1
             fi
           done
