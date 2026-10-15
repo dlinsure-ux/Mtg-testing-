@@ -19,6 +19,11 @@ startup_log = forge[:first_turn.start()] if first_turn else ""
 game_log = forge[first_turn.start():] if first_turn else forge
 startup_ai_timeouts = len(re.findall(r"^java\.util\.concurrent\.TimeoutException\s*$", startup_log, re.M))
 in_game_ai_timeouts = len(re.findall(r"^java\.util\.concurrent\.TimeoutException\s*$", game_log, re.M))
+# AI timeout context may be emitted out of order relative to buffered turn logs.
+timeout_contexts = re.findall(r'^AI_DECISION_TIMEOUT[^\n]*', forge, re.M)
+context_turns = [re.search(r'\b(?:turn|turn_number|turnNumber)=(\d+)', line, re.I) for line in timeout_contexts]
+context_in_game = sum(int(m.group(1)) > 0 for m in context_turns if m)
+in_game_ai_timeouts = max(in_game_ai_timeouts, context_in_game)
 whole_game_timeout = bool(re.search(r"Stopping slow match as draw|TimeoutException|InterruptedException", lab)) or bool(re.search(r"Stopping slow match as draw|^java\\.lang\\.InterruptedException", forge, re.M))
 other_startup_timeouts = len(re.findall(r"^java\.util\.concurrent\.TimeoutException\s*$", startup_log, re.M)) - len(re.findall(r"java\.util\.concurrent\.TimeoutException\n\s*at java\.base/java\.util\.concurrent\.FutureTask\.get\([^\n]*\)\n\s*at forge\.ai\.AiController\.chooseSpellAbilityToPlayFromList", startup_log))
 unsupported = re.findall(r"An unsupported card was requested:.*", lab + "\n" + forge)
@@ -57,7 +62,9 @@ report = {
     "startup_ai_decision_timeouts": startup_ai_timeouts,
     "in_game_ai_decision_timeouts": in_game_ai_timeouts,
     "whole_game_timeout": whole_game_timeout,
-    "warnings": ([f"{startup_ai_timeouts} startup AI decision timeouts before first turn; piloting quality not independently verified"] if startup_ai_timeouts else []),
+    "ai_timeout_contexts": timeout_contexts,
+    "ai_timeout_context_in_game": context_in_game,
+    "warnings": ([f"{startup_ai_timeouts} AI timeout traces before first turn marker (may reflect buffered log ordering)"] if startup_ai_timeouts else []),
     "unsupported_cards": unsupported[:10],
     "supervisor_exit": exit_status,
 }
