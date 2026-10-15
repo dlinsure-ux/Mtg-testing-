@@ -213,6 +213,11 @@ jobs:
                           + " phase=" + game.getPhaseHandler().getPhase()
                           + " budget_seconds=" + game.getAITimeout()
                           + " candidates=" + all.size());
+                  // Capture the exact slow evaluation stack before upstream
+                  // forcibly stops the worker thread. No overhead on success.
+                  for (StackTraceElement frame : t.getStackTrace()) {
+                      System.err.println("AI_TIMEOUT_STACK " + frame);
+                  }
               }'''
           # Use only known upstream types; no gameplay changes.
           p.write_text(src.replace(old, new))
