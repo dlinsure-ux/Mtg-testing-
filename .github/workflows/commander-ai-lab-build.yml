@@ -191,6 +191,41 @@ jobs:
           p.write_text(s)
           print('Removed redundant combat prediction list allocation')
           PY
+      - name: Fast-path hypothetical combat with no available blockers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('forge/forge-ai/src/main/java/forge/ai/ComputerUtilCard.java')
+          s=p.read_text()
+          old='''        final List<Card> attackers = Lists.newArrayList(attacker);
+                  aiBlk.assignBlockersGivenAttackers(combat, attackers);'''
+          new='''        // Skip the expensive hypothetical blocker AI only when the defending
+                  // battlefield contains no creatures at all. This conservative
+                  // case cannot remove any existing legal blocker.
+                  boolean defenderHasCreature = false;
+                  for (Player opponent : ai.getOpponents()) {
+                      for (Card candidate : opponent.getCardsIn(ZoneType.Battlefield)) {
+                          if (candidate.isCreature()) {
+                              defenderHasCreature = true;
+                              break;
+                          }
+                      }
+                      if (defenderHasCreature) {
+                          break;
+                      }
+                  }
+                  if (!defenderHasCreature) {
+                      return false;
+                  }
+                  final List<Card> attackers = Lists.newArrayList(attacker);
+                  aiBlk.assignBlockersGivenAttackers(combat, attackers);'''
+          assert s.count(old)==1, 'Pinned Forge hypothetical combat method changed'
+          p.write_text(s.replace(old,new))
+          assert new in p.read_text()
+          print('Installed conservative no-creatures blocker simulation fast path')
+          PY
       - name: Integrate Lathiel commander cast priority into isolated Forge AI
         shell: bash
         run: |
