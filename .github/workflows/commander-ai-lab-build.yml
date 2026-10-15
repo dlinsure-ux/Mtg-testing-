@@ -178,6 +178,19 @@ jobs:
           p.write_text(src.replace(old, new))
           print('Instrumented AI timeout context in isolated Forge checkout')
           PY
+      - name: Reduce allocations in Forge combat prediction
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('forge/forge-ai/src/main/java/forge/ai/AiAttackController.java')
+          s=p.read_text()
+          old='final List<Card> attackerList = new ArrayList<>(attackers);'
+          assert s.count(old)==1
+          s=s.replace(old, 'final List<Card> attackerList = attackers;')
+          p.write_text(s)
+          print('Removed redundant combat prediction list allocation')
+          PY
       - name: Integrate Lathiel commander cast priority into isolated Forge AI
         shell: bash
         run: |
