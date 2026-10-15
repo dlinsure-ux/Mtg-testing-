@@ -106,7 +106,9 @@ jobs:
           key: ${{ runner.os }}-maven-forge-lab-${{ hashFiles('forge/**/pom.xml', 'lab/**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-forge-lab-
-      - name: Randomize three distinct opponents for this series
+      - name: Select opponents for this series
+        env:
+          OPPONENT_MODE: ${{ inputs.opponents || 'fixed' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -117,17 +119,17 @@ jobs:
           assert len(pool)>=3, 'At least three opponent decks required'
           # System entropy, not a hand-picked or hardcoded opponent pod.
           # Targeted five-game loading stress test: two previously rejected decks, plus one random third.
-          fixed=[Path('opponents/winota_ultra_budget.dck'),Path('opponents/shroofus.dck')]
-          assert all(p in pool for p in fixed), 'Stress-test decks missing from pool'
-          third=Path('opponents/deadpool.dck')
-          assert third in pool and third not in fixed, 'Deadpool fixed-pod opponent missing'
-          selected=fixed+[third]
+          fixed=[Path('opponents/winota_ultra_budget.dck'),Path('opponents/shroofus.dck'),Path('opponents/deadpool.dck')]
+          assert all(p in pool for p in fixed), 'Fixed opponents missing'
+          mode=os.environ.get('OPPONENT_MODE','fixed')
+          assert mode in ('fixed','random'), 'Invalid opponent mode'
+          selected=random.SystemRandom().sample(pool,3) if mode=='random' else fixed
           with open(os.environ['GITHUB_ENV'],'a') as env:
               for i,p in enumerate(selected,2):
                   env.write(f'SEAT_{i}_PATH={p.as_posix()}\n')
           Path('results').mkdir(exist_ok=True)
           Path('results/opponent-selection.json').write_text(json.dumps({
-              'selection':'Fixed validation pod: Winota, Shroofus, Deadpool for five games',
+              'selection':mode,
               'pool':[str(p) for p in pool],
               'selected':[str(p) for p in selected]},indent=2)+'\\n')
           print('Random opponent pod:', ', '.join(map(str,selected)))
