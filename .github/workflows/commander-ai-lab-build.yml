@@ -389,6 +389,7 @@ jobs:
             # Observation-only watchdog; records turn/action progress without terminating Forge.
             python3 scripts/game_progress_watchdog.py \
               --log "forge/forge-sim-debug.log" \
+              --fallback-log "results/game-$game/smoke-test.log" \
               --output "diagnostics/game-$game/progress-watchdog.json" \
               --interval 30 --stale-seconds 300 --max-seconds 900 &
             watchdog=$!
