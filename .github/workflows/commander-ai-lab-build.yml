@@ -129,7 +129,13 @@ jobs:
           set -euo pipefail
           install -D forge-overrides/cardsfolder/k/kwia_vigorbloom.txt forge/forge-gui/res/cardsfolder/k/kwia_vigorbloom.txt
           install -D forge-overrides/tokenscripts/c_a_lotus_kwia.txt forge/forge-gui/res/tokenscripts/c_a_lotus_kwia.txt
-          grep -q '^Name:Kwia Vigorbloom          cd forge
+          grep -F 'Name:Kwia Vigorbloom' forge/forge-gui/res/cardsfolder/k/kwia_vigorbloom.txt
+          grep -F 'Name:Lotus' forge/forge-gui/res/tokenscripts/c_a_lotus_kwia.txt
+      - name: Build Forge dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd forge
           mvn -B -ntp install -pl forge-gui-desktop -am -DskipTests -Drevision=2.0.12-SNAPSHOT 2>&1 | tee ../forge-build.log
       - name: Repair installed Forge parent POM version
         shell: bash
