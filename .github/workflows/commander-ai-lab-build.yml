@@ -70,6 +70,25 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+      - name: Resolve primary deck and game count
+        shell: bash
+        env:
+          REQUESTED_DECK: ${{ inputs.deck || 'decks/lathiel.dck' }}
+          REQUESTED_GAMES: ${{ inputs.games || '5' }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          deck=Path(os.environ['REQUESTED_DECK'])
+          assert not deck.is_absolute() and '..' not in deck.parts, 'Unsafe deck path'
+          assert deck.parts[0]=='decks' and deck.suffix=='.dck' and deck.is_file(), 'Deck must be an existing decks/*.dck file'
+          assert os.environ['REQUESTED_GAMES'] in ('1','5','10','20'), 'Unsupported game count'
+          with open(os.environ['GITHUB_ENV'],'a') as out:
+              out.write('PRIMARY_DECK='+str(deck)+'\n')
+              out.write('GAME_COUNT='+os.environ['REQUESTED_GAMES']+'\n')
+          print('Deck:',deck,'Games:',os.environ['REQUESTED_GAMES'])
+          PY
       - name: Preflight validator compilation and offline tests
         shell: bash
         run: |
