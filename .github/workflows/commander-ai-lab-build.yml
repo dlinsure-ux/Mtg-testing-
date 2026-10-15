@@ -95,7 +95,7 @@ jobs:
           python3 - <<'PY'
           import json, os, random
           from pathlib import Path
-          pool=sorted(p for p in Path('opponents').glob('*.dck') if p.is_file() and p.name != 'winota_ultra_budget.dck')
+          pool=sorted(p for p in Path('opponents').glob('*.dck') if p.is_file())
           assert len(pool)>=3, 'At least three opponent decks required'
           # System entropy, not a hand-picked or hardcoded opponent pod.
           selected=random.SystemRandom().sample(pool,3)
@@ -106,7 +106,6 @@ jobs:
           Path('results/opponent-selection.json').write_text(json.dumps({
               'selection':'SystemRandom sample without replacement',
               'pool':[str(p) for p in pool],
-              'excluded':['opponents/winota_ultra_budget.dck'],
               'selected':[str(p) for p in selected]},indent=2)+'\\n')
           print('Random opponent pod:', ', '.join(map(str,selected)))
           PY
@@ -278,6 +277,12 @@ jobs:
           set -euo pipefail
           mkdir -p "$HOME/.forge/decks/commander"
           cp decks/lathiel.dck "$SEAT_2_PATH" "$SEAT_3_PATH" "$SEAT_4_PATH" "$HOME/.forge/decks/commander/"
+          for deck in decks/lathiel.dck "$SEAT_2_PATH" "$SEAT_3_PATH" "$SEAT_4_PATH"; do
+            installed="$HOME/.forge/decks/commander/$(basename "$deck")"
+            test -s "$installed" || { echo "::error::Missing installed Forge deck: $installed"; exit 1; }
+            cmp "$deck" "$installed" || { echo "::error::Installed Forge deck differs: $deck"; exit 1; }
+            echo "Verified Forge Commander deck: $installed"
+          done
           ls -l "$HOME/.forge/decks/commander/"
       - name: Install JVM diagnostics tools
         shell: bash
