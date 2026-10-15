@@ -280,7 +280,7 @@ jobs:
           p=Path('forge/forge-ai/src/main/java/forge/ai/ComputerUtilCard.java')
           s=p.read_text()
           old='if (!doesCreatureAttackAI(ai, c) && doesSpecifiedCreatureAttackAI(ai, pumped)) {'
-          new='if (ai.getCreaturesInPlay().size() <= 12 && !doesCreatureAttackAI(ai, c) && doesSpecifiedCreatureAttackAI(ai, pumped)) {'
+          new='if (!doesCreatureAttackAI(ai, c) && doesSpecifiedCreatureAttackAI(ai, pumped)) {'
           assert s.count(old)==1, 'Unexpected Forge pump heuristic revision'
           s=s.replace(old,new)
           p.write_text(s)
