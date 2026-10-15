@@ -303,6 +303,30 @@ jobs:
           p.write_text(s)
           print('Bound expensive speculative attacker evaluation for pump spells on crowded boards')
           PY
+      - name: Profile expensive hypothetical combat prediction calls
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('forge/forge-ai/src/main/java/forge/ai/ComputerUtilCard.java')
+          s=p.read_text()
+          old='''        AiAttackController aiAtk = new AiAttackController(ai, card);
+                  Combat combat = new Combat(ai);
+                  aiAtk.declareAttackers(combat);'''
+          new='''        final long predictionStarted = System.nanoTime();
+                  AiAttackController aiAtk = new AiAttackController(ai, card);
+                  Combat combat = new Combat(ai);
+                  aiAtk.declareAttackers(combat);
+                  final long predictionMillis = (System.nanoTime() - predictionStarted) / 1000000L;
+                  if (predictionMillis >= 250L) {
+                      System.err.println("FORGE_COMBAT_PROFILE method=doesSpecifiedCreatureAttackAI elapsed_ms="
+                              + predictionMillis + " player=" + ai.getName() + " card=" + card.getName());
+                  }'''
+          assert s.count(old)==1, 'Pinned Forge prediction method changed'
+          p.write_text(s.replace(old,new))
+          print('Instrumented slow hypothetical combat calls (250ms threshold)')
+          PY
       - name: Integrate Lathiel commander cast priority into isolated Forge AI
         shell: bash
         run: |
