@@ -358,7 +358,7 @@ jobs:
             forge/forge-ai/target
             lab/target
             ~/.m2/repository
-          key: ${{ steps.compiled.outputs.cache-primary-key }}
+          key: ${{ runner.os }}-compiled-forge-lab-v1-${{ hashFiles('.github/workflows/commander-ai-lab-build.yml', 'forge-overrides/**') }}
       - name: Verify Forge desktop artifact exists
         shell: bash
         run: |
