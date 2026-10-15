@@ -49,6 +49,7 @@ jobs:
           python3 -m py_compile scripts/validate_forge_game.py tests/test_validator_patterns.py scripts/preflight_selected_decks.py
           python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
           python3 -m unittest discover -s tests -p 'test_patch_lab_winner_parser.py' -v
+          python3 -m unittest discover -s tests -p 'test_timeout_ordering.py' -v
       - name: Lint workflow and shell scripts
         uses: raven-actions/actionlint@v2
         with:
@@ -98,6 +99,7 @@ jobs:
           python3 scripts/preflight_selected_decks.py "$PRIMARY_DECK" opponents/deadpool.dck opponents/shroofus.dck opponents/winota_ultra_budget.dck
           python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
           python3 -m unittest discover -s tests -p 'test_patch_lab_winner_parser.py' -v
+          python3 -m unittest discover -s tests -p 'test_timeout_ordering.py' -v
       - name: Static workflow analysis
         uses: raven-actions/actionlint@v2
         with:
