@@ -130,3 +130,13 @@ Also validate expected seat count, meaningful turn count, process status and ful
 - **Results-integrity guardrail:** never choose a winner by life total when Forge reports multiple winners or hits a clock limit. Require a single Forge winner and three genuine eliminations, with no unsupported-card warning or timeout. Distinguish simulation validity from GitHub job status.
 
 **Next work:** inspect the full run #28 debug artifact and Forge card definitions; identify exact missing Smaug implementation; add a versioned, reproducible Forge source/database patch; build and run a card-specific test plus a complete four-seat test; update this README with verified evidence and commit SHAs. Keep this record on GitHub, not only in conversation.
+
+## 2026-10-15 performance investigation — current checkpoint
+
+**Current authoritative plan:** [docs/2026-10-15-FORGE-ROOT-CAUSE-AND-LONG-TERM-PLAN.md](docs/2026-10-15-FORGE-ROOT-CAUSE-AND-LONG-TERM-PLAN.md). Historical handoff: [docs/2026-10-15-FORGE-PERFORMANCE-AND-CODE-CLEANUP-HANDOFF.md](docs/2026-10-15-FORGE-PERFORMANCE-AND-CODE-CLEANUP-HANDOFF.md).
+
+Run 38821663401: Forge/Lab compiled, but game INVALID with 3 AI decision timeouts in COMBAT_BEGIN. Artifact 12012687900 (expires October 29) contains JFR and raw logs. Measured 85 slow blocker calls totaling 52,951 ms inclusive, max 2,893 ms. JFR contains heavy `Card.isValid`/card-property checking, but samples span worker threads and must not be treated as exclusively AI decision CPU. No root-cause fix yet.
+
+New offline-only instrumentation-analysis work: `scripts/summarize_forge_profiles.py` (commit `63dad417`) and `tests/test_summarize_forge_profiles.py` (commit `5ff7d697`). These analyze **existing** profile markers and do not alter Forge decisions, AI budget, decks, or workflow. They are committed but **not yet CI-verified**. Run `python3 -m unittest discover -s tests -p 'test_summarize_forge_profiles.py' -v` and `python3 scripts/summarize_forge_profiles.py forge/forge-sim-debug.log --output results/profile-summary.json` from the repo root. A future isolated preflight should verify tests without triggering the expensive five-game default workflow.
+
+Immediate priorities: verify offline tests; profile the specific repeated call sites and isolate their caller frequencies; validate the current aliasing/no-blocker changes; introduce bounded per-decision summaries before making any gameplay optimization. Never merge PR #1 or modify the protected baseline or canonical decks.
