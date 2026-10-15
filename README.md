@@ -1,5 +1,8 @@
 # MTG Testing — Forge / Commander AI Lab Recovery README
 
+> **LATEST HANDOFF (2026-10-15):** For the current Forge AI timeout diagnosis, 663-line workflow/code audit, exact runs/commits, safety guardrails, and a copy-ready new-chat prompt, **read [docs/2026-10-15-FORGE-PERFORMANCE-AND-CODE-CLEANUP-HANDOFF.md](docs/2026-10-15-FORGE-PERFORMANCE-AND-CODE-CLEANUP-HANDOFF.md) first.** This supersedes older 'next work' sections below where they conflict. The experimental performance problem remains unresolved; do not treat earlier single-game completions as a reliable series. The protected baseline and canonical decks must not be changed without approval.
+
+
 **READ THIS FIRST IN EVERY NEW CHAT.** This is the project's persistent troubleshooting guardrail and recovery entry point. Updated 2026-10-14. Do not re-diagnose already solved failures without new evidence. The actual executable source of truth is the GitHub workflow and immutable run logs, not ChatGPT recollections or an old screenshot.
 
 ## Verified milestone — a REAL Commander game
