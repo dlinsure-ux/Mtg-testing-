@@ -1,4 +1,4 @@
-name: Lathiel New Opponents Five-Game Verification
+name: Lathiel Random Fixed-Pod Five-Game Verification
 # Experimental fixed-pod five-game run: Lathiel versus Aesi, Bello and Betor.
 # Five-game regression rerun after Lathiel v0.2 policy draft; runtime pilot unchanged.
 on:
@@ -47,7 +47,7 @@ jobs:
           PY
   build:
     needs: preflight
-    name: Five-game Lathiel versus Aesi Bello Betor
+    name: Five-game Lathiel random fixed-pod series
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -88,11 +88,32 @@ jobs:
           key: ${{ runner.os }}-maven-forge-lab-${{ hashFiles('forge/**/pom.xml', 'lab/**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-forge-lab-
-      - name: Preflight three new upstream opponent decks
+      - name: Randomize three distinct opponents for this series
         shell: bash
         run: |
           set -euo pipefail
-          python3 scripts/preflight_selected_decks.py decks/lathiel.dck opponents/aesi.dck opponents/bello.dck 'opponents/betor.dck'
+          python3 - <<'PY'
+          import json, os, random
+          from pathlib import Path
+          pool=sorted(p for p in Path('opponents').glob('*.dck') if p.is_file())
+          assert len(pool)>=3, 'At least three opponent decks required'
+          # System entropy, not a hand-picked or hardcoded opponent pod.
+          selected=random.SystemRandom().sample(pool,3)
+          with open(os.environ['GITHUB_ENV'],'a') as env:
+              for i,p in enumerate(selected,2):
+                  env.write(f'SEAT_{i}_PATH={p.as_posix()}\\n')
+          Path('results').mkdir(exist_ok=True)
+          Path('results/opponent-selection.json').write_text(json.dumps({
+              'selection':'SystemRandom sample without replacement',
+              'pool':[str(p) for p in pool],
+              'selected':[str(p) for p in selected]},indent=2)+'\\n')
+          print('Random opponent pod:', ', '.join(map(str,selected)))
+          PY
+      - name: Preflight selected random opponents
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/preflight_selected_decks.py decks/lathiel.dck "$SEAT_2_PATH" "$SEAT_3_PATH" "$SEAT_4_PATH"
       - name: Patch Commander AI Lab alternate-win outcome parsing
         shell: bash
         run: |
@@ -269,16 +290,16 @@ jobs:
           set -euo pipefail
           mkdir -p results diagnostics
           python3 - <<'PY'
-          import hashlib, json, subprocess
+          import hashlib, json, os, subprocess
           from pathlib import Path
           files = {
               'workflow': Path('.github/workflows/commander-ai-lab-build.yml'),
               'validator': Path('scripts/validate_forge_game.py'),
               'pilot_spec': Path('pilots/lathiel/v0.1.json'),
               'deck_lathiel': Path('decks/lathiel.dck'),
-              'deck_hakbal': Path('opponents/aesi.dck'),
-              'deck_anikthea': Path('opponents/bello.dck'),
-              'deck_caesar': Path('opponents/betor.dck'),
+              'deck_seat_2': Path(os.environ['SEAT_2_PATH']),
+              'deck_seat_3': Path(os.environ['SEAT_3_PATH']),
+              'deck_seat_4': Path(os.environ['SEAT_4_PATH']),
           }
           manifest = {'schema_version': 1, 'runtime_pilot_integrated': False,
                       'forge_commit': subprocess.check_output(['git','-C','forge','rev-parse','HEAD'],text=True).strip(),
@@ -300,9 +321,9 @@ jobs:
               --java17 "${JAVA_HOME}/bin/java" \
               --forge-dir forge/forge-gui \
               --deck1 "$GITHUB_WORKSPACE/decks/lathiel.dck" \
-              --deck2 "$GITHUB_WORKSPACE/opponents/aesi.dck" \
-              --deck3 "$GITHUB_WORKSPACE/opponents/bello.dck" \
-              --deck4 "$GITHUB_WORKSPACE/opponents/betor.dck" \
+              --deck2 "$GITHUB_WORKSPACE/$SEAT_2_PATH" \
+              --deck3 "$GITHUB_WORKSPACE/$SEAT_3_PATH" \
+              --deck4 "$GITHUB_WORKSPACE/$SEAT_4_PATH" \
               --games 1 --threads 1 --clock 600 --no-db \
               --output "results/game-$game/diagnostic-game.json" --verbose > "results/game-$game/smoke-test.log" 2>&1 &
             supervisor=$!
@@ -354,7 +375,7 @@ jobs:
             cp "results/game-$game/smoke-test.log" smoke-test.log
             cp "results/game-$game/diagnostic-game.json" results/diagnostic-game.json 2>/dev/null || true
             cp "results/game-$game/forge-sim-debug.log" forge/forge-sim-debug.log 2>/dev/null || true
-            if SEAT_2_PATH=opponents/aesi.dck SEAT_3_PATH=opponents/bello.dck SEAT_4_PATH=opponents/betor.dck python3 scripts/validate_forge_game.py; then
+            if python3 scripts/validate_forge_game.py; then
               echo "Game $game: strict validation passed"
             else
               echo "Game $game: strict validation FAILED"
