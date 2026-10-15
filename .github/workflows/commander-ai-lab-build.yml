@@ -162,17 +162,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          p = Path("lab/src/main/java/commanderailab/batch/BatchRunner.java")
-          source = p.read_text()
-          old = 'has won because (.+)'
-          new = 'has won (?:because|due to effect of) (.+)'
-          assert source.count(old) == 1, "Unexpected upstream winner parser; stop rather than patch blindly"
-          p.write_text(source.replace(old, new))
-          assert new in p.read_text()
-          print("Patched Lab outcome parser for effect-based alternate wins")
-          PY
+          python3 scripts/patch_lab_winner_parser.py
       - name: Verify Lab winner parser regression
         shell: bash
         run: |
