@@ -131,6 +131,28 @@ jobs:
           install -D forge-overrides/tokenscripts/c_a_lotus_kwia.txt forge/forge-gui/res/tokenscripts/c_a_lotus_kwia.txt
           grep -F 'Name:Kwia Vigorbloom' forge/forge-gui/res/cardsfolder/k/kwia_vigorbloom.txt
           grep -F 'Name:Lotus' forge/forge-gui/res/tokenscripts/c_a_lotus_kwia.txt
+      - name: Instrument Forge AI decision timeouts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('forge/forge-ai/src/main/java/forge/ai/AiController.java')
+          src = p.read_text()
+          old = '        } catch (InterruptedException | ExecutionException | TimeoutException e) {'
+          assert src.count(old) == 1, 'Upstream AI timeout handler changed; abort instrumentation'
+          new = '''        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+              if (e instanceof TimeoutException) {
+                  System.err.println("AI_DECISION_TIMEOUT player=" + player.getName()
+                          + " turn=" + game.getPhaseHandler().getTurn()
+                          + " phase=" + game.getPhaseHandler().getPhase()
+                          + " budget_seconds=" + game.getAITimeout()
+                          + " candidates=" + abilities.size());
+              }'''
+          # Use only known upstream types; no gameplay changes.
+          p.write_text(src.replace(old, new))
+          print('Instrumented AI timeout context in isolated Forge checkout')
+          PY
       - name: Build Forge dependencies
         shell: bash
         run: |
