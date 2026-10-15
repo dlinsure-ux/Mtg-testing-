@@ -3,6 +3,13 @@ name: Commander Forge Test Harness
 # Five-game regression rerun after Lathiel v0.2 policy draft; runtime pilot unchanged.
 on:
   workflow_dispatch:
+    inputs:
+      games:
+        description: Number of games
+        required: true
+        default: '5'
+        type: choice
+        options: ['1', '5', '10', '20']
   push:
     paths:
       - '.github/workflows/commander-ai-lab-build.yml'
