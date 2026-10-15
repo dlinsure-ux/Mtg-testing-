@@ -95,7 +95,7 @@ jobs:
           python3 - <<'PY'
           import json, os, random
           from pathlib import Path
-          pool=sorted(p for p in Path('opponents').glob('*.dck') if p.is_file())
+          pool=sorted(p for p in Path('opponents').glob('*.dck') if p.is_file() and p.name != 'winota_ultra_budget.dck')
           assert len(pool)>=3, 'At least three opponent decks required'
           # System entropy, not a hand-picked or hardcoded opponent pod.
           selected=random.SystemRandom().sample(pool,3)
@@ -106,6 +106,7 @@ jobs:
           Path('results/opponent-selection.json').write_text(json.dumps({
               'selection':'SystemRandom sample without replacement',
               'pool':[str(p) for p in pool],
+              'excluded':['opponents/winota_ultra_budget.dck'],
               'selected':[str(p) for p in selected]},indent=2)+'\\n')
           print('Random opponent pod:', ', '.join(map(str,selected)))
           PY
