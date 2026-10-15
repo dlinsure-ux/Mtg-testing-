@@ -81,6 +81,16 @@ jobs:
           git -C lab checkout --detach 54cc5e9b2e9ae6266c64b5cdf11f3302f311c701
           git clone https://github.com/KoalaTrapLord/Forge-Repo.git forge
           git -C forge checkout --detach edb28158f6d892f9eb43dc08f019aab567276027
+      - name: Install official Kwia Vigorbloom compatibility card
+        shell: bash
+        run: |
+          set -euo pipefail
+          target=forge/forge-gui/res/cardsfolder/k/kwia_vigorbloom.txt
+          test ! -e "$target" || { echo "::error::Kwia already exists in pinned Forge; inspect before overlay"; exit 1; }
+          install -D -m 0644 compat/forge/cards/kwia_vigorbloom.txt "$target"
+          grep -Fx 'Name:Kwia Vigorbloom' "$target"
+          grep -F 'TokenScript$ lotus' "$target"
+          echo "Installed upstream Kwia card definition into isolated experimental Forge checkout"
       - name: Cache Maven dependencies after upstream checkout
         uses: actions/cache@v4
         with:
