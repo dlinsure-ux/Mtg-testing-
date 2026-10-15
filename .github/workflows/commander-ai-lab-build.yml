@@ -147,7 +147,7 @@ jobs:
                           + " turn=" + game.getPhaseHandler().getTurn()
                           + " phase=" + game.getPhaseHandler().getPhase()
                           + " budget_seconds=" + game.getAITimeout()
-                          + " candidates=" + abilities.size());
+                          + " candidates=" + all.size());
               }'''
           # Use only known upstream types; no gameplay changes.
           p.write_text(src.replace(old, new))
