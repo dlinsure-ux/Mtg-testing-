@@ -285,17 +285,17 @@ jobs:
               echo "Game $game heartbeat $sample $(date -u +%FT%TZ)"
               # Publish progress in the live Actions log, which remains readable in the web UI.
               python3 - "diagnostics/game-$game/progress-watchdog.json" <<'PYPROGRESS'
-            import json,sys
-            from pathlib import Path
-            p=Path(sys.argv[1])
-            if p.exists():
-                samples=json.loads(p.read_text()).get("samples",[])
-                if samples:
-                    x=samples[-1]
-                    print("FORGE_PROGRESS turn={last_turn} turns_seen={turn_markers} actions={action_markers} stale_seconds={stale_seconds} possible_stall={possible_stall} terminal={terminal_result}".format(**x),flush=True)
-            else:
-                print("FORGE_PROGRESS awaiting first watchdog sample",flush=True)
-            PYPROGRESS
+          import json,sys
+          from pathlib import Path
+          p=Path(sys.argv[1])
+          if p.exists():
+              samples=json.loads(p.read_text()).get("samples",[])
+              if samples:
+                  x=samples[-1]
+                  print("FORGE_PROGRESS turn={last_turn} turns_seen={turn_markers} actions={action_markers} stale_seconds={stale_seconds} possible_stall={possible_stall} terminal={terminal_result}".format(**x),flush=True)
+          else:
+              print("FORGE_PROGRESS awaiting first watchdog sample",flush=True)
+          PYPROGRESS
               pgrep -af java > "diagnostics/game-$game/process-$sample.txt" || true
               pids="$(ps -eo pid=,args= | awk '/[j]ava/ && /forge-gui-desktop|jar-with-dependencies/ && !/commander-ai-lab/ {print $1}')"
               for pid in $pids; do
@@ -326,19 +326,19 @@ jobs:
             cp results/validation-report.json "results/game-$game/validation-report.json" 2>/dev/null || true
             # Reconcile the final Forge log even if the observer exited between samples.
             python3 - "$game" <<'PYFINAL'
-            import json,sys
-            from pathlib import Path
-            from scripts.game_progress_watchdog import progress_markers
-            game=sys.argv[1]
-            log=Path(f"results/game-{game}/forge-sim-debug.log")
-            markers=progress_markers(log.read_text(errors="replace")) if log.exists() else {}
-            report=Path(f"results/game-{game}/validation-report.json")
-            validation=json.loads(report.read_text()) if report.exists() else {}
-            summary={"game":int(game),"progress":markers,"validation":validation}
-            out=Path(f"results/game-{game}/game-summary.json")
-            out.write_text(json.dumps(summary,indent=2,default=str)+"\\n")
-            print(f"GAME_SUMMARY game={game} final_turn={markers.get('last_turn')} actions={markers.get('action_markers')} terminal={markers.get('terminal_result')} validation={validation.get('classification')} startup_timeouts={validation.get('startup_ai_decision_timeouts')} in_game_timeouts={validation.get('in_game_ai_decision_timeouts')}",flush=True)
-            PYFINAL
+          import json,sys
+          from pathlib import Path
+          from scripts.game_progress_watchdog import progress_markers
+          game=sys.argv[1]
+          log=Path(f"results/game-{game}/forge-sim-debug.log")
+          markers=progress_markers(log.read_text(errors="replace")) if log.exists() else {}
+          report=Path(f"results/game-{game}/validation-report.json")
+          validation=json.loads(report.read_text()) if report.exists() else {}
+          summary={"game":int(game),"progress":markers,"validation":validation}
+          out=Path(f"results/game-{game}/game-summary.json")
+          out.write_text(json.dumps(summary,indent=2,default=str)+"\\n")
+          print(f"GAME_SUMMARY game={game} final_turn={markers.get('last_turn')} actions={markers.get('action_markers')} terminal={markers.get('terminal_result')} validation={validation.get('classification')} startup_timeouts={validation.get('startup_ai_decision_timeouts')} in_game_timeouts={validation.get('in_game_ai_decision_timeouts')}",flush=True)
+          PYFINAL
             echo "::endgroup::"
             if [ "$failed" -ne 0 ]; then
               echo "::error::Game $game failed; stopping series to preserve evidence"
