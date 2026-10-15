@@ -94,7 +94,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m py_compile scripts/validate_forge_game.py tests/test_validator_patterns.py scripts/preflight_selected_decks.py
-          python3 scripts/preflight_selected_decks.py decks/lathiel.dck opponents/deadpool.dck opponents/shroofus.dck opponents/winota_ultra_budget.dck
+          python3 scripts/preflight_selected_decks.py "$PRIMARY_DECK" opponents/deadpool.dck opponents/shroofus.dck opponents/winota_ultra_budget.dck
           python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
       - name: Static workflow analysis
         uses: raven-actions/actionlint@v2
@@ -157,7 +157,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 scripts/preflight_selected_decks.py decks/lathiel.dck "$SEAT_2_PATH" "$SEAT_3_PATH" "$SEAT_4_PATH"
+          python3 scripts/preflight_selected_decks.py "$PRIMARY_DECK" "$SEAT_2_PATH" "$SEAT_3_PATH" "$SEAT_4_PATH"
       - name: Patch Commander AI Lab alternate-win outcome parsing
         shell: bash
         run: |
@@ -368,8 +368,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$HOME/.forge/decks/commander"
-          cp decks/lathiel.dck "$SEAT_2_PATH" "$SEAT_3_PATH" "$SEAT_4_PATH" "$HOME/.forge/decks/commander/"
-          for deck in decks/lathiel.dck "$SEAT_2_PATH" "$SEAT_3_PATH" "$SEAT_4_PATH"; do
+          cp "$PRIMARY_DECK" "$SEAT_2_PATH" "$SEAT_3_PATH" "$SEAT_4_PATH" "$HOME/.forge/decks/commander/"
+          for deck in "$PRIMARY_DECK" "$SEAT_2_PATH" "$SEAT_3_PATH" "$SEAT_4_PATH"; do
             installed="$HOME/.forge/decks/commander/$(basename "$deck")"
             test -s "$installed" || { echo "::error::Missing installed Forge deck: $installed"; exit 1; }
             cmp "$deck" "$installed" || { echo "::error::Installed Forge deck differs: $deck"; exit 1; }
@@ -394,7 +394,7 @@ jobs:
               'workflow': Path('.github/workflows/commander-ai-lab-build.yml'),
               'validator': Path('scripts/validate_forge_game.py'),
               'pilot_spec': Path('pilots/lathiel/v0.1.json'),
-              'deck_lathiel': Path('decks/lathiel.dck'),
+              'deck_primary': Path(os.environ['PRIMARY_DECK']),
               'deck_seat_2': Path(os.environ['SEAT_2_PATH']),
               'deck_seat_3': Path(os.environ['SEAT_3_PATH']),
               'deck_seat_4': Path(os.environ['SEAT_4_PATH']),
@@ -410,8 +410,8 @@ jobs:
           FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
           failed=0
           # Five-game validation against the exact previously successful fixed pod.
-          for game in 1 2 3 4 5; do
-            echo "::group::Game $game / 5"
+          for ((game=1; game<=GAME_COUNT; game++)); do
+            echo "::group::Game $game / $GAME_COUNT"
             echo "Starting game $game at $(date -u +%FT%TZ)"
             rm -f forge/forge-sim-debug.log
             mkdir -p "results/game-$game" "diagnostics/game-$game"
@@ -419,7 +419,7 @@ jobs:
               --forge-jar "$FORGE_JAR" \
               --java17 "${JAVA_HOME}/bin/java" \
               --forge-dir forge/forge-gui \
-              --deck1 "$GITHUB_WORKSPACE/decks/lathiel.dck" \
+              --deck1 "$GITHUB_WORKSPACE/$PRIMARY_DECK" \
               --deck2 "$GITHUB_WORKSPACE/$SEAT_2_PATH" \
               --deck3 "$GITHUB_WORKSPACE/$SEAT_3_PATH" \
               --deck4 "$GITHUB_WORKSPACE/$SEAT_4_PATH" \
