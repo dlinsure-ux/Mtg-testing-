@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "pilot": "lathiel",
+  "version": "0.3",
+  "status": "specification_only",
+  "engine": "Forge built-in AI",
+  "runtime_integrated": false,
+  "priorities": {
+    "tutor": [
+      "find missing repeatable life-gain or lifelink engine",
+      "find evasion/protection when large lifelink attacker exists",
+      "find counter multiplier when gain engine and attack access are established"
+    ],
+    "commander": "deploy early when likely to survive; protect existing engine before recasting into obvious removal",
+    "combat": "Preserve utility lifegain creatures; make profitable lifelink attacks",
+    "board_wipes": "evaluate own engine loss, opponent threats, survival and post-wipe recovery before casting",
+    "protection": "prioritize saving Lathiel, Rhox Faithmender, and other established multipliers from removal when tactically meaningful",
+    "alternate_wins": "Prioritize removing opponent alternate-win permanents when imminent, including Simic Ascendancy",
+    "engine_order": "Establish repeatable life gain before adding life and counter multipliers"
+  },
+  "decision_guards": [
+    {
+      "id": "wipe-own-engine",
+      "rule": "Do not cast Damning Verdict when it destroys our Ohran Frostfang or Rhox Faithmender unless preventing imminent loss or materially improving win probability"
+    },
+    {
+      "id": "tutor-target-log",
+      "rule": "Record candidate targets, selected card, game state, and justification before grading tutor choice"
+    },
+    {
+      "id": "commander-uptime",
+      "rule": "Track available mana, commander tax, battlefield presence, cast opportunities, and missed casts"
+    },
+    {
+      "id": "life-engine",
+      "rule": "Track per-turn life gains, source, multipliers, counter placement and peak life total"
+    },
+    {
+      "id": "draw-trace",
+      "rule": "Track draw by source and cards stranded in hand; never infer from casts alone"
+    },
+    {
+      "id": "draw-audit",
+      "rule": "Log exact card draw source and stranded cards when observable; otherwise mark unknown"
+    }
+  ],
+  "notes": "Specification only; not connected to Forge runtime."
+}
