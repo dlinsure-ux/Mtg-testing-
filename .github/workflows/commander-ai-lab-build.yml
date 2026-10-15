@@ -349,6 +349,16 @@ jobs:
           set -euo pipefail
           cd lab
           mvn -B -ntp -DskipTests -Drevision=2.0.12-SNAPSHOT package 2>&1 | tee ../lab-build.log
+      - name: Preserve compiled binaries before gameplay
+        uses: actions/cache/save@v4
+        if: steps.compiled.outputs.cache-hit != 'true'
+        with:
+          path: |
+            forge/forge-gui-desktop/target
+            forge/forge-ai/target
+            lab/target
+            ~/.m2/repository
+          key: ${{ steps.compiled.outputs.cache-primary-key }}
       - name: Verify Forge desktop artifact exists
         shell: bash
         run: |
