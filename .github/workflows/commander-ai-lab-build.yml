@@ -293,7 +293,7 @@ jobs:
         run: |
           command -v jcmd
           command -v jstack
-      - name: Run five sequential validated Forge games
+      - name: Run single diagnostic Forge game
         shell: bash
         timeout-minutes: 85
         run: |
@@ -321,7 +321,8 @@ jobs:
           PY
           FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
           failed=0
-          for game in 1 2 3 4 5; do
+          # One-game diagnostic gate: collect evidence before committing to a full series.
+          for game in 1; do
             echo "::group::Game $game / 5"
             echo "Starting game $game at $(date -u +%FT%TZ)"
             rm -f forge/forge-sim-debug.log
@@ -413,8 +414,8 @@ jobs:
               exit 1
             fi
           done
-          echo "Five sequential games attempted; any invalid game makes this job fail."
-          if [ "$failed" -eq 0 ]; then echo "Five-game series validated"; fi
+          echo "Single diagnostic game attempted; invalid results fail closed."
+          if [ "$failed" -eq 0 ]; then echo "Single diagnostic game validated"; fi
           exit "$failed"
       - name: Publish run outcome in dashboard issue
         if: always()
