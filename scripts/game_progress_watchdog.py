@@ -18,6 +18,7 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--log",required=True)
     p.add_argument("--output",required=True)
+    p.add_argument("--fallback-log",action="append",default=[])
     p.add_argument("--interval",type=int,default=60)
     p.add_argument("--stale-seconds",type=int,default=300)
     p.add_argument("--max-seconds",type=int,default=900)
@@ -27,16 +28,16 @@ def main():
     previous=None
     samples=[]
     while time.monotonic()-started < args.max_seconds:
-        path=Path(args.log)
-        text=path.read_text(errors="replace") if path.exists() else ""
-        markers=progress_markers(text)
-        signature=(markers["last_turn"],markers["turn_markers"],markers["action_markers"],markers["terminal_result"])
+        candidates=[Path(args.log)]+[Path(x) for x in args.fallback_log]
+        observed=[(path,progress_markers(path.read_text(errors="replace"))) for path in candidates if path.is_file()]
+        source,markers=max(observed,key=lambda item:(item[1]["action_markers"],item[1]["turn_markers"])) if observed else (None,progress_markers(""))
+        signature=(str(source),markers["last_turn"],markers["turn_markers"],markers["action_markers"],markers["terminal_result"])
         now=time.monotonic()
         if signature!=previous:
             last_change=now
             previous=signature
-        stale=now-last_change>=args.stale_seconds
-        samples.append({"elapsed_seconds":round(now-started,1),"stale_seconds":round(now-last_change,1),**markers,"possible_stall":stale})
+        stale=bool(observed) and now-last_change>=args.stale_seconds
+        samples.append({"elapsed_seconds":round(now-started,1),"stale_seconds":round(now-last_change,1),**markers,"source_log":str(source) if source else None,"possible_stall":stale})
         Path(args.output).parent.mkdir(parents=True,exist_ok=True)
         Path(args.output).write_text(json.dumps({"samples":samples,"warning":"Stall suspicion is not proof of deadlock"},indent=2)+"\n")
         if markers["terminal_result"]: return
