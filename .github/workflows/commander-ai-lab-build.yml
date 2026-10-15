@@ -153,6 +153,43 @@ jobs:
           p.write_text(src.replace(old, new))
           print('Instrumented AI timeout context in isolated Forge checkout')
           PY
+      - name: Integrate Lathiel commander cast priority into isolated Forge AI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('forge/forge-ai/src/main/java/forge/ai/AiController.java')
+          src=p.read_text()
+          old='        SpellAbility chosenSa = chooseSpellAbilityToPlayFromList(saList, true);'
+          assert src.count(old)==1, 'Upstream decision selection changed'
+          new='''        // Lathiel experiment: prefer casting the commander when Forge considers
+          // its spell playable. Never bypass Forge's own legality/cost/AI checks.
+          // Only during our main phase, with an empty stack and no immediate
+          // life-danger warning; other players retain stock behavior.
+          if (game.getStack().isEmpty()
+                  && (game.getPhaseHandler().is(PhaseType.MAIN1)
+                      || game.getPhaseHandler().is(PhaseType.MAIN2))
+                  && player.getCardsIn(ZoneType.Command).stream()
+                      .anyMatch(c -> c.getName().equals("Lathiel, the Bounteous Dawn"))
+                  && !ComputerUtil.aiLifeInDanger(player, true, 0)) {
+              List<SpellAbility> lathiel = saList.stream()
+                      .filter(sa -> sa.getHostCard() != null
+                              && sa.getHostCard().getName().equals("Lathiel, the Bounteous Dawn")
+                              && sa.getHostCard().getZone() != null
+                              && sa.getHostCard().getZone().getZoneType() == ZoneType.Command)
+                      .collect(Collectors.toList());
+              SpellAbility commanderCast = chooseSpellAbilityToPlayFromList(lathiel, true);
+              if (commanderCast != null) {
+                  System.err.println("LATHIEL_COMMANDER_PRIORITY selected turn="
+                          + game.getPhaseHandler().getTurn());
+                  return commanderCast;
+              }
+          }
+          SpellAbility chosenSa = chooseSpellAbilityToPlayFromList(saList, true);'''
+          p.write_text(src.replace(old,new))
+          print('Lathiel commander priority patch installed in isolated Forge checkout')
+          PY
       - name: Build Forge dependencies
         shell: bash
         run: |
