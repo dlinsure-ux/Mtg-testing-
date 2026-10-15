@@ -65,7 +65,7 @@ jobs:
           PY
   build:
     needs: preflight
-    name: Five-game Lathiel random fixed-pod series
+    name: Commander deck series
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -409,7 +409,7 @@ jobs:
           PY
           FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
           failed=0
-          # Five-game validation against the exact previously successful fixed pod.
+          # Validate the selected deck against one fixed or randomly sampled pod.
           for ((game=1; game<=GAME_COUNT; game++)); do
             echo "::group::Game $game / $GAME_COUNT"
             echo "Starting game $game at $(date -u +%FT%TZ)"
@@ -508,8 +508,8 @@ jobs:
               exit 1
             fi
           done
-          echo "Five-game fixed-pod series attempted; invalid results fail closed."
-          if [ "$failed" -eq 0 ]; then echo "Five-game fixed-pod series validated"; fi
+          echo "Configurable Commander series attempted; invalid results fail closed."
+          if [ "$failed" -eq 0 ]; then echo "Configured Commander series validated"; fi
           exit "$failed"
       - name: Publish run outcome in dashboard issue
         if: always()
