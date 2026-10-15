@@ -303,13 +303,25 @@ jobs:
           p.write_text(src.replace(old,new))
           print('Lathiel commander priority patch installed in isolated Forge checkout')
           PY
+      - name: Restore reusable compiled Forge and Lab build
+        id: compiled
+        uses: actions/cache@v4
+        with:
+          path: |
+            forge/forge-gui-desktop/target
+            forge/forge-ai/target
+            lab/target
+            ~/.m2/repository
+          key: ${{ runner.os }}-compiled-forge-lab-v1-${{ hashFiles('.github/workflows/commander-ai-lab-build.yml', 'forge-overrides/**') }}
       - name: Build Forge dependencies
+        if: steps.compiled.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
           cd forge
           mvn -B -ntp install -pl forge-gui-desktop -am -DskipTests -Drevision=2.0.12-SNAPSHOT 2>&1 | tee ../forge-build.log
       - name: Repair installed Forge parent POM version
+        if: steps.compiled.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -326,6 +338,7 @@ jobs:
           for item in fixed: print(item)
           PY
       - name: Build Commander AI Lab
+        if: steps.compiled.outputs.cache-hit != 'true'
         shell: bash
         run: |
           set -euo pipefail
