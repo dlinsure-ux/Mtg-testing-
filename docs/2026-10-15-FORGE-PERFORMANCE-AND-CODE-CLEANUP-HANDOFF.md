@@ -120,3 +120,10 @@ Audit risks requiring tests, not speculative shortcuts:
 - Extracted Lab parser script has tests committed but no new CI run was independently verified in this audit. Do not claim it passed.
 
 Next: inspect/download artifact 12006638829 before expiry; aggregate real per-method timings and stack evidence; establish deterministic workload or a replay fixture; add validator and patch regression tests before gameplay optimization. No changes to protected baseline, canonical decks, AI time budget or PR #1.
+
+## 11. Next staged work — timeout regression coverage
+
+- Commit `0a322f3f`: added `tests/test_timeout_ordering.py`, exercising a buffered `AI_DECISION_TIMEOUT` context that precedes `Turn: Turn 1` but carries a real turn number, plus an unclassified startup timeout. Both must remain INVALID.
+- Commit `44ab8ddc`: included the new tests in both workflow preflights. No Forge AI source, deck, timeout budget, or protected baseline changed.
+- A GitHub commit-to-run lookup returned no associated workflow runs at the time of inspection. These tests are **committed but not verified as passing**; no gameplay run is claimed.
+- Next work remains: obtain artifact 12006638829, inspect raw timeout stacks and JFR evidence, then add cumulative low-overhead instrumentation and deterministic comparisons before modifying combat heuristics.
