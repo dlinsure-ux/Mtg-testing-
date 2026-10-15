@@ -101,14 +101,15 @@ jobs:
           # Targeted five-game loading stress test: two previously rejected decks, plus one random third.
           fixed=[Path('opponents/winota_ultra_budget.dck'),Path('opponents/shroofus.dck')]
           assert all(p in pool for p in fixed), 'Stress-test decks missing from pool'
-          third=random.SystemRandom().choice([p for p in pool if p not in fixed])
+          third=Path('opponents/deadpool.dck')
+          assert third in pool and third not in fixed, 'Deadpool fixed-pod opponent missing'
           selected=fixed+[third]
           with open(os.environ['GITHUB_ENV'],'a') as env:
               for i,p in enumerate(selected,2):
                   env.write(f'SEAT_{i}_PATH={p.as_posix()}\n')
           Path('results').mkdir(exist_ok=True)
           Path('results/opponent-selection.json').write_text(json.dumps({
-              'selection':'Targeted Winota + Shroofus loading stress test; third opponent SystemRandom',
+              'selection':'Fixed validation pod: Winota, Shroofus, Deadpool for five games',
               'pool':[str(p) for p in pool],
               'selected':[str(p) for p in selected]},indent=2)+'\\n')
           print('Random opponent pod:', ', '.join(map(str,selected)))
@@ -369,8 +370,8 @@ jobs:
           PY
           FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
           failed=0
-          # One-game diagnostic gate: collect evidence before committing to a full series.
-          for game in 1; do
+          # Five-game validation against the exact previously successful fixed pod.
+          for game in 1 2 3 4 5; do
             echo "::group::Game $game / 5"
             echo "Starting game $game at $(date -u +%FT%TZ)"
             rm -f forge/forge-sim-debug.log
@@ -463,8 +464,8 @@ jobs:
               exit 1
             fi
           done
-          echo "Single diagnostic game attempted; invalid results fail closed."
-          if [ "$failed" -eq 0 ]; then echo "Single diagnostic game validated"; fi
+          echo "Five-game fixed-pod series attempted; invalid results fail closed."
+          if [ "$failed" -eq 0 ]; then echo "Five-game fixed-pod series validated"; fi
           exit "$failed"
       - name: Publish run outcome in dashboard issue
         if: always()
