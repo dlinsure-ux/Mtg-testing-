@@ -64,6 +64,8 @@ report = {
     "whole_game_timeout": whole_game_timeout,
     "ai_timeout_contexts": timeout_contexts,
     "ai_timeout_context_in_game": context_in_game,
+    "ai_timeout_turn_numbers": [int(m.group(1)) for m in context_turns if m],
+    "terminal_turn_numbers": [int(x) for x in re.findall(r"^Game Outcome: Turn (\d+)", forge, re.M)],
     "warnings": ([f"{startup_ai_timeouts} AI timeout traces before first turn marker (may reflect buffered log ordering)"] if startup_ai_timeouts else []),
     "unsupported_cards": unsupported[:10],
     "supervisor_exit": exit_status,
