@@ -101,7 +101,7 @@ jobs:
           selected=random.SystemRandom().sample(pool,3)
           with open(os.environ['GITHUB_ENV'],'a') as env:
               for i,p in enumerate(selected,2):
-                  env.write(f'SEAT_{i}_PATH={p.as_posix()}\\n')
+                  env.write(f'SEAT_{i}_PATH={p.as_posix()}\n')
           Path('results').mkdir(exist_ok=True)
           Path('results/opponent-selection.json').write_text(json.dumps({
               'selection':'SystemRandom sample without replacement',
