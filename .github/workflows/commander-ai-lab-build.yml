@@ -98,13 +98,17 @@ jobs:
           pool=sorted(p for p in Path('opponents').glob('*.dck') if p.is_file())
           assert len(pool)>=3, 'At least three opponent decks required'
           # System entropy, not a hand-picked or hardcoded opponent pod.
-          selected=random.SystemRandom().sample(pool,3)
+          # Targeted five-game loading stress test: two previously rejected decks, plus one random third.
+          fixed=[Path('opponents/winota_ultra_budget.dck'),Path('opponents/shroofus.dck')]
+          assert all(p in pool for p in fixed), 'Stress-test decks missing from pool'
+          third=random.SystemRandom().choice([p for p in pool if p not in fixed])
+          selected=fixed+[third]
           with open(os.environ['GITHUB_ENV'],'a') as env:
               for i,p in enumerate(selected,2):
                   env.write(f'SEAT_{i}_PATH={p.as_posix()}\n')
           Path('results').mkdir(exist_ok=True)
           Path('results/opponent-selection.json').write_text(json.dumps({
-              'selection':'SystemRandom sample without replacement',
+              'selection':'Targeted Winota + Shroofus loading stress test; third opponent SystemRandom',
               'pool':[str(p) for p in pool],
               'selected':[str(p) for p in selected]},indent=2)+'\\n')
           print('Random opponent pod:', ', '.join(map(str,selected)))
