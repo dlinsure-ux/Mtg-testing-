@@ -419,6 +419,11 @@ jobs:
               pids="$(ps -eo pid=,args= | awk '/[j]ava/ && /forge-gui-desktop|jar-with-dependencies/ && !/commander-ai-lab/ {print $1}')"
               for pid in $pids; do
                 ps -p "$pid" -o pid,ppid,lstart,etime,args >> "diagnostics/game-$game/process-$sample.txt" || true
+                if [ ! -f "diagnostics/game-$game/profile-started-$pid" ]; then
+                  if timeout 15 jcmd "$pid" JFR.start name=forge_profile settings=profile "filename=$GITHUB_WORKSPACE/diagnostics/game-$game/profile-$pid.jfr" dumponexit=true maxsize=32m > "diagnostics/game-$game/profile-start-$pid.log" 2>&1; then
+                    touch "diagnostics/game-$game/profile-started-$pid"
+                  fi
+                fi
                 timeout 15 jcmd "$pid" Thread.print -l > "diagnostics/game-$game/thread-$sample-$pid.txt" 2>&1 || timeout 15 jstack -l "$pid" > "diagnostics/game-$game/jstack-$sample-$pid.txt" 2>&1 || true
               done
               wc -c "results/game-$game/smoke-test.log" > "diagnostics/game-$game/log-bytes-$sample.txt" || true
