@@ -1,0 +1,53 @@
+# Forge AI performance: evidence-backed long-term plan (2026-10-15)
+
+## Evidence inspected
+
+- GitHub Actions run 38821663401, artifact 12012687900: extracted actual `forge/forge-sim-debug.log`, `diagnostics/game-1/profile-3344.jfr`, `thread-2-3344.txt`, validation report and JFR-start log.
+- Build and Lab process succeeded; game ended but validator correctly classified INVALID: three AI decision timeouts (Shroofus turn 28 COMBAT_BEGIN; Winota turn 31 COMBAT_BEGIN; Shroofus turn 32 COMBAT_BEGIN).
+- The 85 `FORGE_BLOCK_PROFILE` records at >=100ms sum to 52,951ms of **cumulative invocation time**, max 2,893ms; this is not wall-clock or CPU time and may overlap. Three slow `FORGE_COMBAT_PROFILE` records sum to 1,995ms.
+- JFR duration 112 seconds, 1,536 execution samples: `Card.isValid` on 1,208 sample stacks; `Card.hasProperty` 1,177; `CardProperty.cardHasProperty` 1,172; `CardPredicates.lambda$restriction$20` 1,032. Nested frames are not independent samples. 1,328 samples came from `pool-3-thread-1`, 207 from `Game AI Eval`, and 1 from JFR tasks; therefore **do not attribute all samples to AI decision time**.
+- Timeout stack 1: `CardState.updateSpellAbilities -> ComputerUtilCombat.predictToughnessBonusOfAttacker -> canDestroyBlocker`. Timeout stack 2: `Card.updateStaticAbilities -> CostAdjustment.adjust -> CostPayment.canPayAdditionalCosts -> ComputerUtilMana.groupSourcesByManaColor -> payManaCost`. Timeout stack 3: `ComputerUtilCombat.canDestroyBlockerBeforeFirstStrike -> AiBlockController.makeGoodBlocks -> ComputerUtil.predictNextCombatsRemainingLife -> AiAttackController.notNeededAsBlockers`.
+- JFR was started successfully on the real Forge JVM (PID 3344); thread snapshot shows `Game AI Eval` in `StaticAbilityMustTarget.getAllRestrictions` via `ChangeZoneAi`. This is a separate sample and does not prove a deadlock.
+- Earlier runs 38806749643 (10 timeouts) and 38821380104 (4 timeouts) are distinct randomized games, not a controlled before/after comparison.
+
+## Working diagnosis
+
+The principal bottleneck is repeated speculative combat/legality evaluation interacting with expensive card-validity, static ability, replacement-effect and mana checks. The stacks implicate *multiple* paths, not one infinite loop. Nested attacker/blocker prediction is a plausible multiplier. The JFR hotspot is real but requires thread-specific attribution and a controlled workload before modifying `Card.isValid` or caching results. Rules correctness is paramount: game state, zones, timestamps, continuous effects, and replacement effects can invalidate naive caches.
+
+## Long-term stages and exit criteria
+
+### Stage 0 — Preserve and reproduce
+1. Preserve diagnostic artifacts before October 29 expiry; retain exact pinned Forge/Lab/harness SHAs, deck checksums, JVM options, logs and JFR settings.
+2. Find whether pinned Forge/Lab exposes a reproducible RNG seed or serialized game-state replay. Verify it in code; do not assume.
+3. Until deterministic replay exists, compare paired repeated pods with confidence intervals and per-decision distributions; do not claim a fix from fewer timeouts in a single random game.
+**Exit:** reproducible or statistically comparable performance baseline with known board complexity.
+
+### Stage 1 — Observability with minimal perturbation
+1. Record per-method invocation counts, total inclusive time, max, p50/p95/p99 and caller, per decision; distinguish nested-inclusive times from exclusive CPU.
+2. Instrument `AiAttackController.notNeededAsBlockers`, `ComputerUtil.predictNextCombatsRemainingLife`, `AiBlockController.makeGoodBlocks`, `ComputerUtilCombat.canDestroyBlocker`, `ComputerUtilMana.groupSourcesByManaColor`, and relevant static/replacement queries.
+3. Include active-player seat, phase, board creatures/permanents, number of candidate actions and JVM GC time. Emit bounded per-decision summaries, not hot-loop logging.
+4. Capture JFR from startup, filter by thread and stack, and verify real JVM PID. Correlate each timeout context to trace/profile.
+**Exit:** at least 90% of expensive decisions attributable to measured call chains; no noticeable instrumentation-induced slowdown.
+
+### Stage 2 — Isolate root cause without changing decisions
+1. Compare caller frequency vs individual call latency and distinguish card-validation overhead from repeated unnecessary evaluation.
+2. Review and test existing aliasing change (`new ArrayList<>(attackers)` removal) and no-creature fast path; only retain after decision-equivalence checks.
+3. Extract inline Forge patches into pinned, fail-closed, idempotent scripts with unit tests. Fix workflow trigger/caching behavior and separate preflight from expensive gameplay.
+4. Strengthen timeout log de-duplication, terminal winner/loser reconciliation and watchdog PID/progress checks; retain fail-closed rules.
+**Exit:** all existing tests plus source-level equivalence tests pass, reproducible patch application.
+
+### Stage 3 — Targeted optimization
+1. First optimize redundant **repeated** combat simulations (per-decision reuse with explicit invalidation boundaries); never cache across state changes without a proven state key.
+2. If profiling still identifies card validity or mana as dominant, optimize allocations and redundant queries only after profiling the specific caller and proving identical legal decisions.
+3. Consider algorithmic blocker-search pruning only if mathematically equivalent; do not use arbitrary board-size cutoffs, skip legal candidates or extend the five-second budget.
+**Exit:** measurable p95/p99 decision-time improvement on matched workloads and zero decision/legality divergences.
+
+### Stage 4 — Progressive gameplay verification
+1. Offline Python/actionlint, Java compile, patch-idempotence tests and deterministic fixtures.
+2. One real four-player game, then fixed five-game pod, then 10/20-game random pool.
+3. Require zero in-game AI decision timeouts, one consistent terminal winner, no unsupported cards, no silent hangs, preserved raw logs and verified rules behavior.
+4. Record every run ID, commit, exact outcome and unresolved defect in the handoff and README. Do not merge PR #1 or touch protected baseline/canonical decks without explicit approval.
+
+## Immediate next engineering task
+
+Implement **per-decision bounded aggregated timing** for the identified nested combat and mana call chains, then rerun a pinned one-game diagnostic with JFR starting at JVM launch. Analyze by thread and caller. Do not optimize `Card.isValid` blindly; JFR includes non-AI worker threads. This document is a diagnosis and plan, not a claim that the underlying issue is fixed.
