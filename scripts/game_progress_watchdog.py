@@ -9,8 +9,9 @@ from pathlib import Path
 def progress_markers(text):
     turns=re.findall(r"^(?:Turn: (?:Turn )?|Game Outcome: Turn )(\d+)\b",text,re.M)
     actions=re.findall(r"^(?:Add To Stack:|Resolve Stack:|Combat:|Damage:|Phase:|Game Outcome:|Game Result:)",text,re.M)
-    terminal=bool(re.search(r"^(?:Game Result: Game \d+ ended in|Game Outcome: Ai\(\d+\)-.+ has won because)",text,re.M))
-    return {"last_turn":int(turns[-1]) if turns else None,
+    terminal=bool(re.search(r"^(?:Game Result: Game \d+ ended in|Game Outcome: Ai\(\d+\)-.+ has won (?:because|due to effect of))",text,re.M))
+    terminal_turns=re.findall(r"^Game Outcome: Turn (\d+)\b",text,re.M)
+    return {"last_turn":int(terminal_turns[-1]) if terminal_turns else (int(turns[-1]) if turns else None),
             "turn_markers":len(turns),"action_markers":len(actions),
             "terminal_result":terminal}
 
