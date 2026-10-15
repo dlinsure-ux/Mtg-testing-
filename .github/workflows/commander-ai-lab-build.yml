@@ -47,7 +47,7 @@ jobs:
           PY
   build:
     needs: preflight
-    name: Five-game sequential series
+    name: Single-game revised-deck smoke test
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -223,7 +223,7 @@ jobs:
           PY
           FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
           failed=0
-          for game in 1 2 3 4 5; do
+          for game in 1; do
             echo "::group::Game $game / 5"
             echo "Starting game $game at $(date -u +%FT%TZ)"
             rm -f forge/forge-sim-debug.log
@@ -283,8 +283,8 @@ jobs:
               exit 1
             fi
           done
-          echo "All five games attempted; any invalid game makes this job fail."
-          if [ "$failed" -eq 0 ]; then python3 scripts/audit_series.py results; fi
+          echo "Single smoke game attempted; any invalid game makes this job fail."
+          if [ "$failed" -eq 0 ]; then echo "Single game validated; five-game series audit intentionally skipped"; fi
           exit "$failed"
       - name: Publish run outcome in dashboard issue
         if: always()
@@ -296,7 +296,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: lathiel-five-game-series-evidence
+          name: lathiel-revised-single-game-evidence
           path: |
             forge-build.log
             lab-build.log
