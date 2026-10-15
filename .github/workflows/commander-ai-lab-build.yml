@@ -280,9 +280,26 @@ jobs:
           p=Path('forge/forge-ai/src/main/java/forge/ai/ComputerUtilCard.java')
           s=p.read_text()
           old='if (!doesCreatureAttackAI(ai, c) && doesSpecifiedCreatureAttackAI(ai, pumped)) {'
-          new='if (!doesCreatureAttackAI(ai, c) && doesSpecifiedCreatureAttackAI(ai, pumped)) {'
+          new='if (!doesCreatureAttackAI(ai, c) && pumpedWouldAttack.getAsBoolean()) {'
           assert s.count(old)==1, 'Unexpected Forge pump heuristic revision'
           s=s.replace(old,new)
+          anchor='        List<Card> oppCreatures = opp.getCreaturesInPlay();'
+          assert s.count(anchor)==1
+          memo='''        // Cache only within this invocation, never across changing game states.
+                  final java.util.function.BooleanSupplier pumpedWouldAttack = new java.util.function.BooleanSupplier() {
+                      private Boolean answer;
+                      @Override public boolean getAsBoolean() {
+                          if (answer == null) {
+                              answer = doesSpecifiedCreatureAttackAI(ai, pumped);
+                          }
+                          return answer;
+                      }
+                  };
+          '''
+          s=s.replace(anchor,memo+anchor)
+          haste='if (doesSpecifiedCreatureAttackAI(ai, pumped)) {'
+          assert s.count(haste)==1
+          s=s.replace(haste,'if (pumpedWouldAttack.getAsBoolean()) {')
           p.write_text(s)
           print('Bound expensive speculative attacker evaluation for pump spells on crowded boards')
           PY
