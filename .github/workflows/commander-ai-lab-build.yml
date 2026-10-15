@@ -271,6 +271,21 @@ jobs:
           assert new in p.read_text()
           print('Installed conservative no-creatures blocker simulation fast path')
           PY
+      - name: Bound speculative pump combat evaluation on crowded boards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('forge/forge-ai/src/main/java/forge/ai/ComputerUtilCard.java')
+          s=p.read_text()
+          old='if (!doesCreatureAttackAI(ai, c) && doesSpecifiedCreatureAttackAI(ai, pumped)) {'
+          new='if (ai.getCreaturesInPlay().size() <= 12 && !doesCreatureAttackAI(ai, c) && doesSpecifiedCreatureAttackAI(ai, pumped)) {'
+          assert s.count(old)==1, 'Unexpected Forge pump heuristic revision'
+          s=s.replace(old,new)
+          p.write_text(s)
+          print('Bound expensive speculative attacker evaluation for pump spells on crowded boards')
+          PY
       - name: Integrate Lathiel commander cast priority into isolated Forge AI
         shell: bash
         run: |
