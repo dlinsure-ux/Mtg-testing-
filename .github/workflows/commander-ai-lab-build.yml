@@ -1,5 +1,5 @@
 name: Commander AI Lab Build Verification
-# Experimental release-gate run: strict game-one validation before remaining fixed-pod games.
+# Experimental five-game fixed-pod run with strict validation for each game.
 # Five-game regression rerun after Lathiel v0.2 policy draft; runtime pilot unchanged.
 on:
   workflow_dispatch:
@@ -47,7 +47,7 @@ jobs:
           PY
   build:
     needs: preflight
-    name: Single-game revised-deck smoke test
+    name: Five-game fixed-pod Lathiel series
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -253,7 +253,7 @@ jobs:
           PY
           FORGE_JAR="$(realpath "$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)")"
           failed=0
-          for game in 1; do
+          for game in 1 2 3 4 5; do
             echo "::group::Game $game / 5"
             echo "Starting game $game at $(date -u +%FT%TZ)"
             rm -f forge/forge-sim-debug.log
@@ -313,8 +313,8 @@ jobs:
               exit 1
             fi
           done
-          echo "Single smoke game attempted; any invalid game makes this job fail."
-          if [ "$failed" -eq 0 ]; then echo "Single game validated; five-game series audit intentionally skipped"; fi
+          echo "Five sequential games attempted; any invalid game makes this job fail."
+          if [ "$failed" -eq 0 ]; then echo "Five-game series validated"; fi
           exit "$failed"
       - name: Publish run outcome in dashboard issue
         if: always()
