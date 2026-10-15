@@ -7,9 +7,9 @@ import time
 from pathlib import Path
 
 def progress_markers(text):
-    turns=re.findall(r"^Turn: (?:Turn )?(\d+)\b",text,re.M)
-    actions=re.findall(r"^(?:Game Outcome:|Game Result:|.*(?: plays | casts | attacks | activates ))",text,re.M)
-    terminal=bool(re.search(r"^Game Result: Game \d+ ended in",text,re.M))
+    turns=re.findall(r"^(?:Turn: (?:Turn )?|Game Outcome: Turn )(\d+)\b",text,re.M)
+    actions=re.findall(r"^(?:Add To Stack:|Resolve Stack:|Combat:|Damage:|Phase:|Game Outcome:|Game Result:)",text,re.M)
+    terminal=bool(re.search(r"^(?:Game Result: Game \d+ ended in|Game Outcome: Ai\(\d+\)-.+ has won because)",text,re.M))
     return {"last_turn":int(turns[-1]) if turns else None,
             "turn_markers":len(turns),"action_markers":len(actions),
             "terminal_result":terminal}
