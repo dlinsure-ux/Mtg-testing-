@@ -4,6 +4,17 @@ name: Commander Forge Test Harness
 on:
   workflow_dispatch:
     inputs:
+      deck:
+        description: Primary Commander deck path
+        required: true
+        default: decks/lathiel.dck
+        type: string
+      opponents:
+        description: Opponent selection mode
+        required: true
+        default: fixed
+        type: choice
+        options: [fixed, random]
       games:
         description: Number of games
         required: true
