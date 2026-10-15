@@ -327,6 +327,47 @@ jobs:
           p.write_text(s.replace(old,new))
           print('Instrumented slow hypothetical combat calls (250ms threshold)')
           PY
+      - name: Instrument nested blocker search hot path
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('forge/forge-ai/src/main/java/forge/ai/AiBlockController.java')
+          s=p.read_text()
+          signature='    private void makeGoodBlocks(final Combat combat) {'
+          assert s.count(signature)==1, 'Pinned blocker search changed'
+          start=s.index(signature)
+          opening=s.index('{',start)
+          depth=0
+          end=None
+          for i in range(opening,len(s)):
+              if s[i]=='{': depth+=1
+              elif s[i]=='}':
+                  depth-=1
+                  if depth==0:
+                      end=i
+                      break
+          assert end is not None
+          original=s[opening+1:end]
+          # A finally block reports slow calls even if the blocker search exits early.
+          wrapped='''
+                  final long blockStarted = System.nanoTime();
+                  final int attackerCount = attackersLeft.size();
+                  try {''' + original + '''
+                  } finally {
+                      final long elapsedMs = (System.nanoTime() - blockStarted) / 1000000L;
+                      if (elapsedMs >= 100L) {
+                          System.err.println("FORGE_BLOCK_PROFILE method=makeGoodBlocks elapsed_ms="
+                                  + elapsedMs + " attackers=" + attackerCount
+                                  + " player=" + ai.getName());
+                      }
+                  }
+              '''
+          s=s[:opening+1]+wrapped+s[end:]
+          p.write_text(s)
+          print('Instrumented nested blocker search (100ms threshold)')
+          PY
       - name: Integrate Lathiel commander cast priority into isolated Forge AI
         shell: bash
         run: |
