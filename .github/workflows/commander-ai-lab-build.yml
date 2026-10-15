@@ -1,4 +1,4 @@
-name: Lathiel Random Fixed-Pod Five-Game Verification
+name: Commander Forge Test Harness
 # Experimental fixed-pod five-game run: Lathiel versus Aesi, Bello and Betor.
 # Five-game regression rerun after Lathiel v0.2 policy draft; runtime pilot unchanged.
 on:
