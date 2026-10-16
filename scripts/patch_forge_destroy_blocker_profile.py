@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 
 ANCHOR = """    public static boolean canDestroyBlocker(Player ai, Card blocker, Card attacker, final Combat combat,
-            final boolean withoutAbilities, final boolean predictAbilities) {"""
+            final boolean withoutAbilities, final boolean withoutAttackerStaticAbilities) {"""
 
 def patch(source):
     if source.count(ANCHOR) != 1:
