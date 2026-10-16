@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Conservatively bound repeated speculative counterattack simulations.
+"""Opt-in conservative guard for experimental A/B comparisons.
 
-Only changes AI heuristic search, never combat rules or legal actions.
-The untested blockers remain held back rather than optimistically sent to attack.
+Default-off means original Forge attack heuristics remain intact.
+Enable only with -Dforge.ai.speculativeCombatGuard=true.
 """
 import argparse
 from pathlib import Path
@@ -12,7 +12,7 @@ ANCHOR = """            for (Card c : blockers) {
 REPLACEMENT = """            for (Card c : blockers) {
                 // A completed nested simulation may consume seconds on wide boards.
                 // Stop further speculative calls; unexamined blockers stay home.
-                if (ForgeDecisionProfile.speculativeCombatBudgetExceeded()) {
+                if (Boolean.getBoolean("forge.ai.speculativeCombatGuard")\n                        && ForgeDecisionProfile.speculativeCombatBudgetExceeded()) {
                     ForgeDecisionProfile.recordSkippedSpeculation();
                     break;
                 }
@@ -29,7 +29,7 @@ def patch(source: str) -> str:
     baseline = "lastAcceptableBaselineLife = ComputerUtil.predictNextCombatsRemainingLife(ai, playAggro, pilotsNonAggroDeck, 0, notNeededAsBlockers);"
     if source.count(baseline) != 1:
         raise ValueError("Pinned baseline prediction anchor changed")
-    source = source.replace(baseline, """if (!ForgeDecisionProfile.speculativeCombatBudgetExceeded()) {
+    source = source.replace(baseline, """if (!Boolean.getBoolean("forge.ai.speculativeCombatGuard")\n                        || !ForgeDecisionProfile.speculativeCombatBudgetExceeded()) {
                     """ + baseline + """
                 } else {
                     ForgeDecisionProfile.recordSkippedSpeculation();
