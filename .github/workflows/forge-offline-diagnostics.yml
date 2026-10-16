@@ -1,0 +1,26 @@
+name: Forge Offline Diagnostics Tests
+on:
+  push:
+    branches: [experiment/guardrails-watchdog-v1]
+    paths:
+      - '.github/workflows/forge-offline-diagnostics.yml'
+      - 'scripts/summarize_forge_profiles.py'
+      - 'tests/test_summarize_forge_profiles.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-tests:
+    name: Verify offline profiling parser
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and test without building Forge
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/summarize_forge_profiles.py tests/test_summarize_forge_profiles.py
+          python3 -m unittest discover -s tests -p 'test_summarize_forge_profiles.py' -v
+          python3 -m unittest discover -s tests -p 'test_timeout_ordering.py' -v
+          python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
+          python3 -m unittest discover -s tests -p 'test_patch_lab_winner_parser.py' -v
