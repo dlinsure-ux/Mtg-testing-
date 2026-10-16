@@ -21,11 +21,11 @@ def patch(source):
         raise ValueError("Unexpected recursive branches in pinned implementation")
     revised = original.replace(
         "    private void makeChumpBlocks(final Combat combat, List<Card> attackers) {",
-        "    private void makeChumpBlocks(final Combat combat, List<Card> attackers) {\n        while (true) {",
+        "    private void makeChumpBlocks(final Combat combat, List<Card> attackers) {\n        chumpLoop: while (true) {",
         1,
     )
     revised = revised.replace("            makeChumpBlocks(combat, attackers);\n            return;", "            continue;", 2)
-    revised = revised.replace("        makeChumpBlocks(combat, attackers);\n    }", "        }\n    }", 1)
+    revised = revised.replace("                            makeChumpBlocks(combat, attackers);\n                            return;", "                            continue chumpLoop;", 1)\n    revised = revised.replace("        makeChumpBlocks(combat, attackers);\n    }", "        }\n    }", 1)
     if "makeChumpBlocks(combat, attackers);" in revised:
         raise ValueError("Tail recursion not fully eliminated")
     return source[:a] + revised + source[b:]
