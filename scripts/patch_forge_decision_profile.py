@@ -10,8 +10,11 @@ TIMEOUT = '              if (e instanceof TimeoutException) {'
 def patch(src: str) -> str:
     if 'FORGE_DECISION_PROFILE' in src or 'ForgeDecisionProfile.begin(' in src:
         raise ValueError('Already instrumented')
-    if src.count(START) != 1 or src.count(END) != 1 or src.count(TIMEOUT) != 1:
-        raise ValueError('Pinned AI worker/timeout anchors changed')
+    if src.count(START) != 1:
+        raise ValueError('Pinned AI worker start anchor changed')
+    worker = src[src.index(START):]
+    if worker.count(END) != 1:
+        raise ValueError('Pinned AI worker closing anchor changed')
     src = src.replace(START, START + '''
             final ForgeDecisionProfile.Scope forgeDecisionScope =
                     ForgeDecisionProfile.begin(player.getName(), String.valueOf(game.getPhaseHandler().getPhase()));
