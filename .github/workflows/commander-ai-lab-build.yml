@@ -321,13 +321,18 @@ jobs:
           p.write_text(s.replace(old,new))
           print('Instrumented slow hypothetical combat calls (250ms threshold)')
           PY
-      # Diagnostic run #120: reduce profiling log volume after #119 invalid game.
+      # Diagnostic run #121: conservatively bound repeated counterattack simulations.
       - name: Instrument per-decision AI evaluation boundaries
         shell: bash
         run: |
           set -euo pipefail
           cp scripts/forge/ForgeDecisionProfile.java forge/forge-ai/src/main/java/forge/ai/ForgeDecisionProfile.java
           python3 scripts/patch_forge_decision_profile.py forge/forge-ai/src/main/java/forge/ai/AiController.java
+      - name: Bound speculative counterattack evaluation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/patch_forge_speculative_combat_guard.py forge/forge-ai/src/main/java/forge/ai/AiAttackController.java
       - name: Instrument nested blocker search and aggregate all calls
         shell: bash
         run: |
