@@ -13,8 +13,7 @@ REPLACEMENT = """            for (Card c : blockers) {
                 // A completed nested simulation may consume seconds on wide boards.
                 // Stop further speculative calls; unexamined blockers stay home.
                 if (ForgeDecisionProfile.speculativeCombatBudgetExceeded()) {
-                    System.err.println("FORGE_SPECULATIVE_COMBAT_GUARD player=" + ai.getName()
-                            + " remaining_blockers=" + (blockers.size() - blockers.indexOf(c)));
+                    ForgeDecisionProfile.recordSkippedSpeculation();
                     break;
                 }
                 if (vigilantes.contains(c)) {"""
@@ -24,7 +23,18 @@ def patch(source: str) -> str:
         raise ValueError("Already patched")
     if source.count(ANCHOR) != 1:
         raise ValueError("Pinned Forge counterattack loop changed")
-    return source.replace(ANCHOR, REPLACEMENT, 1)
+    source = source.replace(ANCHOR, REPLACEMENT, 1)
+    # Preserve defensive behavior: skip baseline prediction if decision time is
+    # already exhausted, without skipping the later blocker selection logic.
+    baseline = "lastAcceptableBaselineLife = ComputerUtil.predictNextCombatsRemainingLife(ai, playAggro, pilotsNonAggroDeck, 0, notNeededAsBlockers);"
+    if source.count(baseline) != 1:
+        raise ValueError("Pinned baseline prediction anchor changed")
+    source = source.replace(baseline, """if (!ForgeDecisionProfile.speculativeCombatBudgetExceeded()) {
+                    """ + baseline + """
+                } else {
+                    ForgeDecisionProfile.recordSkippedSpeculation();
+                }""", 1)
+    return source
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
