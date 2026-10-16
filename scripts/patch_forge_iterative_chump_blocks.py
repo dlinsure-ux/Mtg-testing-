@@ -21,22 +21,22 @@ def patch(source):
         raise ValueError("Unexpected recursive branches in pinned implementation")
     revised = original.replace(
         "    private void makeChumpBlocks(final Combat combat, List<Card> attackers) {",
-        "    private void makeChumpBlocks(final Combat combat, List<Card> attackers) {\\n        chumpLoop: while (true) {",
+        "    private void makeChumpBlocks(final Combat combat, List<Card> attackers) {\n        chumpLoop: while (true) {",
         1,
     )
     # Replace most-indented recursive call first to prevent substring matching.
-    nested = "                            makeChumpBlocks(combat, attackers);\\n                            return;"
+    nested = "                            makeChumpBlocks(combat, attackers);\n                            return;"
     if revised.count(nested) != 1:
         raise ValueError("Nested chump branch changed")
     revised = revised.replace(nested, "                            continue chumpLoop;", 1)
-    ordinary = "            makeChumpBlocks(combat, attackers);\\n            return;"
+    ordinary = "            makeChumpBlocks(combat, attackers);\n            return;"
     if revised.count(ordinary) != 1:
         raise ValueError("Ordinary chump branch changed")
     revised = revised.replace(ordinary, "            continue;", 1)
-    tail = "        makeChumpBlocks(combat, attackers);\\n    }"
+    tail = "        makeChumpBlocks(combat, attackers);\n    }"
     if revised.count(tail) != 1:
         raise ValueError("Tail chump branch changed")
-    revised = revised.replace(tail, "        }\\n    }", 1)
+    revised = revised.replace(tail, "        }\n    }", 1)
     if "makeChumpBlocks(combat, attackers);" in revised:
         raise ValueError("Tail recursion not fully eliminated")
     return source[:a] + revised + source[b:]
