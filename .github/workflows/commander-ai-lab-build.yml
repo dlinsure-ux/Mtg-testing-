@@ -321,7 +321,7 @@ jobs:
           p.write_text(s.replace(old,new))
           print('Instrumented slow hypothetical combat calls (250ms threshold)')
           PY
-      # Diagnostic run #125: profile costly blocker destruction evaluations without AI behavior changes.
+      # Diagnostic run #126: iterative chump blocker traversal; preserve all heuristic decisions.
       - name: Instrument per-decision AI evaluation boundaries
         shell: bash
         run: |
@@ -336,6 +336,7 @@ jobs:
           python3 scripts/patch_forge_counterattack_profile.py forge/forge-ai/src/main/java/forge/ai/AiAttackController.java
           python3 scripts/patch_forge_lazy_speculative_combat.py forge/forge-ai/src/main/java/forge/ai/ComputerUtil.java
           python3 scripts/patch_forge_destroy_blocker_profile.py forge/forge-ai/src/main/java/forge/ai/ComputerUtilCombat.java
+          python3 scripts/patch_forge_iterative_chump_blocks.py forge/forge-ai/src/main/java/forge/ai/AiBlockController.java
       - name: Instrument nested blocker search and aggregate all calls
         shell: bash
         run: |
