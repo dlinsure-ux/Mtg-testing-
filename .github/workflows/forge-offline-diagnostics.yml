@@ -9,12 +9,17 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  issues: write
 jobs:
   offline-tests:
     name: Verify offline profiling parser
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - name: Publish diagnostics run ID
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api "repos/$GITHUB_REPOSITORY/issues/2/comments" -f body="OFFLINE_DIAGNOSTICS_RUN run_id=$GITHUB_RUN_ID sha=$GITHUB_SHA url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" || true
       - uses: actions/checkout@v4
       - name: Compile and test without building Forge
         run: |
