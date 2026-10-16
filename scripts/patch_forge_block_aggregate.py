@@ -41,6 +41,7 @@ def patch(source: str) -> str:
         try {""" + original + """
         } finally {
             final long forgeBlockElapsedNs = System.nanoTime() - forgeBlockStarted;
+            ForgeDecisionProfile.recordBlock(forgeBlockElapsedNs);
             final long forgeBlockCallCount = forgeBlockCalls.incrementAndGet();
             forgeBlockTotalNs.addAndGet(forgeBlockElapsedNs);
             forgeBlockMaxNs.accumulateAndGet(forgeBlockElapsedNs, Math::max);
