@@ -24,19 +24,16 @@ def patch(source):
         "    private void makeChumpBlocks(final Combat combat, List<Card> attackers) {\n        chumpLoop: while (true) {",
         1,
     )
-    # Replace most-indented recursive call first to prevent substring matching.
-    nested = "                            makeChumpBlocks(combat, attackers);\n                            return;"
-    if revised.count(nested) != 1:
-        raise ValueError("Nested chump branch changed")
-    revised = revised.replace(nested, "                            continue chumpLoop;", 1)
-    ordinary = "            makeChumpBlocks(combat, attackers);\n            return;"
-    if revised.count(ordinary) != 1:
-        raise ValueError("Ordinary chump branch changed")
-    revised = revised.replace(ordinary, "            continue;", 1)
-    tail = "        makeChumpBlocks(combat, attackers);\n    }"
-    if revised.count(tail) != 1:
-        raise ValueError("Tail chump branch changed")
-    revised = revised.replace(tail, "        }\n    }", 1)
+    import re
+    # Match each tail-call branch by its own indentation, not substring replacement.
+    nested_pattern = r"(?m)^( {28})makeChumpBlocks\(combat, attackers\);\n\1return;"
+    ordinary_pattern = r"(?m)^( {12})makeChumpBlocks\(combat, attackers\);\n\1return;"
+    revised, n1 = re.subn(nested_pattern, r"\1continue chumpLoop;", revised)
+    revised, n2 = re.subn(ordinary_pattern, r"\1continue;", revised)
+    tail_pattern = r"(?m)^ {8}makeChumpBlocks\(combat, attackers\);\n {4}\}"
+    revised, n3 = re.subn(tail_pattern, "        }\n    }", revised)
+    if (n1, n2, n3) != (1, 1, 1):
+        raise ValueError(f"Unexpected tail-call layout: nested={n1}, ordinary={n2}, tail={n3}")
     if "makeChumpBlocks(combat, attackers);" in revised:
         raise ValueError("Tail recursion not fully eliminated")
     return source[:a] + revised + source[b:]
