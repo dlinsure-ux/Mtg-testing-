@@ -398,6 +398,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/backport_forge_pr11933.py forge/forge-game/src/main/java/forge/game/card/CardProperty.java
+          python3 scripts/backport_forge_pr11964.py forge/forge-game/src/main/java/forge/game/card/CardState.java
           grep -Fq 'CardType.isACardType(property)' forge/forge-game/src/main/java/forge/game/card/CardProperty.java
       - name: Build Forge dependencies
         if: steps.compiled.outputs.cache-hit != 'true'
