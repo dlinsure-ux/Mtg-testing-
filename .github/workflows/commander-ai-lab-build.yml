@@ -167,6 +167,8 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/patch_lab_winner_parser.py
+          python3 scripts/patch_lab_jvm_compiler.py
+          grep -Fq 'cmd.add("-XX:TieredStopAtLevel=4");' lab/src/main/java/commanderailab/batch/BatchRunner.java
       - name: Verify Lab winner parser regression
         shell: bash
         run: |
