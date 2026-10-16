@@ -21,9 +21,6 @@ def patch(src: str) -> str:
                 ForgeDecisionProfile.finish(forgeDecisionScope);
             }
         });''', 1)
-    src = src.replace('        Thread t = new Thread(future, "Game AI Eval");',
-                      '        final ForgeDecisionProfile.Scope[] forgeDecisionScopeHolder = new ForgeDecisionProfile.Scope[1];\n'
-                      '        Thread t = new Thread(future, "Game AI Eval");', 1) if False else src
     # Timeout snapshots are emitted by worker finally on cancellation/termination.
     # Avoid reading thread-local state from supervisor thread.
     return src
