@@ -12,7 +12,7 @@ source = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(
     "lab/src/main/java/commanderailab/batch/BatchRunner.java"
 )
 before = 'cmd.add("-XX:TieredStopAtLevel=1");'
-after = 'cmd.add("-XX:TieredStopAtLevel=4");\\n        cmd.add("-Dforge.ai.speculativeCombatGuard=true");'
+after = 'cmd.add("-XX:TieredStopAtLevel=4");\n        cmd.add("-Dforge.ai.speculativeCombatGuard=true");'
 text = source.read_text()
 if text.count(before) != 1:
     raise SystemExit("Expected exactly one upstream C1-only JVM flag; aborting")
