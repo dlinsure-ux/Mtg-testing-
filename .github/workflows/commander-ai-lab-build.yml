@@ -321,7 +321,7 @@ jobs:
           p.write_text(s.replace(old,new))
           print('Instrumented slow hypothetical combat calls (250ms threshold)')
           PY
-      # Diagnostic run #122: earlier speculative budget guard and aggregated diagnostics.
+      # Diagnostic run #123: original combat decisions; measure counterattack calls.
       - name: Instrument per-decision AI evaluation boundaries
         shell: bash
         run: |
@@ -333,6 +333,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/patch_forge_speculative_combat_guard.py forge/forge-ai/src/main/java/forge/ai/AiAttackController.java
+          python3 scripts/patch_forge_counterattack_profile.py forge/forge-ai/src/main/java/forge/ai/AiAttackController.java
       - name: Instrument nested blocker search and aggregate all calls
         shell: bash
         run: |
