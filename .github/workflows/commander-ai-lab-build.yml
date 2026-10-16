@@ -169,6 +169,7 @@ jobs:
           python3 scripts/patch_lab_winner_parser.py
           python3 scripts/patch_lab_jvm_compiler.py
           grep -Fq 'cmd.add("-XX:TieredStopAtLevel=4");' lab/src/main/java/commanderailab/batch/BatchRunner.java
+          grep -Fq 'cmd.add("-Dforge.ai.speculativeCombatGuard=true");' lab/src/main/java/commanderailab/batch/BatchRunner.java
       - name: Verify Lab winner parser regression
         shell: bash
         run: |
@@ -517,7 +518,7 @@ jobs:
             echo "Starting game $game at $(date -u +%FT%TZ)"
             rm -f forge/forge-sim-debug.log
             mkdir -p "results/game-$game" "diagnostics/game-$game"
-            timeout 900 env JAVA_TOOL_OPTIONS="-Dforge.ai.speculativeCombatGuard=true" xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
+            timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
               --forge-jar "$FORGE_JAR" \
               --java17 "${JAVA_HOME}/bin/java" \
               --forge-dir forge/forge-gui \
