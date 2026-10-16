@@ -38,6 +38,11 @@ public final class ForgeDecisionProfile {
             scope.blockerMaxNs.accumulateAndGet(elapsedNs, Math::max);
         }
     }
+    /** Remaining AI search may conservatively retain blockers after 1.5 seconds. */
+    public static boolean speculativeCombatBudgetExceeded() {
+        Scope scope = ACTIVE.get();
+        return scope != null && System.nanoTime() - scope.startNs >= 1500000000L;
+    }
     public static void finish(Scope scope) {
         try {
             // Avoid logging thousands of fast AI decisions in the simulation hot path.\n            // Slow decisions and all blocker-heavy decisions remain visible.\n            if (System.nanoTime() - scope.startNs >= 250000000L) {\n                System.err.println(scope.snapshot("slow"));\n            }
