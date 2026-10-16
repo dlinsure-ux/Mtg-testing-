@@ -1,0 +1,48 @@
+package forge.ai;
+
+import java.util.concurrent.atomic.AtomicLong;
+
+/** Diagnostic-only, per-worker decision counters; no game-state or AI-choice mutation. */
+public final class ForgeDecisionProfile {
+    private static final ThreadLocal<Scope> ACTIVE = new ThreadLocal<>();
+    public static final class Scope {
+        private final String player;
+        private final String phase;
+        private final long startNs = System.nanoTime();
+        private final AtomicLong blockerCalls = new AtomicLong();
+        private final AtomicLong blockerNs = new AtomicLong();
+        private final AtomicLong blockerMaxNs = new AtomicLong();
+        private Scope(String player, String phase) {
+            this.player = player;
+            this.phase = phase;
+        }
+        public String snapshot(String status) {
+            return "FORGE_DECISION_PROFILE status=" + status + " player=" + player
+                    + " phase=" + phase + " elapsed_ms=" + ((System.nanoTime() - startNs) / 1000000L)
+                    + " block_calls=" + blockerCalls.get()
+                    + " block_inclusive_ms=" + (blockerNs.get() / 1000000L)
+                    + " block_max_ms=" + (blockerMaxNs.get() / 1000000L);
+        }
+    }
+    private ForgeDecisionProfile() {}
+    public static Scope begin(String player, String phase) {
+        Scope scope = new Scope(player, phase);
+        ACTIVE.set(scope);
+        return scope;
+    }
+    public static void recordBlock(long elapsedNs) {
+        Scope scope = ACTIVE.get();
+        if (scope != null) {
+            scope.blockerCalls.incrementAndGet();
+            scope.blockerNs.addAndGet(elapsedNs);
+            scope.blockerMaxNs.accumulateAndGet(elapsedNs, Math::max);
+        }
+    }
+    public static void finish(Scope scope) {
+        try {
+            System.err.println(scope.snapshot("completed"));
+        } finally {
+            ACTIVE.remove();
+        }
+    }
+}
