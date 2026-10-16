@@ -6,6 +6,8 @@ on:
       - '.github/workflows/forge-offline-diagnostics.yml'
       - 'scripts/summarize_forge_profiles.py'
       - 'tests/test_summarize_forge_profiles.py'
+      - 'scripts/patch_forge_block_aggregate.py'
+      - 'tests/test_patch_forge_block_aggregate.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -26,6 +28,7 @@ jobs:
           set -euo pipefail
           python3 -m py_compile scripts/summarize_forge_profiles.py tests/test_summarize_forge_profiles.py
           python3 -m unittest discover -s tests -p 'test_summarize_forge_profiles.py' -v
+          python3 -m unittest discover -s tests -p 'test_patch_forge_block_aggregate.py' -v
           python3 -m unittest discover -s tests -p 'test_timeout_ordering.py' -v
           python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
           python3 -m unittest discover -s tests -p 'test_patch_lab_winner_parser.py' -v
