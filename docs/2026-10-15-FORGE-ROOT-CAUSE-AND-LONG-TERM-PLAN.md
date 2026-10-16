@@ -58,3 +58,7 @@ Implement **per-decision bounded aggregated timing** for the identified nested c
 - Re-examined raw run #116 Forge debug log: 85 `FORGE_BLOCK_PROFILE` calls >=100ms. Counts by player: Shroofus 42, Winota 33, Lathiel 9, Deadpool 1. Shroofus and Winota account for 75/85 (88.2%) of logged slow calls, and all three decision timeouts in that run.
 - Logged slow calls by attacker count: 12 attackers 26 calls; 4 attackers 23; 1 attacker 22; all others 14. The expensive path is not limited to large attacker sets. The slow-call p95 is approximately 2,402ms; **this percentile is conditional on crossing the logging threshold**, not a percentile of all evaluations.
 - Next action: validate independent CI, then instrument bounded per-decision totals and per-caller counts, keeping the five-second budget and all gameplay decisions unchanged. Avoid interpreting the 52,951ms inclusive sum as wall time.
+
+### Verified lightweight CI result
+
+GitHub Actions [run 38827290968](https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38827290968), job 116737605885, **completed SUCCESS**. The step `Compile and test without building Forge` passed, including profiling parser, timeout ordering, validator pattern and winner parser unit tests. This validates offline diagnostics only; it does **not** validate a gameplay performance fix or any new Forge runtime instrumentation.
