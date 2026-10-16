@@ -393,6 +393,12 @@ jobs:
             lab/target
             ~/.m2/repository
           key: ${{ runner.os }}-compiled-forge-lab-v1-${{ hashFiles('.github/workflows/commander-ai-lab-build.yml', 'forge-overrides/**') }}
+      - name: Backport upstream Forge property-check performance fix
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/backport_forge_pr11933.py forge/forge-game/src/main/java/forge/game/card/CardProperty.java
+          grep -Fq 'CardType.isACardType(property)' forge/forge-game/src/main/java/forge/game/card/CardProperty.java
       - name: Build Forge dependencies
         if: steps.compiled.outputs.cache-hit != 'true'
         shell: bash
