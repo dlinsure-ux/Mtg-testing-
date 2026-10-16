@@ -62,3 +62,11 @@ Implement **per-decision bounded aggregated timing** for the identified nested c
 ### Verified lightweight CI result
 
 GitHub Actions [run 38827290968](https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38827290968), job 116737605885, **completed SUCCESS**. The step `Compile and test without building Forge` passed, including profiling parser, timeout ordering, validator pattern and winner parser unit tests. This validates offline diagnostics only; it does **not** validate a gameplay performance fix or any new Forge runtime instrumentation.
+
+## Runtime instrumentation checkpoint — 2026-10-15
+
+- Extracted the existing `AiBlockController.makeGoodBlocks` source wrapper into versioned, fail-closed `scripts/patch_forge_block_aggregate.py` (commit `e31bda26`), retaining the original 100ms slow-call log and adding thread-safe counters for **all completed blocker-search calls**, inclusive total time and maximum time. One aggregate log line is emitted per 32 calls; no AI choice, rule or timeout budget was changed.
+- Added patch regression tests `tests/test_patch_forge_block_aggregate.py` (commit `c9246d3`) and wired them into isolated offline CI (commit `1f5c58e`). **Verified passing:** [run 38830803455](https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38830803455), job 116748884473.
+- Replaced the old inline blocker profiling patch in the full-game workflow with the extracted script (commit `01416278`). This triggered [full diagnostic run 38830812217](https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38830812217). At documentation time, it had started; **no Forge build, game or runtime instrumentation success is claimed yet**.
+- Limitations: counters aggregate across players and threads, not yet per AI decision; completed calls only; inclusive timings may overlap; sampling every 32 calls means short runs can have no aggregate line. These must be addressed before declaring root-cause isolation.
+- Next: check run #117 build, validation and artifacts; parse `FORGE_BLOCK_AGGREGATE` records; add bounded per-decision/per-player accounting and caller correlation, then target the highest redundant call chain with rules-equivalence tests.
