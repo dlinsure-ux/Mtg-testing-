@@ -76,3 +76,24 @@ GitHub Actions [run 38827290968](https://github.com/dlinsure-ux/Mtg-testing-/act
 [GitHub Actions run 38830812217](https://github.com/dlinsure-ux/Mtg-testing-/actions/runs/38830812217), job 116748984111: preflight SUCCESS; Forge and Lab Maven BUILD SUCCESS. Game 1 VALID, final_turn=12, 612 action markers, 0 AI timeouts; game 2 VALID, final_turn=17, 718 action markers, 0 AI timeouts; game 3 INVALID, final_turn=11, 563 action markers, 1 AI decision timeout (Shroofus, Forge turn=19, COMBAT_BEGIN, 5-second budget, 10 candidates). Games 4–5 not attempted; job failed correctly at game 3. The 3-game evidence artifact is 12016739986 (27,480,134 bytes). It was downloaded to the conversation runtime as `github-actions-artifact-12016739986.zip`; do not assume the artifact is permanently archived in GitHub.
 
 The new blocker aggregate instrumentation compiled, but the job log does not expose aggregate log entries directly because Forge diagnostics are in the artifact. Next: extract and analyze game-specific `forge-sim-debug.log` from artifact; compare all-call aggregate with slow-call counts, especially Shroofus game 3. Do not infer optimization from two valid randomized games.
+
+## Run #117 artifact deep analysis — verified
+
+Extracted artifact `12016739986` from GitHub run `38830812217` and inspected `results/game-{1,2,3}/forge-sim-debug.log`, `results/version-manifest.json`, and `diagnostics/game-3/profile-6070.jfr` using the JDK `jfr` tool.
+
+| Metric | Game 1 (VALID) | Game 2 (VALID) | Game 3 (INVALID) |
+|---|---:|---:|---:|
+| Last reported all-call blocker count | 288 | 512 | 416 |
+| Last reported cumulative blocker time (ms) | 9120 | 3695 | 3546 |
+| Logged blocker calls >=100ms | 41 | 0 | 3 |
+| AI decision timeouts | 0 | 0 | 1 |
+
+The all-call counts and cumulative timings are **last periodic snapshots**, not complete-game totals; calls after the last multiple of 32 are omitted. Cumulative nested times are not wall time. The three slow game-3 blocker calls were Shroofus (887ms with 13 attackers, 793ms with 12, 535ms with 13). The latest aggregate max=60ms can appear lower than those slow calls because the slow calls occurred **after** the last 32-call aggregate snapshot, and/or profiling logs were buffered; do not treat snapshots as synchronized per-decision data.
+
+**Actual game-3 timeout stack:** `PumpAiBase.getPumpCreatures -> ComputerUtilCard.shouldPumpCard -> doesSpecifiedCreatureAttackAI -> AiAttackController.declareAttackers -> notNeededAsBlockers -> ComputerUtil.predictNextCombatsRemainingLife -> AiBlockController.makeGoodBlocks -> ComputerUtilCombat.canDestroyBlocker -> predictPowerBonusOfBlocker -> dealsFirstStrikeDamage -> canGainKeyword -> ComputerUtilCost.canPayCost -> ComputerUtilMana.canPayManaCost -> payManaCost -> chooseManaAbility -> CostPayment.canPayAdditionalCosts -> CostAdjustment.adjust -> Card.updateStaticAbilities`. This establishes a nested speculative combat / mana / static-ability path, **not** that mana is independently the dominant cost.
+
+**JFR:** `profile-6070.jfr` was a short 5-second recording (224 execution samples: 212 from `pool-3-thread-1`, 12 from `Game AI Eval`). `Card.isValid` appeared on 206 stacks, `Card.hasProperty` and `CardProperty.cardHasProperty` on 195 each; none of these percentages should be attributed entirely to AI evaluation because most samples were from the simulation worker thread. The JFR did not capture enough targeted decision-specific data to justify a rules-affecting optimization.
+
+**Version manifest:** Forge pinned SHA `edb28158f6d892f9eb43dc08f019aab567276027`, Lab SHA `54cc5e9b2e9ae6266c64b5cdf11f3302f311c701`, harness SHA `014162784fba2d7e021704ff5db94b990b948720`, `runtime_pilot_integrated=false`. **Do not assume the custom Lathiel pilot was running.**
+
+**Next engineering action:** add *per-decision* bounded counts/timing and a completion/timeout snapshot (not every 32 calls only), scoped to actual AI decision context, for hypothetical combat and cost/static-ability checks. Include caller identifiers and preserve decisions. Validate instrumented source compiles and measure the overhead. Only then attempt narrowly scoped elimination of redundant repeated evaluations with legality-equivalence tests.
