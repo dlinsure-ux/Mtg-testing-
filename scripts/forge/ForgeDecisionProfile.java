@@ -38,7 +38,7 @@ public final class ForgeDecisionProfile {
             scope.blockerMaxNs.accumulateAndGet(elapsedNs, Math::max);
         }
     }
-    /** Remaining AI search may conservatively retain blockers after 1.5 seconds. */
+    /** Experimental guard: disabled unless explicitly enabled with a JVM property. */
     private static final AtomicLong skippedSpeculations = new AtomicLong();
     public static void recordSkippedSpeculation() {
         long n = skippedSpeculations.incrementAndGet();
@@ -49,6 +49,24 @@ public final class ForgeDecisionProfile {
     public static boolean speculativeCombatBudgetExceeded() {
         Scope scope = ACTIVE.get();
         return scope != null && System.nanoTime() - scope.startNs >= 500000000L;
+    }
+    private static final AtomicLong counterattackCalls = new AtomicLong();
+    private static final AtomicLong counterattackNs = new AtomicLong();
+    private static final AtomicLong counterattackMaxNs = new AtomicLong();
+    public static long beginCounterattackPrediction() {
+        return System.nanoTime();
+    }
+    public static void endCounterattackPrediction(long started) {
+        long elapsed = System.nanoTime() - started;
+        long count = counterattackCalls.incrementAndGet();
+        counterattackNs.addAndGet(elapsed);
+        counterattackMaxNs.accumulateAndGet(elapsed, Math::max);
+        if (elapsed >= 1000000000L || (count & 127L) == 0L) {
+            System.err.println("FORGE_COUNTERATTACK_PROFILE calls=" + count
+                    + " last_ms=" + elapsed / 1000000L
+                    + " inclusive_total_ms=" + counterattackNs.get() / 1000000L
+                    + " max_ms=" + counterattackMaxNs.get() / 1000000L);
+        }
     }
     public static void finish(Scope scope) {
         try {
