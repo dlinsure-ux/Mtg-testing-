@@ -40,7 +40,7 @@ public final class ForgeDecisionProfile {
     }
     public static void finish(Scope scope) {
         try {
-            System.err.println(scope.snapshot("completed"));
+            // Avoid logging thousands of fast AI decisions in the simulation hot path.\n            // Slow decisions and all blocker-heavy decisions remain visible.\n            if (System.nanoTime() - scope.startNs >= 250000000L) {\n                System.err.println(scope.snapshot("slow"));\n            }
         } finally {
             ACTIVE.remove();
         }
