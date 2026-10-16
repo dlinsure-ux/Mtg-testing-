@@ -515,7 +515,7 @@ jobs:
             echo "Starting game $game at $(date -u +%FT%TZ)"
             rm -f forge/forge-sim-debug.log
             mkdir -p "results/game-$game" "diagnostics/game-$game"
-            timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
+            timeout 900 env JAVA_TOOL_OPTIONS="-Dforge.ai.speculativeCombatGuard=true" xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
               --forge-jar "$FORGE_JAR" \
               --java17 "${JAVA_HOME}/bin/java" \
               --forge-dir forge/forge-gui \
