@@ -321,7 +321,7 @@ jobs:
           p.write_text(s.replace(old,new))
           print('Instrumented slow hypothetical combat calls (250ms threshold)')
           PY
-      # Diagnostic run #121: conservatively bound repeated counterattack simulations.
+      # Diagnostic run #122: earlier speculative budget guard and aggregated diagnostics.
       - name: Instrument per-decision AI evaluation boundaries
         shell: bash
         run: |
