@@ -25,7 +25,8 @@ def patch(source):
         1,
     )
     revised = revised.replace("            makeChumpBlocks(combat, attackers);\n            return;", "            continue;", 2)
-    revised = revised.replace("                            makeChumpBlocks(combat, attackers);\n                            return;", "                            continue chumpLoop;", 1)\n    revised = revised.replace("        makeChumpBlocks(combat, attackers);\n    }", "        }\n    }", 1)
+    revised = revised.replace("                            makeChumpBlocks(combat, attackers);\n                            return;", "                            continue chumpLoop;", 1)
+    revised = revised.replace("        makeChumpBlocks(combat, attackers);\n    }", "        }\n    }", 1)
     if "makeChumpBlocks(combat, attackers);" in revised:
         raise ValueError("Tail recursion not fully eliminated")
     return source[:a] + revised + source[b:]
