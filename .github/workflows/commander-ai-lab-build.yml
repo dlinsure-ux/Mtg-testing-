@@ -321,7 +321,7 @@ jobs:
           p.write_text(s.replace(old,new))
           print('Instrumented slow hypothetical combat calls (250ms threshold)')
           PY
-      # Diagnostic run #119: worker anchor validation corrected after #118 fail-closed abort.
+      # Diagnostic run #120: reduce profiling log volume after #119 invalid game.
       - name: Instrument per-decision AI evaluation boundaries
         shell: bash
         run: |
