@@ -39,9 +39,16 @@ public final class ForgeDecisionProfile {
         }
     }
     /** Remaining AI search may conservatively retain blockers after 1.5 seconds. */
+    private static final AtomicLong skippedSpeculations = new AtomicLong();
+    public static void recordSkippedSpeculation() {
+        long n = skippedSpeculations.incrementAndGet();
+        if ((n & 127L) == 0L) {
+            System.err.println("FORGE_SPECULATIVE_COMBAT_GUARD_AGGREGATE skips=" + n);
+        }
+    }
     public static boolean speculativeCombatBudgetExceeded() {
         Scope scope = ACTIVE.get();
-        return scope != null && System.nanoTime() - scope.startNs >= 1500000000L;
+        return scope != null && System.nanoTime() - scope.startNs >= 500000000L;
     }
     public static void finish(Scope scope) {
         try {
