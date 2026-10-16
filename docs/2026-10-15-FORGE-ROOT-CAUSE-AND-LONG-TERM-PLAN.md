@@ -51,3 +51,10 @@ The principal bottleneck is repeated speculative combat/legality evaluation inte
 ## Immediate next engineering task
 
 Implement **per-decision bounded aggregated timing** for the identified nested combat and mana call chains, then rerun a pinned one-game diagnostic with JFR starting at JVM launch. Analyze by thread and caller. Do not optimize `Card.isValid` blindly; JFR includes non-AI worker threads. This document is a diagnosis and plan, not a claim that the underlying issue is fixed.
+
+## Execution checkpoint — offline CI and player-attributed slow calls
+
+- New independent GitHub Actions workflow: `.github/workflows/forge-offline-diagnostics.yml`, commits `41efa05c` and `b26570fb`. It compiles/tests the Python diagnostics and validator without Maven builds or game simulation. Its run ID is published to issue #2; no pass is claimed until job logs confirm it.
+- Re-examined raw run #116 Forge debug log: 85 `FORGE_BLOCK_PROFILE` calls >=100ms. Counts by player: Shroofus 42, Winota 33, Lathiel 9, Deadpool 1. Shroofus and Winota account for 75/85 (88.2%) of logged slow calls, and all three decision timeouts in that run.
+- Logged slow calls by attacker count: 12 attackers 26 calls; 4 attackers 23; 1 attacker 22; all others 14. The expensive path is not limited to large attacker sets. The slow-call p95 is approximately 2,402ms; **this percentile is conditional on crossing the logging threshold**, not a percentile of all evaluations.
+- Next action: validate independent CI, then instrument bounded per-decision totals and per-caller counts, keeping the five-second budget and all gameplay decisions unchanged. Avoid interpreting the 52,951ms inclusive sum as wall time.
