@@ -1,5 +1,5 @@
 import unittest
-from scripts.audit_rionya_gameplay import audit, parse_snapshots, card_exposure, analyze_gameplay
+from scripts.audit_rionya_gameplay import audit, parse_snapshots, card_exposure, analyze_gameplay, parse_authoritative_events, authoritative_summary
 
 class RionyaAuditTests(unittest.TestCase):
     def test_four_player_turns_and_actions(self):
@@ -49,6 +49,21 @@ class RionyaAuditTests(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["life"], 32)
         self.assertEqual(result[0]["creatures"], 1)
+
+    def test_authoritative_events(self):
+        sample = "\n".join([
+            "RIONYA_EVENT|type=telemetry_enabled|turn=0|phase=",
+            "RIONYA_EVENT|type=zone|turn=0|phase=|player_id=0|player=Rionya|card_id=1|card=Mountain|from=Library|to=Hand",
+            "RIONYA_EVENT|type=snapshot|turn=1|phase=MAIN1|boundary=turn_begin|player_id=0|player=Rionya|life=40|hand=Mountain|board=|hand_size=1|battlefield_size=0|creatures=0|lands=0",
+            "RIONYA_EVENT|type=zone|turn=1|phase=DRAW|player_id=0|player=Rionya|card_id=2|card=Expedite|from=Library|to=Hand",
+            "RIONYA_EVENT|type=player_damage|turn=2|phase=COMBAT_DAMAGE|player_id=0|player=Rionya|card_id=8|card=Goblin|amount=3|combat=true|infect=false",
+        ])
+        events = parse_authoritative_events(sample)
+        summary = authoritative_summary(events)
+        self.assertEqual(summary["primary_player_id"], 0)
+        self.assertEqual(summary["opening_hand_cards"], ["Mountain"])
+        self.assertEqual(summary["exact_draws"], [{"turn": 1, "card": "Expedite"}])
+        self.assertEqual(summary["damage_events"][0]["amount"], 3)
 
 if __name__ == "__main__":
     unittest.main()
