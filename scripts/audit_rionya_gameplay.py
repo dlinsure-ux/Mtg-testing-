@@ -15,6 +15,25 @@ COPY = re.compile(r"^Add To Stack: Ai\(1\)-.*? triggered Rionya, Fire Dancer tar
 DRAW = re.compile(r"^.*?Ai\(1\)-.*? draws? (?:a card|two cards|\d+ cards?)\b", re.I)
 NAMED_DRAW = re.compile(r"^.*?Ai\(1\)-.*? draws? \[([^\]]+)\]", re.I)
 MARKER = re.compile(r"RIONYA_PILOT (.+)")
+STATE = re.compile(r"RIONYA_STATE turn=(\\d+) phase=(\\w+) hand=(.*?) board=(.*)")
+
+def parse_snapshots(text):
+    snapshots = []
+    for line in text.splitlines():
+        match = STATE.search(line)
+        if match:
+            snapshots.append(dict(turn=int(match.group(1)), phase=match.group(2),
+                                  hand=[c for c in match.group(3).split("|") if c],
+                                  battlefield=[c for c in match.group(4).split("|") if c]))
+    return snapshots
+
+def card_exposure(snapshots, cast_counts):
+    seen = collections.Counter()
+    for snapshot in snapshots:
+        seen.update(set(snapshot["hand"]))
+    return dict(hand_snapshots=len(snapshots), hand_turns_observed=dict(seen),
+                observed_in_hand_not_cast=sorted(c for c in seen if not cast_counts.get(c)),
+                caveat="Hand snapshots are sampled at main phase; not all draws or playable windows are observed.")
 
 def audit(log):
     turn = None
@@ -85,7 +104,8 @@ def main():
         if not attempts:
             continue
         source = attempts[-1]
-        report = audit(source.read_text(errors="replace"))
+        forge_text = source.read_text(errors="replace")
+        report = audit(forge_text)
         smoke = source.with_name("smoke-test.log")
         if not smoke.exists():
             smoke = root.parent / "smoke-test.log"
@@ -95,6 +115,9 @@ def main():
             report["pilot_marker_source"] = str(smoke)
         else:
             report["pilot_markers_in_lab_log"] = []
+        lab_text = smoke.read_text(errors="replace") if smoke.exists() else ""
+        report["state_snapshots"] = parse_snapshots(forge_text + "\\n" + lab_text)
+        report["card_exposure"] = card_exposure(report["state_snapshots"], report["cast_counts"])
         report["pilot_activation_confirmed"] = any("decision_entry" in x["detail"] for x in report["pilot_markers"]) or any("decision_entry" in x for x in report["pilot_markers_in_lab_log"])
         report["commander_search_observed"] = any("commander_search" in x["detail"] for x in report["pilot_markers"]) or any("commander_search" in x for x in report["pilot_markers_in_lab_log"])
         report["game"] = int(game.name.split("-")[1])
@@ -109,7 +132,7 @@ def main():
             len(report["pilot_markers"]) + len(report["pilot_markers_in_lab_log"]), report["unidentified_draw_events"]), flush=True)
     (root / "card-audit-index.json").write_text(json.dumps(
         {"games": len(reports), "summaries": [
-            {k: r[k] for k in ("game", "cast_counts", "commander_casts", "rionya_copy_target_counts",
+            {k: r[k] for k in ("game", "cast_counts", "commander_casts", "card_exposure", "rionya_copy_target_counts",
                                "pilot_markers_observed", "pilot_activation_confirmed", "commander_search_observed", "unidentified_draw_events")}
             for r in reports]}, indent=2) + "\n")
     if not reports:
