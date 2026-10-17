@@ -153,6 +153,17 @@ def main():
         report["state_snapshots"] = parse_snapshots(forge_text + "\n" + lab_text)
         report["card_exposure"] = card_exposure(report["state_snapshots"], report["cast_counts"])
         report["gameplay_analysis"] = analyze_gameplay(report["state_snapshots"], report["events"])
+        report["telemetry_quality"] = {
+            "has_hand_snapshots": bool(report["state_snapshots"]),
+            "has_battlefield_snapshots": bool(report["state_snapshots"]),
+            "has_cast_events": bool(report["cast_counts"]),
+            "has_land_events": bool(report["land_counts"]),
+            "has_pilot_decisions": bool(report["pilot_markers_observed"]),
+            "has_exact_draw_identity": bool(report["named_draw_counts"]),
+            "has_mulligan_events": False,
+            "has_mana_payment_events": False,
+            "complete_for_card_cut_recommendations": False,
+        }
         report["pilot_activation_confirmed"] = any("decision_entry" in x["detail"] for x in report["pilot_markers"]) or any("decision_entry" in x for x in report["pilot_markers_in_lab_log"])
         report["commander_search_observed"] = any("commander_search" in x["detail"] for x in report["pilot_markers"]) or any("commander_search" in x for x in report["pilot_markers_in_lab_log"])
         report["game"] = int(game.name.split("-")[1])
@@ -167,7 +178,7 @@ def main():
             len(report["pilot_markers"]) + len(report["pilot_markers_in_lab_log"]), report["unidentified_draw_events"]), flush=True)
     (root / "card-audit-index.json").write_text(json.dumps(
         {"games": len(reports), "summaries": [
-            {k: r[k] for k in ("game", "cast_counts", "commander_casts", "card_exposure", "gameplay_analysis", "rionya_copy_target_counts",
+            {k: r[k] for k in ("game", "cast_counts", "commander_casts", "card_exposure", "gameplay_analysis", "telemetry_quality", "rionya_copy_target_counts",
                                "pilot_markers_observed", "pilot_activation_confirmed", "commander_search_observed", "unidentified_draw_events")}
             for r in reports]}, indent=2) + "\n")
     if not reports:
