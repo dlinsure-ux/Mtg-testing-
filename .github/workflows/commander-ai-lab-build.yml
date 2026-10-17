@@ -514,7 +514,7 @@ jobs:
           command -v jstack
       - name: Run single diagnostic Forge game
         shell: bash
-        timeout-minutes: 85
+        timeout-minutes: 115
         run: |
           set -euo pipefail
           mkdir -p results diagnostics
@@ -553,7 +553,7 @@ jobs:
             export FORGE_LAB_REPLAY_SEED
             echo "FORGE_REPLAY_SEED_REQUESTED=$FORGE_LAB_REPLAY_SEED"
             echo "FORGE_REPLAY_MODE=$([ -n "${SEED_BASE:-}" ] && echo fixed || echo random)"
-            rm -f forge/forge-sim-debug.log
+            rm -f forge/forge-sim-debug.log results/diagnostic-game.json smoke-test.log results/validation-report.json
             timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
               --forge-jar "$FORGE_JAR" \
               --java17 "${JAVA_HOME}/bin/java" \
