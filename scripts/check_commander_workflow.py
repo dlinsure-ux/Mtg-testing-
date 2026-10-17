@@ -10,10 +10,10 @@ def check(workflow: str) -> None:
     section = workflow[start:]
     loop = section.index('for ((game=1; game<=GAME_COUNT; game++)); do')
     body = section[loop:]
-    creation = body.index('mkdir -p "results/game-$game" "diagnostics/game-$game"')
-    seed_write = body.index('> "results/game-$game/replay-seed.txt"')
-    assert creation < seed_write, "game directory must precede seed write"
-    assert body.count('mkdir -p "results/game-$game" "diagnostics/game-$game"') == 1
+    setup = body.index('python3 scripts/prepare_commander_game.py --game "$game"')
+    launch = body.index('timeout 900 xvfb-run')
+    assert setup < launch, "game setup must precede Forge launch"
+    assert body.count('python3 scripts/prepare_commander_game.py --game "$game"') == 1
     assert 'export FORGE_LAB_REPLAY_SEED=' in body
     assert 'timeout 900 xvfb-run' in body
     assert 'python3 scripts/validate_forge_game.py' in body
