@@ -27,6 +27,7 @@ def audit(log):
     unknown_draw_events = 0
     named_draws = collections.Counter()
     markers = []
+    commander_casts = 0
     for raw in log.splitlines():
         line = raw.strip()
         m = TURN.search(line)
@@ -41,6 +42,8 @@ def audit(log):
         if m:
             card = m.group(1).strip()
             casts[card] += 1
+            if card.startswith("Rionya, Fire Dancer"):
+                commander_casts += 1
             events.append(dict(global_turn=turn, rionya_turn=rionya_turn, phase=phase, action="cast", card=card))
         m = LAND.search(line)
         if m:
@@ -61,7 +64,7 @@ def audit(log):
         if m:
             markers.append(dict(global_turn=turn, rionya_turn=rionya_turn, detail=m.group(1)))
     precombat = [e for e in events if e["action"] == "cast" and e["phase"] and "precombat" in e["phase"].lower()]
-    return dict(schema_version=2, global_turn_last_seen=turn, rionya_turns_seen=rionya_turn, events=events, cast_counts=dict(casts),
+    return dict(schema_version=3, commander_casts=commander_casts, global_turn_last_seen=turn, rionya_turns_seen=rionya_turn, events=events, cast_counts=dict(casts),
                 land_counts=dict(landplays), rionya_copy_target_counts=dict(copies),
                 precombat_casts=precombat, named_draw_counts=dict(named_draws),
                 unidentified_draw_events=unknown_draw_events, pilot_markers=markers,
@@ -92,6 +95,8 @@ def main():
             report["pilot_marker_source"] = str(smoke)
         else:
             report["pilot_markers_in_lab_log"] = []
+        report["pilot_activation_confirmed"] = any("decision_entry" in x["detail"] for x in report["pilot_markers"]) or any("decision_entry" in x for x in report["pilot_markers_in_lab_log"])
+        report["commander_search_observed"] = any("commander_search" in x["detail"] for x in report["pilot_markers"]) or any("commander_search" in x for x in report["pilot_markers_in_lab_log"])
         report["game"] = int(game.name.split("-")[1])
         report["source"] = str(source)
         out = game / "card-audit.json"
@@ -104,8 +109,8 @@ def main():
             len(report["pilot_markers"]) + len(report["pilot_markers_in_lab_log"]), report["unidentified_draw_events"]), flush=True)
     (root / "card-audit-index.json").write_text(json.dumps(
         {"games": len(reports), "summaries": [
-            {k: r[k] for k in ("game", "cast_counts", "rionya_copy_target_counts",
-                               "pilot_markers_observed", "unidentified_draw_events")}
+            {k: r[k] for k in ("game", "cast_counts", "commander_casts", "rionya_copy_target_counts",
+                               "pilot_markers_observed", "pilot_activation_confirmed", "commander_search_observed", "unidentified_draw_events")}
             for r in reports]}, indent=2) + "\n")
     if not reports:
         raise SystemExit("No game logs found for card audit")
