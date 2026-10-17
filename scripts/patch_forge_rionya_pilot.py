@@ -15,6 +15,12 @@ PATCH = '''            // Pilot V2: unconditional entry probe at this decision p
                         + " commander_in_play="
                         + player.isCardInPlay("Rionya, Fire Dancer"));
             }
+            // Record available resources without exposing hidden card identities.
+            if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")) {
+                System.out.println("RIONYA_PILOT resources hand_count=" + player.getCardsIn(ZoneType.Hand).size()
+                        + " command_count=" + player.getCardsIn(ZoneType.Command).size()
+                        + " candidate_count=" + all.size());
+            }
             // Rionya-specific decisions. Legality and payment remain Forge-owned.
             if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
                     && (game.getPhaseHandler().is(PhaseType.MAIN1)
@@ -31,6 +37,7 @@ PATCH = '''            // Pilot V2: unconditional entry probe at this decision p
                     && game.getStack().isEmpty()
                     && (game.getPhaseHandler().is(PhaseType.MAIN1)
                         || game.getPhaseHandler().is(PhaseType.MAIN2))) {
+                System.out.println("RIONYA_PILOT commander_search candidate_count=" + all.size());
                 for (final SpellAbility candidate : ComputerUtilAbility.getOriginalAndAltCostAbilities(all, player)) {
                     if (!"Rionya, Fire Dancer".equals(candidate.getHostCard().getName())
                             || !candidate.isSpell()
@@ -60,13 +67,17 @@ PATCH = '''            // Pilot V2: unconditional entry probe at this decision p
                     "Expedite", "Crimson Wisps", "Renegade Tactics", "Warlord's Fury",
                     "Ancestral Anger", "Crash Through", "Reckless Impulse",
                     "Wrenn's Resolve", "Faithless Looting");
+                System.out.println("RIONYA_PILOT copy_target_available=" + hasCopyTarget);
                 // Let Forge evaluate rituals based on mana and payoffs rather than
                 // blindly burning them for spell count.
                 for (final SpellAbility candidate : ComputerUtilAbility.getOriginalAndAltCostAbilities(all, player)) {
                     if (!hasCopyTarget || !candidate.isSpell()
                             || !precombat.contains(candidate.getHostCard().getName())) continue;
                     candidate.setActivatingPlayer(player);
-                    if (canPlayAndPayFor(candidate) == AiPlayDecision.WillPlay) {
+                    final AiPlayDecision precombatDecision = canPlayAndPayFor(candidate);
+                    System.out.println("RIONYA_PILOT precombat_decision=" + precombatDecision
+                            + " card=" + candidate.getHostCard().getName());
+                    if (precombatDecision == AiPlayDecision.WillPlay) {
                         System.out.println("RIONYA_PILOT precombat_spell=" + candidate.getHostCard().getName());
                         return candidate;
                     }
