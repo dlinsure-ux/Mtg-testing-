@@ -15,16 +15,24 @@ COPY = re.compile(r"^Add To Stack: Ai\(1\)-.*? triggered Rionya, Fire Dancer tar
 DRAW = re.compile(r"^.*?Ai\(1\)-.*? draws? (?:a card|two cards|\d+ cards?)\b", re.I)
 NAMED_DRAW = re.compile(r"^.*?Ai\(1\)-.*? draws? \[([^\]]+)\]", re.I)
 MARKER = re.compile(r"RIONYA_PILOT (.+)")
-STATE = re.compile(r"RIONYA_STATE turn=(\d+) phase=(\w+) hand=(.*?) board=(.*)")
+STATE = re.compile(r"RIONYA_STATE turn=(\d+) phase=(\w+) hand=(.*?) board=(.*?)(?: life=(\d+) creatures=(\d+))?$")
 
 def parse_snapshots(text):
     snapshots = []
+    seen = set()
     for line in text.splitlines():
         match = STATE.search(line)
         if match:
-            snapshots.append(dict(turn=int(match.group(1)), phase=match.group(2),
-                                  hand=[c for c in match.group(3).split("|") if c],
-                                  battlefield=[c for c in match.group(4).split("|") if c]))
+            snapshot = dict(turn=int(match.group(1)), phase=match.group(2),
+                            hand=[c for c in match.group(3).split("|") if c],
+                            battlefield=[c for c in match.group(4).split("|") if c],
+                            life=int(match.group(5)) if match.group(5) else None,
+                            creatures=int(match.group(6)) if match.group(6) else None)
+            key = (snapshot["turn"], snapshot["phase"], tuple(snapshot["hand"]),
+                   tuple(snapshot["battlefield"]), snapshot["life"], snapshot["creatures"])
+            if key not in seen:
+                seen.add(key)
+                snapshots.append(snapshot)
     return snapshots
 
 def card_exposure(snapshots, cast_counts):
@@ -54,6 +62,7 @@ def analyze_gameplay(snapshots, events):
         timeline.append(dict(turn=turn, phase=snap["phase"],
                              hand_size=len(snap["hand"]),
                              battlefield_size=len(board),
+                             life=snap.get("life"), creature_count=snap.get("creatures"),
                              lands=sum(c in ("Mountain", "Snow-Covered Mountain") for c in board),
                              rionya_on_battlefield="Rionya, Fire Dancer" in board,
                              board=board))
@@ -65,7 +74,7 @@ def analyze_gameplay(snapshots, events):
                 evidence_limitations=[
                     "First observed in hand is not necessarily draw turn",
                     "No unobserved draws or mana payments are inferred",
-                    "Snapshot counts are not authoritative token or creature counts",
+                    "Battlefield name snapshots do not distinguish token identity or counters",
                 ])
 
 
