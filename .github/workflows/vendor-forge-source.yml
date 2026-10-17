@@ -1,0 +1,75 @@
+name: Vendor pinned Forge source
+
+on:
+  push:
+    branches:
+      - experiment/guardrails-watchdog-v1
+    paths:
+      - .github/workflows/vendor-forge-source.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vendor-forge-source
+  cancel-in-progress: false
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Commander AI repository
+        uses: actions/checkout@v4
+        with:
+          ref: experiment/guardrails-watchdog-v1
+          fetch-depth: 0
+
+      - name: Fetch exact pinned Forge source
+        shell: bash
+        run: |
+          set -euo pipefail
+          UPSTREAM_REPO="https://github.com/KoalaTrapLord/Forge-Repo.git"
+          UPSTREAM_COMMIT="edb28158f6d892f9eb43dc08f019aab567276027"
+          rm -rf /tmp/forge-upstream vendor/forge
+          git clone --filter=blob:none --no-checkout "$UPSTREAM_REPO" /tmp/forge-upstream
+          git -C /tmp/forge-upstream checkout --detach "$UPSTREAM_COMMIT"
+          test "$(git -C /tmp/forge-upstream rev-parse HEAD)" = "$UPSTREAM_COMMIT"
+          git -C /tmp/forge-upstream ls-tree -r --full-tree HEAD > /tmp/forge-upstream-tree.txt
+          mkdir -p vendor/forge
+          rsync -a --delete --exclude='.git/' /tmp/forge-upstream/ vendor/forge/
+          mkdir -p vendor/forge-metadata
+          cp /tmp/forge-upstream-tree.txt vendor/forge-metadata/upstream-tree.txt
+          printf '%s\n' "$UPSTREAM_COMMIT" > vendor/forge-metadata/upstream-commit.txt
+          printf '%s\n' "$UPSTREAM_REPO" > vendor/forge-metadata/upstream-repository.txt
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          root=Path("vendor/forge")
+          rows=[]
+          for p in sorted(x for x in root.rglob("*") if x.is_file()):
+              h=hashlib.sha256()
+              with p.open("rb") as f:
+                  for chunk in iter(lambda:f.read(1024*1024),b""):
+                      h.update(chunk)
+              rows.append({"path":p.relative_to(root).as_posix(),"bytes":p.stat().st_size,"sha256":h.hexdigest()})
+          manifest={"upstream_repository":"https://github.com/KoalaTrapLord/Forge-Repo.git",
+                    "upstream_commit":"edb28158f6d892f9eb43dc08f019aab567276027",
+                    "files":rows}
+          Path("vendor/forge-metadata/sha256-manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
+          print("Vendored files:",len(rows))
+          print("Vendored bytes:",sum(x["bytes"] for x in rows))
+          PY
+
+      - name: Commit immutable snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vendor/forge vendor/forge-metadata
+          if git diff --cached --quiet; then
+            echo "Pinned Forge snapshot already present."
+            exit 0
+          fi
+          git commit -m "Vendor pinned Forge source edb28158 [skip ci]"
+          git push origin HEAD:experiment/guardrails-watchdog-v1
