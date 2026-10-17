@@ -7,6 +7,7 @@ import re
 from pathlib import Path
 
 TURN = re.compile(r"^Turn: Turn (\d+) \(Ai\((\d+)\)-")
+ANY_DRAW = re.compile(r"\b(?:draws?|drew|drawing)\b", re.I)
 PHASE = re.compile(r"^Phase: Ai\(1\)-.*?'s (.+)$")
 CAST = re.compile(r"^Add To Stack: Ai\(1\)-.*? cast (.+?)(?: targeting |$)")
 LAND = re.compile(r"^Land: Ai\(1\)-.*? played (.+?) \(\d+\)")
@@ -17,6 +18,7 @@ MARKER = re.compile(r"RIONYA_PILOT (.+)")
 
 def audit(log):
     turn = None
+    rionya_turn = 0
     phase = None
     events = []
     casts = collections.Counter()
@@ -44,16 +46,16 @@ def audit(log):
         if m:
             card = m.group(1).strip()
             landplays[card] += 1
-            events.append(dict(turn=turn, phase=phase, action="land", card=card))
+            events.append(dict(global_turn=turn, rionya_turn=rionya_turn, phase=phase, action="land", card=card))
         m = COPY.search(line)
         if m:
             card = m.group(1).strip()
             copies[card] += 1
-            events.append(dict(turn=turn, phase=phase, action="rionya_target", card=card))
+            events.append(dict(global_turn=turn, rionya_turn=rionya_turn, phase=phase, action="rionya_target", card=card))
         m = NAMED_DRAW.search(line)
         if m:
             named_draws[m.group(1).strip()] += 1
-        elif DRAW.search(line):
+        elif DRAW.search(line) or ("Ai(1)-" in line and ANY_DRAW.search(line)):
             unknown_draw_events += 1
         m = MARKER.search(line)
         if m:
@@ -67,7 +69,7 @@ def audit(log):
                 draw_identity_coverage="incomplete: normal draw-step identities are not logged",
                 unplayed_hand_cards="unknown: no hand-zone snapshots",
                 mana_spent="unknown: mana-payment events not reconstructed",
-                warning="Missing markers do not prove the policy was inactive; check child-JVM flags and output capture.")
+                warning="Draw counts are best-effort, not complete; missing markers do not prove the policy was inactive.")
 
 def main():
     p = argparse.ArgumentParser()
