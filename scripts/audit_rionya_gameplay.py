@@ -81,7 +81,7 @@ def main():
         attempts = sorted(game.glob("attempt-*/forge-sim-debug.log"))
         if not attempts:
             continue
-        source = attempts[0]
+        source = attempts[-1]
         report = audit(source.read_text(errors="replace"))
         smoke = source.with_name("smoke-test.log")
         if not smoke.exists():
@@ -101,7 +101,7 @@ def main():
             report["game"], sum(report["cast_counts"].values()),
             sum(report["land_counts"].values()),
             sum(report["rionya_copy_target_counts"].values()),
-            len(report["pilot_markers"]), report["unidentified_draw_events"]), flush=True)
+            len(report["pilot_markers"]) + len(report["pilot_markers_in_lab_log"]), report["unidentified_draw_events"]), flush=True)
     (root / "card-audit-index.json").write_text(json.dumps(
         {"games": len(reports), "summaries": [
             {k: r[k] for k in ("game", "cast_counts", "rionya_copy_target_counts",
