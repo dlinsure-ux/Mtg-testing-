@@ -25,7 +25,8 @@ PATCH = '''            System.out.println("RIONYA_PILOT property_value=" + Boole
             // Once-per-main-phase private state snapshot for deck evaluation.
             // Records our own hand and battlefield; never reveals opponents' hands.
             if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
-                    && game.getPhaseHandler().is(PhaseType.MAIN1)) {
+                    && (game.getPhaseHandler().is(PhaseType.MAIN1)
+                        || game.getPhaseHandler().is(PhaseType.MAIN2))) {
                 final String snapshotKey = "forge.ai.rionya.snapshot";
                 final String snapshotId = String.valueOf(game.getPhaseHandler().getTurn())
                         + ":" + game.getPhaseHandler().getPhase();
@@ -36,7 +37,8 @@ PATCH = '''            System.out.println("RIONYA_PILOT property_value=" + Boole
                     final String boardNames = player.getCardsIn(ZoneType.Battlefield).stream()
                             .map(c -> c.getName()).collect(java.util.stream.Collectors.joining("|"));
                     System.out.println("RIONYA_STATE turn=" + game.getPhaseHandler().getTurn()
-                            + " phase=MAIN1 hand=" + handNames + " board=" + boardNames);
+                            + " phase=" + game.getPhaseHandler().getPhase()
+                            + " hand=" + handNames + " board=" + boardNames);
                 }
             }
             // Rionya-specific decisions. Legality and payment remain Forge-owned.
