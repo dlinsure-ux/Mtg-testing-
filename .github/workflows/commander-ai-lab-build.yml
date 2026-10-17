@@ -1,5 +1,5 @@
 # Diagnostic fix: opt-in wide-board speculative blocking guard (run #143).
-# Run #146 validation: hypothetical blocking guard now covers 8+ attackers based on run #145 evidence.
+# Run #147: type-property LKI fast-path validation after run #146 token-board stall.
 name: Commander Forge Test Harness
 # Experimental fixed-pod five-game run: Lathiel versus Aesi, Bello and Betor.
 # Five-game regression rerun after Lathiel v0.2 policy draft; runtime pilot unchanged.
@@ -53,6 +53,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_patch_lab_winner_parser.py' -v
           python3 -m unittest discover -s tests -p 'test_timeout_ordering.py' -v
           python3 -m unittest discover -s tests -p 'test_speculative_block_guard.py' -v
+          python3 -m unittest discover -s tests -p 'test_property_type_lki_fastpath.py' -v
           python3 scripts/check_commander_workflow.py
           python3 -m unittest discover -s tests -p 'test_commander_workflow.py' -v
           python3 -m unittest discover -s tests -p 'test_prepare_commander_game.py' -v
@@ -107,6 +108,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_patch_lab_winner_parser.py' -v
           python3 -m unittest discover -s tests -p 'test_timeout_ordering.py' -v
           python3 -m unittest discover -s tests -p 'test_speculative_block_guard.py' -v
+          python3 -m unittest discover -s tests -p 'test_property_type_lki_fastpath.py' -v
           python3 scripts/check_commander_workflow.py
           python3 -m unittest discover -s tests -p 'test_commander_workflow.py' -v
           python3 -m unittest discover -s tests -p 'test_prepare_commander_game.py' -v
