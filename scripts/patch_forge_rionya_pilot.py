@@ -18,7 +18,7 @@ PATCH = '''            // Rionya-specific decisions. Legality and payment remain
                             || candidate.getHostCard().getZone().getZoneType() != ZoneType.Command) continue;
                     candidate.setActivatingPlayer(player);
                     if (canPlayAndPayFor(candidate) == AiPlayDecision.WillPlay) {
-                        System.err.println("RIONYA_PILOT commander_cast_priority=true phase="
+                        System.out.println("RIONYA_PILOT commander_cast_priority=true phase="
                                 + game.getPhaseHandler().getPhase());
                         return candidate;
                     }
@@ -45,7 +45,7 @@ PATCH = '''            // Rionya-specific decisions. Legality and payment remain
                             || !precombat.contains(candidate.getHostCard().getName())) continue;
                     candidate.setActivatingPlayer(player);
                     if (canPlayAndPayFor(candidate) == AiPlayDecision.WillPlay) {
-                        System.err.println("RIONYA_PILOT precombat_spell=" + candidate.getHostCard().getName());
+                        System.out.println("RIONYA_PILOT precombat_spell=" + candidate.getHostCard().getName());
                         return candidate;
                     }
                 }
