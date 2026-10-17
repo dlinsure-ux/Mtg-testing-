@@ -573,14 +573,14 @@ jobs:
               --output "diagnostics/game-$game/attempt-$attempt/progress-watchdog.json" \
               --interval 30 --stale-seconds 300 --max-seconds 900 &
             watchdog=$!
-            for sample in 1 2 3 4 5 6 7 8 9 10 11 12 13; do
+            for sample in $(seq 1 26); do
               # Wake promptly when the game ends rather than delaying up to 60 seconds.
-              for ((tick=0; tick<60; tick++)); do
+              for ((tick=0; tick<30; tick++)); do
                 if ! kill -0 "$supervisor" 2>/dev/null; then break; fi
                 sleep 1
               done
               if ! kill -0 "$supervisor" 2>/dev/null; then break; fi
-              echo "Game $game heartbeat $sample $(date -u +%FT%TZ)"
+              echo "GAME_HEARTBEAT game=$game attempt=$attempt sample=$sample utc=$(date -u +%FT%TZ) supervisor_pid=$supervisor"
               # Publish progress in the live Actions log, which remains readable in the web UI.
               python3 - "diagnostics/game-$game/attempt-$attempt/progress-watchdog.json" <<'PYPROGRESS'
           import json,sys
