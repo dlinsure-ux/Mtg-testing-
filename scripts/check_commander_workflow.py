@@ -17,7 +17,8 @@ def check(workflow: str) -> None:
     assert 'export FORGE_LAB_REPLAY_SEED' in body
     assert 'timeout 900 xvfb-run' in body
     assert 'python3 scripts/validate_forge_game.py' in body
-    assert 'if [ "$failed" -ne 0 ]; then' in body
+    assert 'for attempt in 1 2 3; do' in body
+    assert 'if [ "$game_passed" -eq 0 ]; then' in body
     assert 'scripts/patch_forge_replay_seed.py' in workflow
     assert 'FORGE_REPLAY_SEED=' in workflow
     assert 'FORGE_LAB_REPLAY_SEED' in workflow
