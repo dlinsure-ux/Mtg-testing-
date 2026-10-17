@@ -89,7 +89,7 @@ jobs:
         shell: bash
         env:
           REQUESTED_DECK: ${{ inputs.deck || 'decks/rionya.dck' }}
-          REQUESTED_GAMES: ${{ github.event_name == 'push' && '1' || inputs.games || '5' }}
+          REQUESTED_GAMES: ${{ github.event_name == 'push' && (contains(github.event.head_commit.message, '[five-game]') && '5' || '1') || inputs.games || '5' }}
         run: |
           set -euo pipefail
           python3 - <<'PY'
