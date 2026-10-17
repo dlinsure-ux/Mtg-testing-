@@ -239,15 +239,16 @@ def main():
         if report["authoritative_summary"]["opening_hand_cards"]:
             report["draw_identity_coverage"] = "authoritative: zone-transition events"
         report["state_snapshots"] = parse_snapshots(forge_text + "\n" + lab_text)
-        report["card_exposure"] = card_exposure(report["state_snapshots"], report["cast_counts"])
-        report["gameplay_analysis"] = analyze_gameplay(report["state_snapshots"], report["events"])
+        analysis_snapshots = report["authoritative_summary"]["snapshots"] or report["state_snapshots"]
+        report["card_exposure"] = card_exposure(analysis_snapshots, report["cast_counts"])
+        report["gameplay_analysis"] = analyze_gameplay(analysis_snapshots, report["events"])
         if report["authoritative_summary"]["opening_hand_cards"]:
             report["unplayed_hand_cards"] = report["gameplay_analysis"]["observed_but_not_played"]
         report["telemetry_quality"] = {
-            "has_hand_snapshots": bool(report["state_snapshots"]),
-            "has_life_snapshots": any(x["life"] is not None for x in report["state_snapshots"]),
-            "has_creature_snapshots": any(x["creatures"] is not None for x in report["state_snapshots"]),
-            "has_battlefield_snapshots": bool(report["state_snapshots"]),
+            "has_hand_snapshots": bool(analysis_snapshots),
+            "has_life_snapshots": any(x.get("life") is not None for x in analysis_snapshots),
+            "has_creature_snapshots": any(x.get("creatures") is not None for x in analysis_snapshots),
+            "has_battlefield_snapshots": bool(analysis_snapshots),
             "has_cast_events": bool(report["cast_counts"]),
             "has_land_events": bool(report["land_counts"]),
             "has_pilot_decisions": bool(report["pilot_markers_observed"]),
@@ -259,6 +260,9 @@ def main():
                 bool(report["authoritative_summary"]["snapshots"]),
                 bool(report["authoritative_summary"]["event_counts"].get("zone")),
                 bool(report["authoritative_summary"]["event_counts"].get("turn_begin")),
+                bool(report["authoritative_summary"]["event_counts"].get("spell")),
+                bool(report["authoritative_summary"]["event_counts"].get("mana_pool")),
+                bool(report["authoritative_summary"]["event_counts"].get("telemetry_enabled")),
             ]),
         }
         report["pilot_activation_confirmed"] = any("decision_entry" in x["detail"] for x in report["pilot_markers"]) or any("decision_entry" in x for x in report["pilot_markers_in_lab_log"])
