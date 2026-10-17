@@ -1,5 +1,5 @@
 # Diagnostic fix: opt-in wide-board speculative blocking guard (run #143).
-# Independent five-game repeat after successful run #144; no gameplay code changes.
+# Run #146 validation: hypothetical blocking guard now covers 8+ attackers based on run #145 evidence.
 name: Commander Forge Test Harness
 # Experimental fixed-pod five-game run: Lathiel versus Aesi, Bello and Betor.
 # Five-game regression rerun after Lathiel v0.2 policy draft; runtime pilot unchanged.
