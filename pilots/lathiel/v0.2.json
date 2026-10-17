@@ -14,7 +14,9 @@
     "commander": "deploy early when likely to survive; protect existing engine before recasting into obvious removal",
     "combat": "prefer safe lifelink connections and profitable lethal pressure; avoid trading away engine creatures",
     "board_wipes": "evaluate own engine loss, opponent threats, survival and post-wipe recovery before casting",
-    "protection": "prioritize saving Lathiel, Rhox Faithmender, and other established multipliers from removal when tactically meaningful"
+    "protection": "prioritize saving Lathiel, Rhox Faithmender, and other established multipliers from removal when tactically meaningful; never protect an opposing threat without clear tactical benefit",
+    "counter_distribution": "Favor owned attackers with lifelink, evasion or lethal pressure; avoid low-impact mana dorks unless no better legal recipients; verify controller and legality",
+    "removal": "Preserve premium single-target removal for threatening engines or imminent losses; avoid using Swords to Plowshares on minor mana dorks without clear tactical reason"
   },
   "decision_guards": [
     {
@@ -36,6 +38,18 @@
     {
       "id": "draw-trace",
       "rule": "Track draw by source and cards stranded in hand; never infer from casts alone"
+    },
+    {
+      "id": "counter-target-context",
+      "rule": "Log legal recipients, controller, counters assigned, and immediate combat value; evaluate whether counter placement advances lethal or survival"
+    },
+    {
+      "id": "removal-target-context",
+      "rule": "Record opposing board threats, target valuation and removal urgency; flag premium removal on minor mana dorks"
+    },
+    {
+      "id": "protection-target-context",
+      "rule": "Record target controller, incoming threat and why protection is tactically valuable; flag protection on opponent threats"
     }
   ],
   "notes": "DESIGN ONLY. Forge built-in AI still pilots games. Runtime decision hooks and targeted tests are required before claiming this policy changes gameplay."
