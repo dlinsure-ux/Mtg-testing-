@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+"""Conservative Forge game-event audit. Never infer a card's identity from draw text."""
+import argparse
+import collections
+import json
+import re
+from pathlib import Path
+
+TURN = re.compile(r"^Turn: Turn (\d+) \(Ai\(1\)-")
+PHASE = re.compile(r"^Phase: Ai\(1\)-.*?'s (.+)$")
+CAST = re.compile(r"^Add To Stack: Ai\(1\)-.*? cast (.+?)(?: targeting |$)")
+LAND = re.compile(r"^Land: Ai\(1\)-.*? played (.+?) \(\d+\)")
+COPY = re.compile(r"^Add To Stack: Ai\(1\)-.*? triggered Rionya, Fire Dancer targeting \[(.+?) \(\d+\)\]")
+DRAW = re.compile(r"^.*?Ai\(1\)-.*? draws? (?:a card|two cards|\d+ cards?)\b", re.I)
+NAMED_DRAW = re.compile(r"^.*?Ai\(1\)-.*? draws? \[([^\]]+)\]", re.I)
+MARKER = re.compile(r"RIONYA_PILOT (.+)")
+
+def audit(log):
+    turn = None
+    phase = None
+    events = []
+    casts = collections.Counter()
+    landplays = collections.Counter()
+    copies = collections.Counter()
+    unknown_draw_events = 0
+    named_draws = collections.Counter()
+    markers = []
+    for raw in log.splitlines():
+        line = raw.strip()
+        m = TURN.search(line)
+        if m:
+            turn = int(m.group(1))
+        m = PHASE.search(line)
+        if m:
+            phase = m.group(1)
+        m = CAST.search(line)
+        if m:
+            card = m.group(1).strip()
+            casts[card] += 1
+            events.append(dict(turn=turn, phase=phase, action="cast", card=card))
+        m = LAND.search(line)
+        if m:
+            card = m.group(1).strip()
+            landplays[card] += 1
+            events.append(dict(turn=turn, phase=phase, action="land", card=card))
+        m = COPY.search(line)
+        if m:
+            card = m.group(1).strip()
+            copies[card] += 1
+            events.append(dict(turn=turn, phase=phase, action="rionya_target", card=card))
+        m = NAMED_DRAW.search(line)
+        if m:
+            named_draws[m.group(1).strip()] += 1
+        elif DRAW.search(line):
+            unknown_draw_events += 1
+        m = MARKER.search(line)
+        if m:
+            markers.append(dict(turn=turn, detail=m.group(1)))
+    precombat = [e for e in events if e["action"] == "cast" and e["phase"] and "precombat" in e["phase"].lower()]
+    return dict(schema_version=1, events=events, cast_counts=dict(casts),
+                land_counts=dict(landplays), rionya_copy_target_counts=dict(copies),
+                precombat_casts=precombat, named_draw_counts=dict(named_draws),
+                unidentified_draw_events=unknown_draw_events, pilot_markers=markers,
+                pilot_markers_observed=bool(markers),
+                draw_identity_coverage="incomplete: normal draw-step identities are not logged",
+                unplayed_hand_cards="unknown: no hand-zone snapshots",
+                mana_spent="unknown: mana-payment events not reconstructed",
+                warning="Missing markers do not prove the policy was inactive; check child-JVM flags and output capture.")
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("--results", default="results")
+    a = p.parse_args()
+    root = Path(a.results)
+    reports = []
+    for game in sorted(root.glob("game-*"), key=lambda x: int(x.name.split("-")[1])):
+        attempts = sorted(game.glob("attempt-*/forge-sim-debug.log"))
+        if not attempts:
+            continue
+        source = attempts[0]
+        report = audit(source.read_text(errors="replace"))
+        report["game"] = int(game.name.split("-")[1])
+        report["source"] = str(source)
+        out = game / "card-audit.json"
+        out.write_text(json.dumps(report, indent=2) + "\n")
+        reports.append(report)
+        print("CARD_AUDIT game={} casts={} lands={} copies={} pilot_markers={} unknown_draw_events={}".format(
+            report["game"], sum(report["cast_counts"].values()),
+            sum(report["land_counts"].values()),
+            sum(report["rionya_copy_target_counts"].values()),
+            len(report["pilot_markers"]), report["unidentified_draw_events"]), flush=True)
+    (root / "card-audit-index.json").write_text(json.dumps(
+        {"games": len(reports), "summaries": [
+            {k: r[k] for k in ("game", "cast_counts", "rionya_copy_target_counts",
+                               "pilot_markers_observed", "unidentified_draw_events")}
+            for r in reports]}, indent=2) + "\n")
+    if not reports:
+        raise SystemExit("No game logs found for card audit")
+
+if __name__ == "__main__":
+    main()
