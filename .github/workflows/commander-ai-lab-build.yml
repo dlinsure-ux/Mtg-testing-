@@ -368,6 +368,8 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/patch_forge_rionya_pilot.py forge/forge-ai/src/main/java/forge/ai/AiController.java
+          python3 scripts/patch_forge_rionya_copy.py forge/forge-ai/src/main/java/forge/ai/ability/CopyPermanentAi.java
+          grep -q 'RIONYA_PILOT copy_target' forge/forge-ai/src/main/java/forge/ai/ability/CopyPermanentAi.java
           grep -q 'RIONYA_PILOT commander_cast_priority' forge/forge-ai/src/main/java/forge/ai/AiController.java
       - name: Restore reusable compiled Forge and Lab build
         id: compiled
