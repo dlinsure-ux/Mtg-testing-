@@ -35,6 +35,40 @@ def card_exposure(snapshots, cast_counts):
                 observed_in_hand_not_cast=sorted(c for c in seen if not cast_counts.get(c)),
                 caveat="Hand snapshots are sampled at main phase; not all draws or playable windows are observed.")
 
+def analyze_gameplay(snapshots, events):
+    """Observed card availability and board development; no invented draw identities."""
+    unique = {}
+    for snapshot in snapshots:
+        unique[(snapshot["turn"], snapshot["phase"], tuple(snapshot["hand"]),
+                tuple(snapshot["battlefield"]))] = snapshot
+    snapshots = sorted(unique.values(), key=lambda x: x["turn"])
+    timeline = []
+    first_seen = {}
+    last_seen = {}
+    for snap in snapshots:
+        turn = snap["turn"]
+        for card in snap["hand"]:
+            first_seen.setdefault(card, turn)
+            last_seen[card] = turn
+        board = snap["battlefield"]
+        timeline.append(dict(turn=turn, phase=snap["phase"],
+                             hand_size=len(snap["hand"]),
+                             battlefield_size=len(board),
+                             lands=sum(c in ("Mountain", "Snow-Covered Mountain") for c in board),
+                             rionya_on_battlefield="Rionya, Fire Dancer" in board,
+                             board=board))
+    played = {e["card"] for e in events if e["action"] in ("cast", "land")}
+    return dict(board_timeline=timeline,
+                first_observed_in_hand=first_seen,
+                last_observed_in_hand=last_seen,
+                observed_but_not_played=sorted(set(first_seen) - played),
+                evidence_limitations=[
+                    "First observed in hand is not necessarily draw turn",
+                    "No unobserved draws or mana payments are inferred",
+                    "Snapshot counts are not authoritative token or creature counts",
+                ])
+
+
 def audit(log):
     turn = None
     rionya_turn = 0
@@ -118,6 +152,7 @@ def main():
         lab_text = smoke.read_text(errors="replace") if smoke.exists() else ""
         report["state_snapshots"] = parse_snapshots(forge_text + "\n" + lab_text)
         report["card_exposure"] = card_exposure(report["state_snapshots"], report["cast_counts"])
+        report["gameplay_analysis"] = analyze_gameplay(report["state_snapshots"], report["events"])
         report["pilot_activation_confirmed"] = any("decision_entry" in x["detail"] for x in report["pilot_markers"]) or any("decision_entry" in x for x in report["pilot_markers_in_lab_log"])
         report["commander_search_observed"] = any("commander_search" in x["detail"] for x in report["pilot_markers"]) or any("commander_search" in x for x in report["pilot_markers_in_lab_log"])
         report["game"] = int(game.name.split("-")[1])
@@ -132,7 +167,7 @@ def main():
             len(report["pilot_markers"]) + len(report["pilot_markers_in_lab_log"]), report["unidentified_draw_events"]), flush=True)
     (root / "card-audit-index.json").write_text(json.dumps(
         {"games": len(reports), "summaries": [
-            {k: r[k] for k in ("game", "cast_counts", "commander_casts", "card_exposure", "rionya_copy_target_counts",
+            {k: r[k] for k in ("game", "cast_counts", "commander_casts", "card_exposure", "gameplay_analysis", "rionya_copy_target_counts",
                                "pilot_markers_observed", "pilot_activation_confirmed", "commander_search_observed", "unidentified_draw_events")}
             for r in reports]}, indent=2) + "\n")
     if not reports:
