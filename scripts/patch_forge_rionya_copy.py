@@ -23,6 +23,7 @@ PATCH = '''        if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
                     case "Tectonic Giant": score += 550; break;
                     default: break;
                 }
+                System.out.println("RIONYA_PILOT copy_candidate=" + c.getName() + " score=" + score);
                 if (score > bestScore) { bestScore = score; best = c; }
             }
             if (best != null) {
