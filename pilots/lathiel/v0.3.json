@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "pilot": "lathiel",
+  "version": "0.4",
+  "status": "specification_only",
+  "engine": "Forge built-in AI",
+  "runtime_integrated": false,
+  "priorities": {
+    "tutor": [
+      "find missing repeatable life-gain or lifelink engine",
+      "find evasion/protection when large lifelink attacker exists",
+      "find counter multiplier when gain engine and attack access are established"
+    ],
+    "commander": "Cast Lathiel at the first legal main-phase opportunity with sufficient mana, including commander tax, unless a concrete tactical exception applies. Do not wait for lifegain, counters, protection, or a perfect board merely for value. Recast after removal under the same rule.",
+    "combat": "Preserve utility lifegain creatures; make profitable lifelink attacks",
+    "board_wipes": "evaluate own engine loss, opponent threats, survival and post-wipe recovery before casting",
+    "protection": "prioritize saving Lathiel, Rhox Faithmender, and other established multipliers from removal when tactically meaningful",
+    "alternate_wins": "Prioritize removing opponent alternate-win permanents when imminent, including Simic Ascendancy",
+    "engine_order": "Establish repeatable life gain before adding life and counter multipliers"
+  },
+  "decision_guards": [
+    {
+      "id": "wipe-own-engine",
+      "rule": "Do not cast Damning Verdict when it destroys our Ohran Frostfang or Rhox Faithmender unless preventing imminent loss or materially improving win probability"
+    },
+    {
+      "id": "tutor-target-log",
+      "rule": "Record candidate targets, selected card, game state, and justification before grading tutor choice"
+    },
+    {
+      "id": "commander-uptime",
+      "rule": "At every main-phase opportunity track Lathiel's zone, cost including tax, mana availability, legality, cast/skip and concrete exception evidence; flag affordable legal uncast opportunities without justified exception."
+    },
+    {
+      "id": "life-engine",
+      "rule": "Track per-turn life gains, source, multipliers, counter placement and peak life total"
+    },
+    {
+      "id": "draw-trace",
+      "rule": "Track draw by source and cards stranded in hand; never infer from casts alone"
+    },
+    {
+      "id": "draw-audit",
+      "rule": "Log exact card draw source and stranded cards when observable; otherwise mark unknown"
+    }
+  ],
+  "notes": "Specification only; not connected to Forge runtime. Commander-cast policy is NOT enforced until a verified runtime integration is implemented and tested.",
+  "commander_cast_policy": {
+    "default": "CAST_AS_SOON_AS_POSSIBLE",
+    "scope": "When Lathiel is in the command zone, is not already on the battlefield, and can legally be cast with currently available mana including commander tax.",
+    "exceptions": [
+      {
+        "id": "immediate-survival",
+        "rule": "Hold only when spending mana on Lathiel would prevent an available play needed to avoid imminent loss this turn or before the next opportunity."
+      },
+      {
+        "id": "known-immediate-removal",
+        "rule": "Hold when publicly known removal, an imminent wipe, or a deterministic interaction would waste the cast and an available alternative meaningfully improves the outcome. Do not assume hidden removal."
+      },
+      {
+        "id": "clearly-superior-line",
+        "rule": "Hold when an identified alternative use of mana produces immediate lethal, prevents an opponent's imminent win, or provides demonstrably greater tactical value; record the exact line."
+      },
+      {
+        "id": "casting-is-harmful",
+        "rule": "Hold when an active public effect makes casting Lathiel materially harmful, such as a known punitive trigger or a commander-neutralizing effect with no useful payoff."
+      }
+    ],
+    "non_exceptions": [
+      "No lifegain engine yet",
+      "No counter doubler yet",
+      "No protection spell in hand",
+      "Wanting to save mana for a hypothetical future play",
+      "General fear of unknown interaction",
+      "Commander tax is high but payable"
+    ],
+    "recheck": "At each main-phase decision point after mana or board state changes, and after Lathiel returns to the command zone.",
+    "telemetry": {
+      "required": [
+        "turn",
+        "phase",
+        "commander_zone",
+        "commander_tax",
+        "available_mana",
+        "cast_legal",
+        "cast_attempted",
+        "cast_resolved",
+        "reason_if_skipped",
+        "specific_exception_evidence"
+      ],
+      "missed_opportunity": "Flag every legal affordable uncast opportunity without a recorded concrete exception.",
+      "unknown": "If mana legality or board evidence is unavailable, classify the opportunity as unknown, not a pilot mistake."
+    }
+  }
+}

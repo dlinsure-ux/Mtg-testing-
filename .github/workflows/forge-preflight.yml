@@ -24,6 +24,8 @@ jobs:
           set -euo pipefail
           python3 -m py_compile scripts/validate_forge_game.py tests/test_validator_patterns.py scripts/preflight_selected_decks.py
           python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
+          python3 -m unittest discover -s tests -p 'test_series_audit.py' -v
+          python3 -m unittest discover -s tests -p 'test_game_progress_watchdog.py' -v
       - name: Validate workflow YAML and embedded shell
         uses: raven-actions/actionlint@v2
         with:
@@ -34,11 +36,14 @@ jobs:
           from pathlib import Path
           s = Path('.github/workflows/commander-ai-lab-build.yml').read_text()
           if 'cache: maven' in s:
-              raise SystemExit('Do not use setup-java Maven caching before upstream pom.xml checkout')
-          required = ['Check out Commander AI Lab and matching Forge fork', 'Cache Maven dependencies after upstream checkout', 'Build Forge dependencies', 'Build Commander AI Lab']
+              raise SystemExit('Do not use setup-java Maven caching before Forge source is prepared')
+          required = ['Check out Commander AI Lab and use vendored Forge snapshot', 'Cache Maven dependencies after upstream checkout', 'Build Forge dependencies', 'Build Commander AI Lab']
           positions = [s.find('name: ' + x) for x in required]
           assert all(x >= 0 for x in positions), 'Missing required workflow step'
-          assert positions == sorted(positions), 'Checkout, cache, and build ordering regression'
+          assert positions == sorted(positions), 'Forge checkout, cache, and build ordering regression'
+          assert 'python3 scripts/verify_vendored_forge.py' in s, 'Vendored Forge integrity check missing'
+          assert 'cp -a vendor/forge forge' in s, 'Vendored Forge copy missing'
+          assert 'git clone https://github.com/Card-Forge/forge' not in s, 'Unexpected upstream Forge clone'
           assert 'GAME VALID' in Path('scripts/validate_forge_game.py').read_text() or 'Lab and Forge agree on one terminal winner' in Path('scripts/validate_forge_game.py').read_text()
           print('Workflow dependency order and strict validator present')
           PY

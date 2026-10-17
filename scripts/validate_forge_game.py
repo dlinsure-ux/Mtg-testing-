@@ -19,6 +19,11 @@ startup_log = forge[:first_turn.start()] if first_turn else ""
 game_log = forge[first_turn.start():] if first_turn else forge
 startup_ai_timeouts = len(re.findall(r"^java\.util\.concurrent\.TimeoutException\s*$", startup_log, re.M))
 in_game_ai_timeouts = len(re.findall(r"^java\.util\.concurrent\.TimeoutException\s*$", game_log, re.M))
+# AI timeout context may be emitted out of order relative to buffered turn logs.
+timeout_contexts = re.findall(r'^AI_DECISION_TIMEOUT[^\n]*', forge, re.M)
+context_turns = [re.search(r'\b(?:turn|turn_number|turnNumber)=(\d+)', line, re.I) for line in timeout_contexts]
+context_in_game = sum(int(m.group(1)) > 0 for m in context_turns if m)
+in_game_ai_timeouts = max(in_game_ai_timeouts, context_in_game)
 whole_game_timeout = bool(re.search(r"Stopping slow match as draw|TimeoutException|InterruptedException", lab)) or bool(re.search(r"Stopping slow match as draw|^java\\.lang\\.InterruptedException", forge, re.M))
 other_startup_timeouts = len(re.findall(r"^java\.util\.concurrent\.TimeoutException\s*$", startup_log, re.M)) - len(re.findall(r"java\.util\.concurrent\.TimeoutException\n\s*at java\.base/java\.util\.concurrent\.FutureTask\.get\([^\n]*\)\n\s*at forge\.ai\.AiController\.chooseSpellAbilityToPlayFromList", startup_log))
 unsupported = re.findall(r"An unsupported card was requested:.*", lab + "\n" + forge)
@@ -45,7 +50,7 @@ if lab_results and forge_results and outcomes:
     if forge_winner != outcome_winner: errors.append("Forge final winner name differs from outcome")
     if abs(int(lab_ms) - int(forge_ms)) > 1000: errors.append("Lab/Forge elapsed time differs")
     # Lab winner is a deck path; compare seat name against the selected deck's metadata.
-    seat_paths = {1:os.environ.get("SEAT_1_PATH", "decks/lathiel.dck"),2:os.environ.get("SEAT_2_PATH", "opponents/aesi.dck"),3:os.environ.get("SEAT_3_PATH", "opponents/bello.dck"),4:os.environ.get("SEAT_4_PATH", "opponents/betor.dck")}
+    seat_paths = {1:os.environ.get("SEAT_1_PATH") or os.environ.get("PRIMARY_DECK", ""),2:os.environ.get("SEAT_2_PATH", "opponents/aesi.dck"),3:os.environ.get("SEAT_3_PATH", "opponents/bello.dck"),4:os.environ.get("SEAT_4_PATH", "opponents/betor.dck")}
     expected = seat_paths.get(int(forge_seat), "")
     if not expected or not lab_winner.endswith(expected): errors.append("Lab winner deck disagrees with Forge winner seat")
 report = {
@@ -57,7 +62,11 @@ report = {
     "startup_ai_decision_timeouts": startup_ai_timeouts,
     "in_game_ai_decision_timeouts": in_game_ai_timeouts,
     "whole_game_timeout": whole_game_timeout,
-    "warnings": ([f"{startup_ai_timeouts} startup AI decision timeouts before first turn; piloting quality not independently verified"] if startup_ai_timeouts else []),
+    "ai_timeout_contexts": timeout_contexts,
+    "ai_timeout_context_in_game": context_in_game,
+    "ai_timeout_turn_numbers": [int(m.group(1)) for m in context_turns if m],
+    "terminal_turn_numbers": [int(x) for x in re.findall(r"^Game Outcome: Turn (\d+)", forge, re.M)],
+    "warnings": ([f"{startup_ai_timeouts} AI timeout traces before first turn marker (may reflect buffered log ordering)"] if startup_ai_timeouts else []),
     "unsupported_cards": unsupported[:10],
     "supervisor_exit": exit_status,
 }

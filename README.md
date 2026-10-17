@@ -1,4 +1,11 @@
 # MTG Testing — Forge / Commander AI Lab Recovery README
+> **FORGE SOURCE VENDORED (2026-10-17):** The exact pinned KoalaTrapLord/Forge-Repo commit `edb28158f6d892f9eb43dc08f019aab567276027` is now stored directly under `vendor/forge/` (56,006 files; 381,196,408 bytes). Provenance and SHA-256 metadata live in `vendor/forge-metadata/`. The Commander harness now verifies that snapshot with `scripts/verify_vendored_forge.py` and copies it to the build workspace instead of cloning Forge from upstream. The vendoring workflow is manual-only; game runs remain manual-only.
+
+
+> **LATEST HANDOFF — 2026-10-16/17, run #143:** **[READ THE RUN #143 COMBAT-PERFORMANCE HANDOFF FIRST](docs/2026-10-16-RUN-143-COMBAT-PERFORMANCE-HANDOFF.md)**. This is the authoritative next-chat restart guide, with exact run/commit IDs, game-by-game validation, seeds, measured 6–7.5-second speculative blocker calls, Shroofus COMBAT_BEGIN timeout stacks, prior #141/#142 context, safe optimization plan, and copy/paste continuation prompt. **Current status: unresolved; #143 passed 4/5, game 5 INVALID with 2 AI decision timeouts.** Documentation saved only; no performance optimization is claimed. Work on `experiment/guardrails-watchdog-v1`; never change protected baseline `3785d644` or merge PR #1.
+
+> **LATEST HANDOFF (2026-10-15):** For the current Forge AI timeout diagnosis, 663-line workflow/code audit, exact runs/commits, safety guardrails, and a copy-ready new-chat prompt, **read [docs/2026-10-15-FORGE-PERFORMANCE-AND-CODE-CLEANUP-HANDOFF.md](docs/2026-10-15-FORGE-PERFORMANCE-AND-CODE-CLEANUP-HANDOFF.md) first.** This supersedes older 'next work' sections below where they conflict. The experimental performance problem remains unresolved; do not treat earlier single-game completions as a reliable series. The protected baseline and canonical decks must not be changed without approval.
+
 
 > **CURRENT WORKSTREAM HANDOFF (2026-10-14):** The detailed, actively maintained future-chat guide is [docs/FUTURE_CHAT_HANDOFF.md on experiment/guardrails-watchdog-v1](https://github.com/dlinsure-ux/Mtg-testing-/blob/experiment/guardrails-watchdog-v1/docs/FUTURE_CHAT_HANDOFF.md). Read it together with [release gates](docs/RELEASE_GATES.md) and [pilot isolation](docs/PILOT_ISOLATION.md). Experimental watchdog work is in [draft PR #1](https://github.com/dlinsure-ux/Mtg-testing-/pull/1), **not merged**. The historical baseline and working main simulator must remain untouched until promotion gates pass. Do not mistake the older single-game milestone below for the newer verified five-game run 38623230136.
 
@@ -129,3 +136,13 @@ Also validate expected seat count, meaningful turn count, process status and ful
 - **Results-integrity guardrail:** never choose a winner by life total when Forge reports multiple winners or hits a clock limit. Require a single Forge winner and three genuine eliminations, with no unsupported-card warning or timeout. Distinguish simulation validity from GitHub job status.
 
 **Next work:** inspect the full run #28 debug artifact and Forge card definitions; identify exact missing Smaug implementation; add a versioned, reproducible Forge source/database patch; build and run a card-specific test plus a complete four-seat test; update this README with verified evidence and commit SHAs. Keep this record on GitHub, not only in conversation.
+
+## 2026-10-15 performance investigation — current checkpoint
+
+**Current authoritative plan:** [docs/2026-10-15-FORGE-ROOT-CAUSE-AND-LONG-TERM-PLAN.md](docs/2026-10-15-FORGE-ROOT-CAUSE-AND-LONG-TERM-PLAN.md). Historical handoff: [docs/2026-10-15-FORGE-PERFORMANCE-AND-CODE-CLEANUP-HANDOFF.md](docs/2026-10-15-FORGE-PERFORMANCE-AND-CODE-CLEANUP-HANDOFF.md).
+
+Run 38821663401: Forge/Lab compiled, but game INVALID with 3 AI decision timeouts in COMBAT_BEGIN. Artifact 12012687900 (expires October 29) contains JFR and raw logs. Measured 85 slow blocker calls totaling 52,951 ms inclusive, max 2,893 ms. JFR contains heavy `Card.isValid`/card-property checking, but samples span worker threads and must not be treated as exclusively AI decision CPU. No root-cause fix yet.
+
+New offline-only instrumentation-analysis work: `scripts/summarize_forge_profiles.py` (commit `63dad417`) and `tests/test_summarize_forge_profiles.py` (commit `5ff7d697`). These analyze **existing** profile markers and do not alter Forge decisions, AI budget, decks, or workflow. They are committed but **not yet CI-verified**. Run `python3 -m unittest discover -s tests -p 'test_summarize_forge_profiles.py' -v` and `python3 scripts/summarize_forge_profiles.py forge/forge-sim-debug.log --output results/profile-summary.json` from the repo root. A future isolated preflight should verify tests without triggering the expensive five-game default workflow.
+
+Immediate priorities: verify offline tests; profile the specific repeated call sites and isolate their caller frequencies; validate the current aliasing/no-blocker changes; introduce bounded per-decision summaries before making any gameplay optimization. Never merge PR #1 or modify the protected baseline or canonical decks.

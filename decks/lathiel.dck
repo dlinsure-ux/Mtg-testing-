@@ -8,11 +8,9 @@ Name=Lathiel
 1 Alhammarret's Archive
 1 Doubling Season
 1 Branching Evolution
-1 Hardened Scales
 1 Vorinclex, Monstrous Raider
 1 Archangel of Thune
 1 Walking Ballista
-1 Heliod, Sun-Crowned
 1 Abzan Falconer
 1 Swords to Plowshares
 1 Path to Exile
@@ -41,17 +39,13 @@ Name=Lathiel
 1 Worldly Tutor
 1 Enlightened Tutor
 1 Formidable Speaker
-1 Summoner's Pact
 1 Sylvan Tutor
 1 Akroma's Will
 1 Shadowspear
-1 Steel Seraph
 1 Caduceus, Staff of Hermes
 1 The Wind Crystal
 1 Abzan Battle Priest
-1 Managorger Hydra
 1 Kalonian Hydra
-1 Kodama of the West Tree
 1 Ohran Frostfang
 1 Toski, Bearer of Secrets
 1 Rishkar's Expertise
@@ -67,8 +61,14 @@ Name=Lathiel
 1 Damning Verdict
 1 Suture Priest
 1 Aetherflux Reservoir
-12 Forest
-8 Plains
+1 Fellwar Stone
+1 Mana Vault
+1 Odric, Lunarch Marshal
+1 Kwia Vigorbloom
+1 Serra Ascendant
+1 Sire of Seven Deaths
+11 Forest
+10 Plains
 1 Command Tower
 1 Reliquary Tower
 1 City of Brass
@@ -83,4 +83,3 @@ Name=Lathiel
 1 Rogue's Passage
 1 Yavimaya Hollow
 1 Gavony Township
-1 Karn's Bastion
