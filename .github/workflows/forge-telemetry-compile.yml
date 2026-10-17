@@ -1,0 +1,33 @@
+name: Forge Telemetry Compile Check
+on:
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify vendored Forge
+        run: python3 scripts/verify_vendored_forge.py
+      - name: Prepare isolated Forge tree
+        run: |
+          set -euo pipefail
+          rm -rf forge
+          cp -a vendor/forge forge
+          cp scripts/forge/RionyaTelemetry.java forge/forge-game/src/main/java/forge/game/RionyaTelemetry.java
+          python3 scripts/patch_forge_rionya_telemetry.py forge/forge-game/src/main/java/forge/game/Game.java
+      - name: Run offline telemetry tests
+        run: |
+          python3 -m py_compile scripts/audit_rionya_gameplay.py scripts/patch_forge_rionya_telemetry.py
+          python3 -m unittest discover -s tests -p 'test_rionya_*.py' -v
+      - name: Compile Forge game module
+        working-directory: forge
+        run: mvn -B -ntp -pl forge-game -am -DskipTests -Drevision=2.0.12-SNAPSHOT compile
+      - name: Verify telemetry class
+        run: |
+          test -f forge/forge-game/target/classes/forge/game/RionyaTelemetry.class
+          strings forge/forge-game/target/classes/forge/game/RionyaTelemetry.class | grep -Fq 'RIONYA_EVENT'
