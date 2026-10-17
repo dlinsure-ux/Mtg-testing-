@@ -1,4 +1,6 @@
 # MTG Testing — Forge / Commander AI Lab Recovery README
+> **FORGE SOURCE VENDORED (2026-10-17):** The exact pinned KoalaTrapLord/Forge-Repo commit `edb28158f6d892f9eb43dc08f019aab567276027` is now stored directly under `vendor/forge/` (56,006 files; 381,196,408 bytes). Provenance and SHA-256 metadata live in `vendor/forge-metadata/`. The Commander harness now verifies that snapshot with `scripts/verify_vendored_forge.py` and copies it to the build workspace instead of cloning Forge from upstream. The vendoring workflow is manual-only; game runs remain manual-only.
+
 
 > **LATEST HANDOFF — 2026-10-16/17, run #143:** **[READ THE RUN #143 COMBAT-PERFORMANCE HANDOFF FIRST](docs/2026-10-16-RUN-143-COMBAT-PERFORMANCE-HANDOFF.md)**. This is the authoritative next-chat restart guide, with exact run/commit IDs, game-by-game validation, seeds, measured 6–7.5-second speculative blocker calls, Shroofus COMBAT_BEGIN timeout stacks, prior #141/#142 context, safe optimization plan, and copy/paste continuation prompt. **Current status: unresolved; #143 passed 4/5, game 5 INVALID with 2 AI decision timeouts.** Documentation saved only; no performance optimization is claimed. Work on `experiment/guardrails-watchdog-v1`; never change protected baseline `3785d644` or merge PR #1.
 
