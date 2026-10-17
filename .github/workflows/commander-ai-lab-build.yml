@@ -1,3 +1,4 @@
+# Five-game retry-policy validation: maximum three attempts per game, then continue.
 # Diagnostic fix: opt-in wide-board speculative blocking guard (run #143).
 # Run #147: type-property LKI fast-path validation after run #146 token-board stall.
 name: Commander Forge Test Harness
