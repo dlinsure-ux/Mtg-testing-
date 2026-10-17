@@ -31,13 +31,18 @@ PATCH = '''            // Rionya-specific decisions. Legality and payment remain
                     && player.isCardInPlay("Rionya, Fire Dancer")
                     && game.getPhaseHandler().is(PhaseType.MAIN1)
                     && game.getStack().isEmpty()) {
-                final java.util.Set<String> precombat = new java.util.HashSet<>(java.util.Arrays.asList(
+                // Only spend precombat spells for Rionya if another creature can be copied.
+                final boolean hasCopyTarget = player.getCreaturesInPlay().stream()
+                    .anyMatch(c -> !"Rionya, Fire Dancer".equals(c.getName()));
+                final java.util.List<String> precombat = java.util.Arrays.asList(
                     "Expedite", "Crimson Wisps", "Renegade Tactics", "Warlord's Fury",
-                    "Ancestral Anger", "Crash Through", "Rite of Flame",
-                    "Pyretic Ritual", "Desperate Ritual", "Seething Song",
-                    "Reckless Impulse", "Wrenn's Resolve", "Faithless Looting"));
+                    "Ancestral Anger", "Crash Through", "Reckless Impulse",
+                    "Wrenn's Resolve", "Faithless Looting");
+                // Let Forge evaluate rituals based on mana and payoffs rather than
+                // blindly burning them for spell count.
                 for (final SpellAbility candidate : ComputerUtilAbility.getOriginalAndAltCostAbilities(all, player)) {
-                    if (!candidate.isSpell() || !precombat.contains(candidate.getHostCard().getName())) continue;
+                    if (!hasCopyTarget || !candidate.isSpell()
+                            || !precombat.contains(candidate.getHostCard().getName())) continue;
                     candidate.setActivatingPlayer(player);
                     if (canPlayAndPayFor(candidate) == AiPlayDecision.WillPlay) {
                         System.err.println("RIONYA_PILOT precombat_spell=" + candidate.getHostCard().getName());
