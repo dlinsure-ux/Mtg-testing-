@@ -15,7 +15,7 @@ on:
       opponents:
         description: Opponent selection mode
         required: true
-        default: fixed
+        default: random
         type: choice
         options: [fixed, random]
       games:
@@ -24,9 +24,6 @@ on:
         default: '5'
         type: choice
         options: ['1', '5', '10', '20']
-  push:
-    paths:
-      - '.github/workflows/commander-ai-lab-build.yml'
 permissions:
   contents: write
   issues: write
@@ -144,7 +141,7 @@ jobs:
             ${{ runner.os }}-maven-forge-lab-
       - name: Select opponents for this series
         env:
-          OPPONENT_MODE: ${{ inputs.opponents || 'fixed' }}
+          OPPONENT_MODE: ${{ inputs.opponents || 'random' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -157,7 +154,7 @@ jobs:
           # Targeted five-game loading stress test: two previously rejected decks, plus one random third.
           fixed=[Path('opponents/winota_ultra_budget.dck'),Path('opponents/shroofus.dck'),Path('opponents/deadpool.dck')]
           assert all(p in pool for p in fixed), 'Fixed opponents missing'
-          mode=os.environ.get('OPPONENT_MODE','fixed')
+          mode=os.environ.get('OPPONENT_MODE','random')
           assert mode in ('fixed','random'), 'Invalid opponent mode'
           selected=random.SystemRandom().sample(pool,3) if mode=='random' else fixed
           with open(os.environ['GITHUB_ENV'],'a') as env:
@@ -362,43 +359,12 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/patch_forge_block_aggregate.py forge/forge-ai/src/main/java/forge/ai/AiBlockController.java
-      - name: Integrate Lathiel commander cast priority into isolated Forge AI
+      - name: Integrate Rionya commander-first pilot into Forge
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('forge/forge-ai/src/main/java/forge/ai/AiController.java')
-          src=p.read_text()
-          old='        SpellAbility chosenSa = chooseSpellAbilityToPlayFromList(saList, true);'
-          assert src.count(old)==1, 'Upstream decision selection changed'
-          new='''        // Lathiel experiment: prefer casting the commander when Forge considers
-          // its spell playable. Never bypass Forge's own legality/cost/AI checks.
-          // Only during our main phase, with an empty stack and no immediate
-          // life-danger warning; other players retain stock behavior.
-          if (game.getStack().isEmpty()
-                  && (game.getPhaseHandler().is(PhaseType.MAIN1)
-                      || game.getPhaseHandler().is(PhaseType.MAIN2))
-                  && player.getCardsIn(ZoneType.Command).stream()
-                      .anyMatch(c -> c.getName().equals("Lathiel, the Bounteous Dawn"))
-                  && !ComputerUtil.aiLifeInDanger(player, true, 0)) {
-              List<SpellAbility> lathiel = saList.stream()
-                      .filter(sa -> sa.getHostCard() != null
-                              && sa.getHostCard().getName().equals("Lathiel, the Bounteous Dawn")
-                              && sa.getHostCard().getZone() != null
-                              && sa.getHostCard().getZone().getZoneType() == ZoneType.Command)
-                      .collect(Collectors.toList());
-              SpellAbility commanderCast = chooseSpellAbilityToPlayFromList(lathiel, true);
-              if (commanderCast != null) {
-                  System.err.println("LATHIEL_COMMANDER_PRIORITY selected turn="
-                          + game.getPhaseHandler().getTurn());
-                  return commanderCast;
-              }
-          }
-          SpellAbility chosenSa = chooseSpellAbilityToPlayFromList(saList, true);'''
-          p.write_text(src.replace(old,new))
-          print('Lathiel commander priority patch installed in isolated Forge checkout')
-          PY
+          python3 scripts/patch_forge_rionya_pilot.py forge/forge-ai/src/main/java/forge/ai/AiController.java
+          grep -q 'RIONYA_PILOT commander_cast_priority' forge/forge-ai/src/main/java/forge/ai/AiController.java
       - name: Restore reusable compiled Forge and Lab build
         id: compiled
         uses: actions/cache@v4
@@ -555,7 +521,7 @@ jobs:
             echo "FORGE_REPLAY_SEED_REQUESTED=$FORGE_LAB_REPLAY_SEED"
             echo "FORGE_REPLAY_MODE=$([ -n "${SEED_BASE:-}" ] && echo fixed || echo random)"
             rm -f forge/forge-sim-debug.log results/diagnostic-game.json smoke-test.log results/validation-report.json
-            JAVA_TOOL_OPTIONS="-Dforge.ai.lathielCounterPilot=false" timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
+            JAVA_TOOL_OPTIONS="-Dforge.ai.lathielCounterPilot=false -Dforge.ai.rionyaCommanderFirst=true" timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
               --forge-jar "$FORGE_JAR" \
               --java17 "${JAVA_HOME}/bin/java" \
               --forge-dir forge/forge-gui \
