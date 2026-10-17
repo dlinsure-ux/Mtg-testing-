@@ -127,14 +127,16 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Check out Commander AI Lab and matching Forge fork
+      - name: Check out Commander AI Lab and use vendored Forge snapshot
         shell: bash
         run: |
           set -euo pipefail
           git clone https://github.com/KoalaTrapLord/commander-ai-lab.git lab
           git -C lab checkout --detach 54cc5e9b2e9ae6266c64b5cdf11f3302f311c701
-          git clone https://github.com/KoalaTrapLord/Forge-Repo.git forge
-          git -C forge checkout --detach edb28158f6d892f9eb43dc08f019aab567276027
+          python3 scripts/verify_vendored_forge.py
+          rm -rf forge
+          cp -a vendor/forge forge
+          test "$(cat vendor/forge-metadata/upstream-commit.txt)" = "edb28158f6d892f9eb43dc08f019aab567276027"
       - name: Cache Maven dependencies after upstream checkout
         uses: actions/cache@v4
         with:
@@ -520,7 +522,7 @@ jobs:
               'deck_seat_4': Path(os.environ['SEAT_4_PATH']),
           }
           manifest = {'schema_version': 1, 'runtime_pilot_integrated': False,
-                      'forge_commit': subprocess.check_output(['git','-C','forge','rev-parse','HEAD'],text=True).strip(),
+                      'forge_commit': Path('vendor/forge-metadata/upstream-commit.txt').read_text().strip(),
                       'lab_commit': subprocess.check_output(['git','-C','lab','rev-parse','HEAD'],text=True).strip(),
                       'harness_commit': subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
                       'sha256': {k: hashlib.sha256(v.read_bytes()).hexdigest() for k,v in files.items()}}
