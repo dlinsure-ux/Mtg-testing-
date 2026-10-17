@@ -54,7 +54,7 @@ jobs:
       - name: Validate Python and offline regression tests
         run: |
           set -euo pipefail
-          python3 -m py_compile scripts/validate_forge_game.py tests/test_validator_patterns.py scripts/preflight_selected_decks.py
+          python3 -m py_compile scripts/validate_forge_game.py tests/test_validator_patterns.py scripts/preflight_selected_decks.py scripts/audit_rionya_gameplay.py
           python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
           python3 -m unittest discover -s tests -p 'test_patch_lab_winner_parser.py' -v
           python3 -m unittest discover -s tests -p 'test_timeout_ordering.py' -v
