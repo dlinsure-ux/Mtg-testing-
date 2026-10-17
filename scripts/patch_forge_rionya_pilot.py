@@ -4,7 +4,18 @@ from pathlib import Path
 import sys
 
 ANCHOR = '            for (final SpellAbility sa : ComputerUtilAbility.getOriginalAndAltCostAbilities(all, player)) {'
-PATCH = '''            // Rionya-specific decisions. Legality and payment remain Forge-owned.
+PATCH = '''            // Pilot V2: unconditional entry probe at this decision point.
+            // A missing probe indicates the runtime never reached this method.
+            if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")) {
+                System.out.println("RIONYA_PILOT decision_entry phase="
+                        + game.getPhaseHandler().getPhase()
+                        + " commander_in_command="
+                        + player.getCardsIn(ZoneType.Command).stream()
+                            .anyMatch(c -> "Rionya, Fire Dancer".equals(c.getName()))
+                        + " commander_in_play="
+                        + player.isCardInPlay("Rionya, Fire Dancer"));
+            }
+            // Rionya-specific decisions. Legality and payment remain Forge-owned.
             if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
                     && (game.getPhaseHandler().is(PhaseType.MAIN1)
                         || game.getPhaseHandler().is(PhaseType.MAIN2))
@@ -26,7 +37,9 @@ PATCH = '''            // Rionya-specific decisions. Legality and payment remain
                             || candidate.getHostCard().getZone() == null
                             || candidate.getHostCard().getZone().getZoneType() != ZoneType.Command) continue;
                     candidate.setActivatingPlayer(player);
-                    if (canPlayAndPayFor(candidate) == AiPlayDecision.WillPlay) {
+                    final AiPlayDecision commanderDecision = canPlayAndPayFor(candidate);
+                    System.out.println("RIONYA_PILOT commander_decision=" + commanderDecision);
+                    if (commanderDecision == AiPlayDecision.WillPlay) {
                         System.out.println("RIONYA_PILOT commander_cast_priority=true phase="
                                 + game.getPhaseHandler().getPhase());
                         return candidate;
