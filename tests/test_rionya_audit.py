@@ -1,5 +1,5 @@
 import unittest
-from scripts.audit_rionya_gameplay import audit, parse_snapshots, card_exposure
+from scripts.audit_rionya_gameplay import audit, parse_snapshots, card_exposure, analyze_gameplay
 
 class RionyaAuditTests(unittest.TestCase):
     def test_four_player_turns_and_actions(self):
@@ -30,6 +30,17 @@ class RionyaAuditTests(unittest.TestCase):
         self.assertEqual(snapshots[0]["battlefield"], ["Mountain", "Rionya, Fire Dancer"])
         exposure = card_exposure(snapshots, {"Crimson Wisps": 1})
         self.assertEqual(exposure["observed_in_hand_not_cast"], ["Scourge of Valkas"])
+
+    def test_gameplay_timeline_and_unplayed_cards(self):
+        snapshots = parse_snapshots("\\n".join([
+            "RIONYA_STATE turn=5 phase=MAIN1 hand=Scourge of Valkas|Crimson Wisps board=Mountain|Rionya, Fire Dancer",
+            "RIONYA_STATE turn=5 phase=MAIN2 hand=Scourge of Valkas board=Mountain|Rionya, Fire Dancer|Solemn Simulacrum",
+        ]))
+        events = [{"action": "cast", "card": "Crimson Wisps"}]
+        report = analyze_gameplay(snapshots, events)
+        self.assertEqual(len(report["board_timeline"]), 2)
+        self.assertEqual(report["observed_but_not_played"], ["Scourge of Valkas"])
+        self.assertTrue(report["board_timeline"][0]["rionya_on_battlefield"])
 
 if __name__ == "__main__":
     unittest.main()
