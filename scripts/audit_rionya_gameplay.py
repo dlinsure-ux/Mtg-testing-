@@ -37,9 +37,12 @@ def parse_snapshots(text):
 
 def card_exposure(snapshots, cast_counts):
     seen = collections.Counter()
+    by_turn = collections.defaultdict(set)
     for snapshot in snapshots:
-        seen.update(set(snapshot["hand"]))
-    return dict(hand_snapshots=len(snapshots), hand_turns_observed=dict(seen),
+        by_turn[snapshot["turn"]].update(snapshot["hand"])
+    for cards in by_turn.values():
+        seen.update(cards)
+    return dict(hand_snapshots=len(snapshots), observed_turns=len(by_turn), hand_turns_observed=dict(seen),
                 observed_in_hand_not_cast=sorted(c for c in seen if not cast_counts.get(c)),
                 caveat="Hand snapshots are sampled at main phase; not all draws or playable windows are observed.")
 
@@ -164,6 +167,8 @@ def main():
         report["gameplay_analysis"] = analyze_gameplay(report["state_snapshots"], report["events"])
         report["telemetry_quality"] = {
             "has_hand_snapshots": bool(report["state_snapshots"]),
+            "has_life_snapshots": any(x["life"] is not None for x in report["state_snapshots"]),
+            "has_creature_snapshots": any(x["creatures"] is not None for x in report["state_snapshots"]),
             "has_battlefield_snapshots": bool(report["state_snapshots"]),
             "has_cast_events": bool(report["cast_counts"]),
             "has_land_events": bool(report["land_counts"]),
