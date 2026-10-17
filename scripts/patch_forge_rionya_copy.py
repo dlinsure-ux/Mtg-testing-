@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+"""Rionya copy-choice policy for pinned Forge CopyPermanentAi."""
+from pathlib import Path
+import sys
+ANCHOR = '        return ComputerUtilCard.getBestAI(options);'
+PATCH = '''        if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
+                && "Rionya, Fire Dancer".equals(sa.getHostCard().getName())) {
+            Card best = null;
+            int bestScore = Integer.MIN_VALUE;
+            for (Card c : options) {
+                if (!c.isCreature() || c.getController() != ai
+                        || "Rionya, Fire Dancer".equals(c.getName())) continue;
+                int score = ComputerUtilCard.evaluateCreature(c);
+                switch (c.getName()) {
+                    case "Scourge of Valkas": score += 1400; break;
+                    case "Fanatic of Mogis": score += 1300; break;
+                    case "Coercive Recruiter": score += 1200; break;
+                    case "Ardent Elementalist": score += 950; break;
+                    case "Solemn Simulacrum": score += 850; break;
+                    case "Goblin Chainwhirler": score += 700; break;
+                    case "Humble Defector": score += 650; break;
+                    case "Tectonic Giant": score += 550; break;
+                    default: break;
+                }
+                if (score > bestScore) { bestScore = score; best = c; }
+            }
+            if (best != null) {
+                System.err.println("RIONYA_PILOT copy_target=" + best.getName()
+                        + " score=" + bestScore);
+                return best;
+            }
+        }
+'''
+def patch(src):
+    if "RIONYA_PILOT" in src: raise ValueError("Already patched")
+    if src.count(ANCHOR) != 1: raise ValueError("Pinned copy-choice anchor changed")
+    return src.replace(ANCHOR, PATCH+ANCHOR, 1)
+if __name__ == "__main__":
+    p=Path(sys.argv[1]); p.write_text(patch(p.read_text()))
