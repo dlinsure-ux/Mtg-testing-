@@ -23,9 +23,9 @@ class RionyaPatchTests(unittest.TestCase):
 
     def test_copy_patch_once(self):
         m=load("rionya_copy","scripts/patch_forge_rionya_copy.py")
-        src="prefix\n"+m.ANCHOR+"\nsuffix"
+        src="prefix\n"+m.ANCHOR+"\n"+m.TARGET_ANCHOR+"\nsuffix"
         result=m.patch(src)
-        self.assertIn("RIONYA_PILOT copy_target",result)
+        self.assertEqual(result.count("RIONYA_PILOT copy_target"),2)
         self.assertIn("Scourge of Valkas",result)
         self.assertRaises(ValueError,m.patch,result)
         self.assertRaises(ValueError,m.patch,"unrelated")
