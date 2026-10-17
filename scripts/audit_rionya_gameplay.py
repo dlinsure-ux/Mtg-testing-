@@ -84,9 +84,12 @@ def main():
         source = attempts[0]
         report = audit(source.read_text(errors="replace"))
         smoke = source.with_name("smoke-test.log")
+        if not smoke.exists():
+            smoke = root.parent / "smoke-test.log"
         if smoke.exists():
             report["pilot_markers_in_lab_log"] = [m.group(1) for line in smoke.read_text(errors="replace").splitlines() if (m := MARKER.search(line))]
             report["pilot_markers_observed"] = report["pilot_markers_observed"] or bool(report["pilot_markers_in_lab_log"])
+            report["pilot_marker_source"] = str(smoke)
         else:
             report["pilot_markers_in_lab_log"] = []
         report["game"] = int(game.name.split("-")[1])
