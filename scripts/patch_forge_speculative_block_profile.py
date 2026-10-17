@@ -12,7 +12,19 @@ REPLACEMENT = """            final long forgeSpeculativeStarted = System.nanoTim
             final int forgeSpeculativeAttackers = combat.getAttackers().size();
             final int forgeSpeculativeExcluded = excludedBlockers == null ? 0 : excludedBlockers.size();
             try {
-                block.assignBlockersForCombat(combat, excludedBlockers);
+                // A single hypothetical blocker search on a wide token board can
+                // exceed the AI decision timeout (run #143: 7.0 seconds).
+                // Opt-in: only counterattack predictions, never real combat.
+                // Without speculative blockers the predicted damage is
+                // conservative; AI may choose to hold attackers back.
+                if (Boolean.getBoolean("forge.ai.speculativeCombatGuard")
+                        && forgeSpeculativeAttackers >= 12) {
+                    ForgeDecisionProfile.recordSkippedSpeculation();
+                    System.err.println("FORGE_SPECULATIVE_BLOCK_SKIPPED attackers="
+                            + forgeSpeculativeAttackers + " defender=" + ai.getName());
+                } else {
+                    block.assignBlockersForCombat(combat, excludedBlockers);
+                }
             } finally {
                 final long forgeSpeculativeMs = (System.nanoTime() - forgeSpeculativeStarted) / 1000000L;
                 if (forgeSpeculativeMs >= 100L) {
