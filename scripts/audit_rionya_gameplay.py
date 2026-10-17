@@ -226,10 +226,11 @@ def main():
         report["authoritative_summary"] = authoritative_summary(authoritative)
         if report["authoritative_summary"]["opening_hand_cards"]:
             report["draw_identity_coverage"] = "authoritative: zone-transition events"
-            report["unplayed_hand_cards"] = report["gameplay_analysis"]["observed_but_not_played"] if "gameplay_analysis" in report else []
         report["state_snapshots"] = parse_snapshots(forge_text + "\n" + lab_text)
         report["card_exposure"] = card_exposure(report["state_snapshots"], report["cast_counts"])
         report["gameplay_analysis"] = analyze_gameplay(report["state_snapshots"], report["events"])
+        if report["authoritative_summary"]["opening_hand_cards"]:
+            report["unplayed_hand_cards"] = report["gameplay_analysis"]["observed_but_not_played"]
         report["telemetry_quality"] = {
             "has_hand_snapshots": bool(report["state_snapshots"]),
             "has_life_snapshots": any(x["life"] is not None for x in report["state_snapshots"]),
