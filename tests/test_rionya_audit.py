@@ -28,6 +28,7 @@ class RionyaAuditTests(unittest.TestCase):
         snapshots = parse_snapshots(sample)
         self.assertEqual(snapshots[0]["hand"], ["Crimson Wisps", "Scourge of Valkas"])
         self.assertEqual(snapshots[0]["battlefield"], ["Mountain", "Rionya, Fire Dancer"])
+        self.assertIsNone(snapshots[0]["life"])
         exposure = card_exposure(snapshots, {"Crimson Wisps": 1})
         self.assertEqual(exposure["observed_in_hand_not_cast"], ["Scourge of Valkas"])
 
@@ -41,6 +42,13 @@ class RionyaAuditTests(unittest.TestCase):
         self.assertEqual(len(report["board_timeline"]), 2)
         self.assertEqual(report["observed_but_not_played"], ["Scourge of Valkas"])
         self.assertTrue(report["board_timeline"][0]["rionya_on_battlefield"])
+
+    def test_extended_state_and_dedup(self):
+        line = "RIONYA_STATE turn=7 phase=MAIN1 hand=Expedite board=Mountain|Rionya, Fire Dancer life=32 creatures=1"
+        result = parse_snapshots(line + "\\n" + line)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]["life"], 32)
+        self.assertEqual(result[0]["creatures"], 1)
 
 if __name__ == "__main__":
     unittest.main()
