@@ -4,7 +4,8 @@ from pathlib import Path
 import sys
 
 ANCHOR = '            for (final SpellAbility sa : ComputerUtilAbility.getOriginalAndAltCostAbilities(all, player)) {'
-PATCH = '''            // Pilot V2: unconditional entry probe at this decision point.
+PATCH = '''            System.out.println("RIONYA_PILOT property_value=" + Boolean.getBoolean("forge.ai.rionyaCommanderFirst"));
+            // Pilot V2: unconditional entry probe at this decision point.
             // A missing probe indicates the runtime never reached this method.
             if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")) {
                 System.out.println("RIONYA_PILOT decision_entry phase="
