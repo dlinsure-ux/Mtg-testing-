@@ -1,11 +1,7 @@
 name: Vendor pinned Forge source
 
 on:
-  push:
-    branches:
-      - experiment/guardrails-watchdog-v1
-    paths:
-      - .github/workflows/vendor-forge-source.yml
+  workflow_dispatch:
 
 permissions:
   contents: write
