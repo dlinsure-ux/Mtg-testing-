@@ -15,7 +15,7 @@ COPY = re.compile(r"^Add To Stack: Ai\(1\)-.*? triggered Rionya, Fire Dancer tar
 DRAW = re.compile(r"^.*?Ai\(1\)-.*? draws? (?:a card|two cards|\d+ cards?)\b", re.I)
 NAMED_DRAW = re.compile(r"^.*?Ai\(1\)-.*? draws? \[([^\]]+)\]", re.I)
 MARKER = re.compile(r"RIONYA_PILOT (.+)")
-STATE = re.compile(r"RIONYA_STATE turn=(\\d+) phase=(\\w+) hand=(.*?) board=(.*)")
+STATE = re.compile(r"RIONYA_STATE turn=(\d+) phase=(\w+) hand=(.*?) board=(.*)")
 
 def parse_snapshots(text):
     snapshots = []
@@ -116,7 +116,7 @@ def main():
         else:
             report["pilot_markers_in_lab_log"] = []
         lab_text = smoke.read_text(errors="replace") if smoke.exists() else ""
-        report["state_snapshots"] = parse_snapshots(forge_text + "\\n" + lab_text)
+        report["state_snapshots"] = parse_snapshots(forge_text + "\n" + lab_text)
         report["card_exposure"] = card_exposure(report["state_snapshots"], report["cast_counts"])
         report["pilot_activation_confirmed"] = any("decision_entry" in x["detail"] for x in report["pilot_markers"]) or any("decision_entry" in x for x in report["pilot_markers_in_lab_log"])
         report["commander_search_observed"] = any("commander_search" in x["detail"] for x in report["pilot_markers"]) or any("commander_search" in x for x in report["pilot_markers_in_lab_log"])
