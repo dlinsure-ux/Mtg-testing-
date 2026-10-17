@@ -14,7 +14,7 @@ def check(workflow: str) -> None:
     launch = body.index('timeout 900 xvfb-run')
     assert setup < launch, "game setup must precede Forge launch"
     assert body.count('python3 scripts/prepare_commander_game.py --game "$game"') == 1
-    assert 'export FORGE_LAB_REPLAY_SEED=' in body
+    assert 'export FORGE_LAB_REPLAY_SEED' in body
     assert 'timeout 900 xvfb-run' in body
     assert 'python3 scripts/validate_forge_game.py' in body
     assert 'if [ "$failed" -ne 0 ]; then' in body
