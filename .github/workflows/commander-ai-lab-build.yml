@@ -660,7 +660,20 @@ jobs:
             mkdir -p results
             printf '{"audit_status":"failed","exit_code":%s}\n' "$code" > results/card-audit-status.json
           else
-            echo '{"audit_status":"completed"}' > results/card-audit-status.json
+            python3 - <<'PYTELEMETRY'
+          import json
+          from pathlib import Path
+          p=Path("results/card-audit-index.json")
+          data=json.loads(p.read_text()) if p.exists() else {}
+          games=data.get("summaries",[])
+          complete=bool(games) and all(g.get("telemetry_quality",{}).get("complete_for_card_cut_recommendations") for g in games)
+          status={"audit_status":"complete" if complete else "incomplete",
+                  "games_audited":len(games),
+                  "deck_recommendations_allowed":complete,
+                  "reason":None if complete else "Exact draws, mulligans, mana payments or other authoritative events are not fully captured"}
+          Path("results/card-audit-status.json").write_text(json.dumps(status,indent=2)+"\\n")
+          print("TELEMETRY_GATE",json.dumps(status),flush=True)
+          PYTELEMETRY
           fi
           exit 0
       - name: Publish run outcome in dashboard issue
