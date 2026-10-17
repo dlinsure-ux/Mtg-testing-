@@ -27,6 +27,10 @@ class RionyaPatchTests(unittest.TestCase):
         result=m.patch(src)
         self.assertEqual(result.count("RIONYA_PILOT copy_target"),2)
         self.assertIn("Scourge of Valkas",result)
+        targeted = result.split(m.TARGET_ANCHOR)[0].split("RIONYA_PILOT copy_target")[-1]
+        self.assertIn("aiPlayer.get",result)
+        self.assertIn("c.getController() != aiPlayer",result)
+        self.assertIn("choice = best;",result)
         self.assertRaises(ValueError,m.patch,result)
         self.assertRaises(ValueError,m.patch,"unrelated")
 
