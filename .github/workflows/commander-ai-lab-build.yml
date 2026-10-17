@@ -3,7 +3,7 @@
 # Run #147: type-property LKI fast-path validation after run #146 token-board stall.
 name: Commander Forge Test Harness
 # Experimental fixed-pod five-game run: Lathiel versus Aesi, Bello and Betor.
-# Five-game regression rerun after Lathiel v0.2 policy draft; runtime pilot unchanged.
+# Five-game regression: Lathiel counter-trigger runtime hook with decision diagnostics.
 on:
   workflow_dispatch:
     inputs:
