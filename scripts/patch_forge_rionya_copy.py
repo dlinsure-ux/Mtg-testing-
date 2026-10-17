@@ -14,7 +14,7 @@ PATCH = '''        if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
                 switch (c.getName()) {
                     case "Scourge of Valkas": score += 1400; break;
                     case "Fanatic of Mogis": score += 1150; break;
-                    case "Coercive Recruiter": score += ai.getOpponents().getCardsIn(ZoneType.Battlefield).isEmpty() ? 0 : 1200; break;
+                    case "Coercive Recruiter": score += ai.getOpponents().getCreaturesInPlay().isEmpty() ? 0 : 1200; break;
                     case "Ardent Elementalist": score += ai.getCardsIn(ZoneType.Graveyard).stream().anyMatch(x -> x.isInstant() || x.isSorcery()) ? 950 : 0; break;
                     case "Solemn Simulacrum": score += 850; break;
                     case "Goblin Chainwhirler": score += 700; break;
