@@ -6,6 +6,15 @@ import sys
 ANCHOR = '            for (final SpellAbility sa : ComputerUtilAbility.getOriginalAndAltCostAbilities(all, player)) {'
 PATCH = '''            // Rionya-specific decisions. Legality and payment remain Forge-owned.
             if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
+                    && (game.getPhaseHandler().is(PhaseType.MAIN1)
+                        || game.getPhaseHandler().is(PhaseType.MAIN2))
+                    && game.getStack().isEmpty()
+                    && player.getCardsIn(ZoneType.Command).stream()
+                        .anyMatch(c -> "Rionya, Fire Dancer".equals(c.getName()))) {
+                System.out.println("RIONYA_PILOT branch_entered=commander_check phase="
+                        + game.getPhaseHandler().getPhase());
+            }
+            if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
                     && player.getCardsIn(ZoneType.Command).stream()
                         .anyMatch(c -> "Rionya, Fire Dancer".equals(c.getName()))
                     && game.getStack().isEmpty()
