@@ -392,7 +392,7 @@ jobs:
             forge/forge-ai/target
             lab/target
             ~/.m2/repository
-          key: ${{ runner.os }}-compiled-forge-lab-v1-${{ hashFiles('.github/workflows/commander-ai-lab-build.yml', 'forge-overrides/**') }}
+          key: ${{ runner.os }}-compiled-forge-lab-v1-${{ hashFiles('.github/workflows/commander-ai-lab-build.yml', 'forge-overrides/**', 'scripts/patch_forge_*.py', 'scripts/backport_forge_*.py') }}
       - name: Install opt-in deterministic replay seed
         shell: bash
         run: |
@@ -447,13 +447,26 @@ jobs:
             forge/forge-ai/target
             lab/target
             ~/.m2/repository
-          key: ${{ runner.os }}-compiled-forge-lab-v1-${{ hashFiles('.github/workflows/commander-ai-lab-build.yml', 'forge-overrides/**') }}
+          key: ${{ runner.os }}-compiled-forge-lab-v1-${{ hashFiles('.github/workflows/commander-ai-lab-build.yml', 'forge-overrides/**', 'scripts/patch_forge_*.py', 'scripts/backport_forge_*.py') }}
       - name: Verify Forge desktop artifact exists
         shell: bash
         run: |
           set -euo pipefail
           find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print | tee forge-artifacts.log
           test -s forge-artifacts.log
+      - name: Verify Rionya pilot bytecode is in runtime Forge JAR
+        shell: bash
+        run: |
+          set -euo pipefail
+          FORGE_JAR="$(find forge/forge-gui-desktop/target -name '*jar-with-dependencies.jar' -print -quit)"
+          test -n "$FORGE_JAR"
+          for class in forge/ai/AiController.class forge/ai/ability/CopyPermanentAi.class; do
+            unzip -p "$FORGE_JAR" "$class" | strings | grep -q 'RIONYA_PILOT' || {
+              echo "::error::Missing Rionya pilot instrumentation in $class; refusing to run a misleading game"
+              exit 1
+            }
+          done
+          echo "Verified custom Rionya pilot bytecode in Forge runtime JAR"
       - name: Verify CLI startup
         shell: bash
         run: |
