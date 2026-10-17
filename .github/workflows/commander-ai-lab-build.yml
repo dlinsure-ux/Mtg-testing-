@@ -51,6 +51,8 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
           python3 -m unittest discover -s tests -p 'test_patch_lab_winner_parser.py' -v
           python3 -m unittest discover -s tests -p 'test_timeout_ordering.py' -v
+          python3 scripts/check_commander_workflow.py
+          python3 -m unittest discover -s tests -p 'test_commander_workflow.py' -v
       - name: Lint workflow and shell scripts
         uses: raven-actions/actionlint@v2
         with:
@@ -101,6 +103,8 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_validator_patterns.py' -v
           python3 -m unittest discover -s tests -p 'test_patch_lab_winner_parser.py' -v
           python3 -m unittest discover -s tests -p 'test_timeout_ordering.py' -v
+          python3 scripts/check_commander_workflow.py
+          python3 -m unittest discover -s tests -p 'test_commander_workflow.py' -v
       - name: Static workflow analysis
         uses: raven-actions/actionlint@v2
         with:
