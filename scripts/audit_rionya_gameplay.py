@@ -15,6 +15,56 @@ COPY = re.compile(r"^Add To Stack: Ai\(1\)-.*? triggered Rionya, Fire Dancer tar
 DRAW = re.compile(r"^.*?Ai\(1\)-.*? draws? (?:a card|two cards|\d+ cards?)\b", re.I)
 NAMED_DRAW = re.compile(r"^.*?Ai\(1\)-.*? draws? \[([^\]]+)\]", re.I)
 MARKER = re.compile(r"RIONYA_PILOT (.+)")
+EVENT_PREFIX = "RIONYA_EVENT|"
+
+def decode_field(value):
+    return value.replace("%7C", "|").replace("%3D", "=").replace("%25", "%")
+
+def parse_authoritative_events(text):
+    events = []
+    for raw in text.splitlines():
+        line = raw.strip()
+        if EVENT_PREFIX not in line:
+            continue
+        payload = line.split(EVENT_PREFIX, 1)[1]
+        row = {}
+        for part in payload.split("|"):
+            if "=" not in part:
+                continue
+            k, v = part.split("=", 1)
+            row[k] = decode_field(v)
+        if row:
+            for key in ("turn", "event_turn", "player_id", "card_id", "amount", "old", "new",
+                        "hand_size", "battlefield_size", "creatures", "lands", "life"):
+                if key in row and row[key] not in ("", None):
+                    try:
+                        row[key] = int(row[key])
+                    except ValueError:
+                        pass
+            events.append(row)
+    return events
+
+def authoritative_summary(events):
+    primary_ids = {e.get("player_id") for e in events if e.get("type") == "snapshot" and e.get("player_id") is not None}
+    primary_id = next(iter(primary_ids)) if len(primary_ids) == 1 else None
+    counts = collections.Counter(e.get("type") for e in events)
+    primary_zone = [e for e in events if e.get("type") == "zone" and (primary_id is None or e.get("player_id") == primary_id)]
+    opening = [e for e in primary_zone if e.get("from") == "Library" and e.get("to") == "Hand" and int(e.get("turn", 0) or 0) == 0]
+    draws = [e for e in primary_zone if e.get("from") == "Library" and e.get("to") == "Hand" and int(e.get("turn", 0) or 0) > 0]
+    mulligans = [e for e in events if e.get("type") == "mulligan" and (primary_id is None or e.get("player_id") == primary_id)]
+    snapshots = [e for e in events if e.get("type") == "snapshot"]
+    return dict(
+        primary_player_id=primary_id,
+        event_counts=dict(counts),
+        opening_hand_cards=[e.get("card") for e in opening],
+        exact_draws=[dict(turn=e.get("turn"), card=e.get("card")) for e in draws],
+        mulligan_count=len(mulligans),
+        snapshots=snapshots,
+        damage_events=[e for e in events if e.get("type") in ("player_damage", "card_damage")],
+        mana_events=[e for e in events if e.get("type") == "mana_pool"],
+        counter_events=[e for e in events if e.get("type") == "card_counters"],
+    )
+
 STATE = re.compile(r"RIONYA_STATE turn=(\d+) phase=(\w+) hand=(.*?) board=(.*?)(?: life=(\d+) creatures=(\d+))?$")
 
 def parse_snapshots(text):
@@ -152,6 +202,7 @@ def main():
         source = attempts[-1]
         forge_text = source.read_text(errors="replace")
         report = audit(forge_text)
+        authoritative = parse_authoritative_events(forge_text)
         smoke = source.with_name("smoke-test.log")
         if not smoke.exists():
             smoke = root.parent / "smoke-test.log"
@@ -162,6 +213,9 @@ def main():
         else:
             report["pilot_markers_in_lab_log"] = []
         lab_text = smoke.read_text(errors="replace") if smoke.exists() else ""
+        authoritative.extend(parse_authoritative_events(lab_text))
+        report["authoritative_events"] = authoritative
+        report["authoritative_summary"] = authoritative_summary(authoritative)
         report["state_snapshots"] = parse_snapshots(forge_text + "\n" + lab_text)
         report["card_exposure"] = card_exposure(report["state_snapshots"], report["cast_counts"])
         report["gameplay_analysis"] = analyze_gameplay(report["state_snapshots"], report["events"])
@@ -173,10 +227,15 @@ def main():
             "has_cast_events": bool(report["cast_counts"]),
             "has_land_events": bool(report["land_counts"]),
             "has_pilot_decisions": bool(report["pilot_markers_observed"]),
-            "has_exact_draw_identity": bool(report["named_draw_counts"]),
-            "has_mulligan_events": False,
-            "has_mana_payment_events": False,
-            "complete_for_card_cut_recommendations": False,
+            "has_exact_draw_identity": bool(report["authoritative_summary"]["exact_draws"]) or bool(report["authoritative_summary"]["opening_hand_cards"]),
+            "has_mulligan_events": "mulligan" in report["authoritative_summary"]["event_counts"] or bool(report["authoritative_summary"]["opening_hand_cards"]),
+            "has_mana_payment_events": bool(report["authoritative_summary"]["mana_events"]),
+            "complete_for_card_cut_recommendations": all([
+                bool(report["authoritative_summary"]["opening_hand_cards"]),
+                bool(report["authoritative_summary"]["snapshots"]),
+                bool(report["authoritative_summary"]["event_counts"].get("zone")),
+                bool(report["authoritative_summary"]["event_counts"].get("turn_begin")),
+            ]),
         }
         report["pilot_activation_confirmed"] = any("decision_entry" in x["detail"] for x in report["pilot_markers"]) or any("decision_entry" in x for x in report["pilot_markers_in_lab_log"])
         report["commander_search_observed"] = any("commander_search" in x["detail"] for x in report["pilot_markers"]) or any("commander_search" in x for x in report["pilot_markers_in_lab_log"])
@@ -192,7 +251,7 @@ def main():
             len(report["pilot_markers"]) + len(report["pilot_markers_in_lab_log"]), report["unidentified_draw_events"]), flush=True)
     (root / "card-audit-index.json").write_text(json.dumps(
         {"games": len(reports), "summaries": [
-            {k: r[k] for k in ("game", "cast_counts", "commander_casts", "card_exposure", "gameplay_analysis", "telemetry_quality", "rionya_copy_target_counts",
+            {k: r[k] for k in ("game", "cast_counts", "commander_casts", "card_exposure", "gameplay_analysis", "authoritative_summary", "telemetry_quality", "rionya_copy_target_counts",
                                "pilot_markers_observed", "pilot_activation_confirmed", "commander_search_observed", "unidentified_draw_events")}
             for r in reports]}, indent=2) + "\n")
     if not reports:
