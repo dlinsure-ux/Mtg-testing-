@@ -13,6 +13,7 @@ on:
       - 'scripts/patch_forge_rionya_*.py'
       - 'tests/test_rionya_pilot.py'
       - 'scripts/audit_rionya_gameplay.py'
+      - 'tests/test_rionya_audit.py'
   workflow_dispatch:
     inputs:
       deck:
@@ -64,6 +65,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_commander_workflow.py' -v
           python3 -m unittest discover -s tests -p 'test_prepare_commander_game.py' -v
           python3 -m unittest discover -s tests -p 'test_rionya_pilot.py' -v
+          python3 -m unittest discover -s tests -p 'test_rionya_audit.py' -v
       - name: Lint workflow and shell scripts
         uses: raven-actions/actionlint@v2
         with:
@@ -644,8 +646,19 @@ jobs:
           exit "$failed"
       - name: Audit Rionya cards and pilot decisions
         if: always()
+        shell: bash
         run: |
+          set +e
           python3 scripts/audit_rionya_gameplay.py --results results
+          code=$?
+          if [ "$code" -ne 0 ]; then
+            echo "::warning::Card audit failed (exit $code); gameplay validation remains authoritative"
+            mkdir -p results
+            printf '{"audit_status":"failed","exit_code":%s}\n' "$code" > results/card-audit-status.json
+          else
+            echo '{"audit_status":"completed"}' > results/card-audit-status.json
+          fi
+          exit 0
       - name: Publish run outcome in dashboard issue
         if: always()
         env:
