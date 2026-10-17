@@ -18,7 +18,7 @@ class WorkflowOrderingTests(unittest.TestCase):
         head, body=self.workflow[:start],self.workflow[start:]
         body=body.replace(marker, 'echo SKIPPED',1)
         launch='timeout 900 xvfb-run'
-        body=body.replace(launch, marker+'; '+launch,1)
+        body=body.replace(launch, launch+' '+marker,1)
         with self.assertRaises((AssertionError, ValueError)):
             check(head+body)
     def test_missing_seed_plumbing_rejected(self):
