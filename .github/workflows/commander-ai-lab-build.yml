@@ -53,6 +53,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_timeout_ordering.py' -v
           python3 scripts/check_commander_workflow.py
           python3 -m unittest discover -s tests -p 'test_commander_workflow.py' -v
+          python3 -m unittest discover -s tests -p 'test_prepare_commander_game.py' -v
       - name: Lint workflow and shell scripts
         uses: raven-actions/actionlint@v2
         with:
@@ -105,6 +106,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_timeout_ordering.py' -v
           python3 scripts/check_commander_workflow.py
           python3 -m unittest discover -s tests -p 'test_commander_workflow.py' -v
+          python3 -m unittest discover -s tests -p 'test_prepare_commander_game.py' -v
       - name: Static workflow analysis
         uses: raven-actions/actionlint@v2
         with:
@@ -535,11 +537,8 @@ jobs:
           for ((game=1; game<=GAME_COUNT; game++)); do
             echo "::group::Game $game / $GAME_COUNT"
             echo "Starting game $game at $(date -u +%FT%TZ)"
-            # Fixed-seed regression suite; override SEED_BASE to replay a known failure.
-            mkdir -p "results/game-$game" "diagnostics/game-$game"
-            seed_base="${SEED_BASE:-2026101600}"
-            export FORGE_LAB_REPLAY_SEED="$((seed_base + game))"
-            printf '%s\n' "$FORGE_LAB_REPLAY_SEED" > "results/game-$game/replay-seed.txt"
+            # Fresh true RNG by default; set SEED_BASE to replay fixed seeds.
+            export FORGE_LAB_REPLAY_SEED="$(python3 scripts/prepare_commander_game.py --game "$game")"
             echo "FORGE_REPLAY_SEED_REQUESTED=$FORGE_LAB_REPLAY_SEED"
             rm -f forge/forge-sim-debug.log
             timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
