@@ -18,6 +18,9 @@ class RionyaPatchTests(unittest.TestCase):
         result=m.patch(src)
         self.assertIn("RIONYA_PILOT commander_cast_priority",result)
         self.assertIn("RIONYA_PILOT precombat_spell",result)
+        self.assertIn("RIONYA_PILOT resources",result)
+        self.assertIn("RIONYA_PILOT commander_search",result)
+        self.assertIn("RIONYA_PILOT precombat_decision",result)
         self.assertRaises(ValueError,m.patch,result)
         self.assertRaises(ValueError,m.patch,"unrelated")
 
@@ -27,6 +30,7 @@ class RionyaPatchTests(unittest.TestCase):
         result=m.patch(src)
         self.assertEqual(result.count("RIONYA_PILOT copy_target"),2)
         self.assertIn("Scourge of Valkas",result)
+        self.assertEqual(result.count("RIONYA_PILOT copy_candidate"),2)
         targeted = result.split(m.TARGET_ANCHOR)[0].split("RIONYA_PILOT copy_target")[-1]
         self.assertIn("aiPlayer.get",result)
         self.assertIn("c.getController() != aiPlayer",result)
@@ -39,6 +43,8 @@ class RionyaPatchTests(unittest.TestCase):
         self.assertIn("scripts/patch_forge_rionya_pilot.py",s)
         self.assertIn("scripts/patch_forge_rionya_copy.py",s)
         self.assertIn("forge.ai.rionyaCommanderFirst=true",s)
+        self.assertNotIn("\n  push:",s)
+        self.assertIn("workflow_dispatch:",s)
         self.assertIn("random.SystemRandom().sample(fresh,3)",s)
         self.assertIn("len(fresh)>=3",s)
 
