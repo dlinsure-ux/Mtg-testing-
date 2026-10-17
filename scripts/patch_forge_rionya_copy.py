@@ -26,7 +26,7 @@ PATCH = '''        if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
                 if (score > bestScore) { bestScore = score; best = c; }
             }
             if (best != null) {
-                System.err.println("RIONYA_PILOT copy_target=" + best.getName()
+                System.out.println("RIONYA_PILOT copy_target=" + best.getName()
                         + " score=" + bestScore);
                 return best;
             }
