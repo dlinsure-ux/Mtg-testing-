@@ -1,5 +1,5 @@
 import unittest
-from scripts.audit_rionya_gameplay import audit
+from scripts.audit_rionya_gameplay import audit, parse_snapshots, card_exposure
 
 class RionyaAuditTests(unittest.TestCase):
     def test_four_player_turns_and_actions(self):
@@ -22,6 +22,14 @@ class RionyaAuditTests(unittest.TestCase):
         self.assertEqual(result["rionya_copy_target_counts"], {"Scourge of Valkas": 1})
         self.assertEqual(result["events"][0]["rionya_turn"], 1)
         self.assertEqual(result["events"][-1]["rionya_turn"], 2)
+
+    def test_hand_and_board_snapshot_exposure(self):
+        sample = "RIONYA_STATE turn=5 phase=MAIN1 hand=Crimson Wisps|Scourge of Valkas board=Mountain|Rionya, Fire Dancer"
+        snapshots = parse_snapshots(sample)
+        self.assertEqual(snapshots[0]["hand"], ["Crimson Wisps", "Scourge of Valkas"])
+        self.assertEqual(snapshots[0]["battlefield"], ["Mountain", "Rionya, Fire Dancer"])
+        exposure = card_exposure(snapshots, {"Crimson Wisps": 1})
+        self.assertEqual(exposure["observed_in_hand_not_cast"], ["Scourge of Valkas"])
 
 if __name__ == "__main__":
     unittest.main()
