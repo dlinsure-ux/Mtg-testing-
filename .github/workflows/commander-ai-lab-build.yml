@@ -571,7 +571,8 @@ jobs:
               --log "forge/forge-sim-debug.log" \
               --fallback-log "results/game-$game/attempt-$attempt/smoke-test.log" \
               --output "diagnostics/game-$game/attempt-$attempt/progress-watchdog.json" \
-              --interval 30 --stale-seconds 300 --max-seconds 900 &
+              --interval 30 --stale-seconds 300 --max-seconds 900 \
+              --supervisor-pid "$supervisor" --terminate-on-stall --stall-confirmations 2 &
             watchdog=$!
             for sample in $(seq 1 26); do
               # Wake promptly when the game ends rather than delaying up to 60 seconds.
