@@ -29,7 +29,9 @@ def audit(log):
         line = raw.strip()
         m = TURN.search(line)
         if m:
-            turn = int(m.group(1))\n            turn_owner = int(m.group(2))\n            rionya_turn += 1 if turn_owner == 1 else 0
+            turn = int(m.group(1))
+            turn_owner = int(m.group(2))
+            rionya_turn += 1 if turn_owner == 1 else 0
         m = PHASE.search(line)
         if m:
             phase = m.group(1)
