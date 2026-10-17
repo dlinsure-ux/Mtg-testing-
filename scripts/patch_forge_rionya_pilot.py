@@ -27,19 +27,17 @@ PATCH = '''            System.out.println("RIONYA_PILOT property_value=" + Boole
             if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
                     && (game.getPhaseHandler().is(PhaseType.MAIN1)
                         || game.getPhaseHandler().is(PhaseType.MAIN2))) {
-                final String snapshotKey = "forge.ai.rionya.snapshot";
-                final String snapshotId = String.valueOf(game.getPhaseHandler().getTurn())
-                        + ":" + game.getPhaseHandler().getPhase();
-                if (!snapshotId.equals(System.getProperty(snapshotKey))) {
-                    System.setProperty(snapshotKey, snapshotId);
-                    final String handNames = player.getCardsIn(ZoneType.Hand).stream()
-                            .map(c -> c.getName()).collect(java.util.stream.Collectors.joining("|"));
-                    final String boardNames = player.getCardsIn(ZoneType.Battlefield).stream()
-                            .map(c -> c.getName()).collect(java.util.stream.Collectors.joining("|"));
-                    System.out.println("RIONYA_STATE turn=" + game.getPhaseHandler().getTurn()
-                            + " phase=" + game.getPhaseHandler().getPhase()
-                            + " hand=" + handNames + " board=" + boardNames);
-                }
+                // Snapshot each decision point; the offline collector deduplicates
+                // identical states per game. No JVM-global state leaks between games.
+                final String handNames = player.getCardsIn(ZoneType.Hand).stream()
+                        .map(c -> c.getName()).collect(java.util.stream.Collectors.joining("|"));
+                final String boardNames = player.getCardsIn(ZoneType.Battlefield).stream()
+                        .map(c -> c.getName()).collect(java.util.stream.Collectors.joining("|"));
+                System.out.println("RIONYA_STATE turn=" + game.getPhaseHandler().getTurn()
+                        + " phase=" + game.getPhaseHandler().getPhase()
+                        + " hand=" + handNames + " board=" + boardNames
+                        + " life=" + player.getLife()
+                        + " creatures=" + player.getCreaturesInPlay().size());
             }
             // Rionya-specific decisions. Legality and payment remain Forge-owned.
             if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
