@@ -532,13 +532,12 @@ jobs:
             echo "::group::Game $game / $GAME_COUNT"
             echo "Starting game $game at $(date -u +%FT%TZ)"
             # Fixed-seed regression suite; override SEED_BASE to replay a known failure.
-            # Per-game directories are created before writing replay seed.
+            mkdir -p "results/game-$game" "diagnostics/game-$game"
             seed_base="${SEED_BASE:-2026101600}"
             export FORGE_LAB_REPLAY_SEED="$((seed_base + game))"
             printf '%s\n' "$FORGE_LAB_REPLAY_SEED" > "results/game-$game/replay-seed.txt"
             echo "FORGE_REPLAY_SEED_REQUESTED=$FORGE_LAB_REPLAY_SEED"
             rm -f forge/forge-sim-debug.log
-            mkdir -p "results/game-$game" "diagnostics/game-$game"
             timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
               --forge-jar "$FORGE_JAR" \
               --java17 "${JAVA_HOME}/bin/java" \
