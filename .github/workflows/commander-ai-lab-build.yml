@@ -3,14 +3,14 @@
 # Run #147: type-property LKI fast-path validation after run #146 token-board stall.
 name: Commander Forge Test Harness
 # Experimental fixed-pod five-game run: Lathiel versus Aesi, Bello and Betor.
-# Five-game regression: Lathiel counter-trigger runtime hook with decision diagnostics.
+# Rionya Fire Dancer: first five-game fixed-pod baseline, no custom Rionya runtime pilot.
 on:
   workflow_dispatch:
     inputs:
       deck:
         description: Primary Commander deck path
         required: true
-        default: decks/lathiel.dck
+        default: decks/rionya.dck
         type: string
       opponents:
         description: Opponent selection mode
@@ -83,7 +83,7 @@ jobs:
       - name: Resolve primary deck and game count
         shell: bash
         env:
-          REQUESTED_DECK: ${{ inputs.deck || 'decks/lathiel.dck' }}
+          REQUESTED_DECK: ${{ inputs.deck || 'decks/rionya.dck' }}
           REQUESTED_GAMES: ${{ inputs.games || '5' }}
         run: |
           set -euo pipefail
@@ -526,8 +526,7 @@ jobs:
           files = {
               'workflow': Path('.github/workflows/commander-ai-lab-build.yml'),
               'validator': Path('scripts/validate_forge_game.py'),
-              'pilot_spec': Path('pilots/lathiel/v0.1.json'),
-              'deck_primary': Path(os.environ['PRIMARY_DECK']),
+                            'deck_primary': Path(os.environ['PRIMARY_DECK']),
               'deck_seat_2': Path(os.environ['SEAT_2_PATH']),
               'deck_seat_3': Path(os.environ['SEAT_3_PATH']),
               'deck_seat_4': Path(os.environ['SEAT_4_PATH']),
@@ -556,7 +555,7 @@ jobs:
             echo "FORGE_REPLAY_SEED_REQUESTED=$FORGE_LAB_REPLAY_SEED"
             echo "FORGE_REPLAY_MODE=$([ -n "${SEED_BASE:-}" ] && echo fixed || echo random)"
             rm -f forge/forge-sim-debug.log results/diagnostic-game.json smoke-test.log results/validation-report.json
-            JAVA_TOOL_OPTIONS="-Dforge.ai.lathielCounterPilot=true" timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
+            JAVA_TOOL_OPTIONS="-Dforge.ai.lathielCounterPilot=false" timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
               --forge-jar "$FORGE_JAR" \
               --java17 "${JAVA_HOME}/bin/java" \
               --forge-dir forge/forge-gui \
@@ -670,7 +669,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: lathiel-revised-single-game-evidence
+          name: rionya-five-game-evidence
           path: |
             forge-build.log
             lab-build.log
