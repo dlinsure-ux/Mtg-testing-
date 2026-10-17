@@ -541,6 +541,7 @@ jobs:
             FORGE_LAB_REPLAY_SEED="$(python3 scripts/prepare_commander_game.py --game "$game")"
             export FORGE_LAB_REPLAY_SEED
             echo "FORGE_REPLAY_SEED_REQUESTED=$FORGE_LAB_REPLAY_SEED"
+            echo "FORGE_REPLAY_MODE=$([ -n "${SEED_BASE:-}" ] && echo fixed || echo random)"
             rm -f forge/forge-sim-debug.log
             timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
               --forge-jar "$FORGE_JAR" \
