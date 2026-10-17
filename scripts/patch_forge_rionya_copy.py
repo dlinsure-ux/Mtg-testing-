@@ -3,6 +3,7 @@
 from pathlib import Path
 import sys
 ANCHOR = '        return ComputerUtilCard.getBestAI(options);'
+TARGET_ANCHOR = '                list.remove(choice);'
 PATCH = '''        if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
                 && "Rionya, Fire Dancer".equals(sa.getHostCard().getName())) {
             Card best = null;
@@ -34,6 +35,15 @@ PATCH = '''        if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
 def patch(src):
     if "RIONYA_PILOT" in src: raise ValueError("Already patched")
     if src.count(ANCHOR) != 1: raise ValueError("Pinned copy-choice anchor changed")
-    return src.replace(ANCHOR, PATCH+ANCHOR, 1)
+    src = src.replace(ANCHOR, PATCH+ANCHOR, 1)
+    if src.count(TARGET_ANCHOR) != 1:
+        raise ValueError("Pinned Rionya target-loop anchor changed")
+    # The actual card uses a targeted CopyPermanent trigger. Patch that path.
+    target_patch = PATCH.replace(
+        '            for (Card c : options) {',
+        '            for (Card c : list) {'
+    ).replace('                return best;', '                choice = best;')
+    src = src.replace(TARGET_ANCHOR, target_patch + TARGET_ANCHOR, 1)
+    return src
 if __name__ == "__main__":
     p=Path(sys.argv[1]); p.write_text(patch(p.read_text()))
