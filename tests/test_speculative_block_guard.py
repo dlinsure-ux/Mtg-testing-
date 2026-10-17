@@ -6,7 +6,7 @@ class WideBoardSpeculativeGuardTests(unittest.TestCase):
         src = "public static int predictNextCombatsRemainingLife() {\n" + ANCHOR + "\n}\n    public static boolean isETBprevented("
         patched = patch(src)
         self.assertEqual(patched.count("forge.ai.speculativeCombatGuard"), 1)
-        self.assertIn("forgeSpeculativeAttackers >= 12", patched)
+        self.assertIn("forgeSpeculativeAttackers >= 8", patched)
         self.assertEqual(patched.count("block.assignBlockersForCombat(combat, excludedBlockers);"), 1)
         self.assertIn("FORGE_SPECULATIVE_BLOCK_SKIPPED", patched)
         self.assertIn("} else {\n                    block.assignBlockersForCombat", patched)
