@@ -156,7 +156,11 @@ jobs:
           assert all(p in pool for p in fixed), 'Fixed opponents missing'
           mode=os.environ.get('OPPONENT_MODE','random')
           assert mode in ('fixed','random'), 'Invalid opponent mode'
-          selected=random.SystemRandom().sample(pool,3) if mode=='random' else fixed
+          # Exclude the previous Winota/Shroofus/Deadpool pod from new random series.
+          fresh=[p for p in pool if p not in fixed and p.as_posix()!=os.environ.get('PRIMARY_DECK','')]
+          assert mode!='random' or len(fresh)>=3, 'Need at least three NEW eligible opponents; refuse old pod fallback'
+          selected=random.SystemRandom().sample(fresh,3) if mode=='random' else fixed
+          assert mode!='random' or all(p not in fixed for p in selected), 'Old opponent slipped into random pod'
           with open(os.environ['GITHUB_ENV'],'a') as env:
               for i,p in enumerate(selected,2):
                   env.write(f'SEAT_{i}_PATH={p.as_posix()}\n')
@@ -165,7 +169,7 @@ jobs:
               'selection':mode,
               'pool':[str(p) for p in pool],
               'selected':[str(p) for p in selected]},indent=2)+'\\n')
-          print('Random opponent pod:', ', '.join(map(str,selected)))
+          print('Selected opponent pod:', ', '.join(map(str,selected)))
           PY
       - name: Preflight selected random opponents
         shell: bash
