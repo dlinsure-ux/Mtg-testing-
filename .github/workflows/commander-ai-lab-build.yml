@@ -55,6 +55,7 @@ jobs:
           python3 scripts/check_commander_workflow.py
           python3 -m unittest discover -s tests -p 'test_commander_workflow.py' -v
           python3 -m unittest discover -s tests -p 'test_prepare_commander_game.py' -v
+          python3 -m unittest discover -s tests -p 'test_rionya_pilot.py' -v
       - name: Lint workflow and shell scripts
         uses: raven-actions/actionlint@v2
         with:
@@ -110,6 +111,7 @@ jobs:
           python3 scripts/check_commander_workflow.py
           python3 -m unittest discover -s tests -p 'test_commander_workflow.py' -v
           python3 -m unittest discover -s tests -p 'test_prepare_commander_game.py' -v
+          python3 -m unittest discover -s tests -p 'test_rionya_pilot.py' -v
       - name: Static workflow analysis
         uses: raven-actions/actionlint@v2
         with:
