@@ -12,6 +12,7 @@ PATCH = '''        if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
                 if (!c.isCreature() || c.getController() != ai
                         || "Rionya, Fire Dancer".equals(c.getName())) continue;
                 int score = ComputerUtilCard.evaluateCreature(c);
+                score += Math.max(0, Math.min(12, c.getNetPower())) * 25;
                 switch (c.getName()) {
                     case "Scourge of Valkas": score += 1400; break;
                     case "Fanatic of Mogis": score += 1150; break;
