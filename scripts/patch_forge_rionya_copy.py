@@ -43,6 +43,7 @@ def patch(src):
         '            for (Card c : options) {',
         '            for (Card c : list) {'
     ).replace('                return best;', '                choice = best;')
+    target_patch = target_patch.replace('ai.get', 'aiPlayer.get').replace(' != ai', ' != aiPlayer')
     src = src.replace(TARGET_ANCHOR, target_patch + TARGET_ANCHOR, 1)
     return src
 if __name__ == "__main__":
