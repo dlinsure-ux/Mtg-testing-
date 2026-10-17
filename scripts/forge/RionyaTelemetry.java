@@ -9,7 +9,6 @@ import forge.game.player.PlayerView;
 import forge.game.zone.ZoneType;
 import forge.game.zone.ZoneView;
 
-import java.util.stream.Collectors;
 
 /** Structured, opt-in gameplay telemetry for the Rionya deck audit. */
 public final class RionyaTelemetry {
@@ -49,17 +48,20 @@ public final class RionyaTelemetry {
     private void snapshot(String boundary) {
         Player p = primary();
         if (p == null) return;
-        String hand = p.getCardsIn(ZoneType.Hand).stream().map(Card::getName).map(RionyaTelemetry::enc)
-                .collect(Collectors.joining(","));
-        String board = p.getCardsIn(ZoneType.Battlefield).stream().map(Card::getName).map(RionyaTelemetry::enc)
-                .collect(Collectors.joining(","));
         emit("snapshot", "boundary=" + enc(boundary) + "|player_id=" + p.getId()
                 + "|player=" + enc(p.getName()) + "|life=" + p.getLife()
-                + "|hand=" + hand + "|board=" + board
                 + "|hand_size=" + p.getCardsIn(ZoneType.Hand).size()
                 + "|battlefield_size=" + p.getCardsIn(ZoneType.Battlefield).size()
                 + "|creatures=" + p.getCreaturesInPlay().size()
                 + "|lands=" + p.getLandsInPlay().size());
+        for (Card c : p.getCardsIn(ZoneType.Hand)) {
+            emit("snapshot_card", "boundary=" + enc(boundary) + "|player_id=" + p.getId()
+                    + "|zone=Hand|card_id=" + c.getId() + "|card=" + enc(c.getName()));
+        }
+        for (Card c : p.getCardsIn(ZoneType.Battlefield)) {
+            emit("snapshot_card", "boundary=" + enc(boundary) + "|player_id=" + p.getId()
+                    + "|zone=Battlefield|card_id=" + c.getId() + "|card=" + enc(c.getName()));
+        }
     }
 
     @Subscribe public void zone(GameEventCardChangeZone e) {
