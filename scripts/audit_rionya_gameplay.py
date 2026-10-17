@@ -49,14 +49,22 @@ def authoritative_summary(events):
     primary_id = next(iter(primary_ids)) if len(primary_ids) == 1 else None
     counts = collections.Counter(e.get("type") for e in events)
     primary_zone = [e for e in events if e.get("type") == "zone" and (primary_id is None or e.get("player_id") == primary_id)]
-    opening = [e for e in primary_zone if e.get("from") == "Library" and e.get("to") == "Hand" and int(e.get("turn", 0) or 0) == 0]
+    opening_state = {}
+    for e in primary_zone:
+        if int(e.get("turn", 0) or 0) != 0:
+            continue
+        cid = e.get("card_id")
+        if e.get("to") == "Hand":
+            opening_state[cid] = e.get("card")
+        if e.get("from") == "Hand":
+            opening_state.pop(cid, None)
     draws = [e for e in primary_zone if e.get("from") == "Library" and e.get("to") == "Hand" and int(e.get("turn", 0) or 0) > 0]
     mulligans = [e for e in events if e.get("type") == "mulligan" and (primary_id is None or e.get("player_id") == primary_id)]
     snapshots = [e for e in events if e.get("type") == "snapshot"]
     return dict(
         primary_player_id=primary_id,
         event_counts=dict(counts),
-        opening_hand_cards=[e.get("card") for e in opening],
+        opening_hand_cards=list(opening_state.values()),
         exact_draws=[dict(turn=e.get("turn"), card=e.get("card")) for e in draws],
         mulligan_count=len(mulligans),
         snapshots=snapshots,
@@ -216,6 +224,9 @@ def main():
         authoritative.extend(parse_authoritative_events(lab_text))
         report["authoritative_events"] = authoritative
         report["authoritative_summary"] = authoritative_summary(authoritative)
+        if report["authoritative_summary"]["opening_hand_cards"]:
+            report["draw_identity_coverage"] = "authoritative: zone-transition events"
+            report["unplayed_hand_cards"] = report["gameplay_analysis"]["observed_but_not_played"] if "gameplay_analysis" in report else []
         report["state_snapshots"] = parse_snapshots(forge_text + "\n" + lab_text)
         report["card_exposure"] = card_exposure(report["state_snapshots"], report["cast_counts"])
         report["gameplay_analysis"] = analyze_gameplay(report["state_snapshots"], report["events"])
