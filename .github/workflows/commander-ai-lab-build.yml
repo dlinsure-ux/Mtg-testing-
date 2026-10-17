@@ -343,6 +343,7 @@ jobs:
         run: |
           set -euo pipefail
           cp scripts/forge/ForgeDecisionProfile.java forge/forge-ai/src/main/java/forge/ai/ForgeDecisionProfile.java
+          python3 scripts/patch_forge_lathiel_counter_pilot.py forge/forge-ai/src/main/java/forge/ai/ability/CountersPutAi.java
           python3 scripts/patch_forge_decision_profile.py forge/forge-ai/src/main/java/forge/ai/AiController.java
       - name: Bound speculative counterattack evaluation
         shell: bash
@@ -555,7 +556,7 @@ jobs:
             echo "FORGE_REPLAY_SEED_REQUESTED=$FORGE_LAB_REPLAY_SEED"
             echo "FORGE_REPLAY_MODE=$([ -n "${SEED_BASE:-}" ] && echo fixed || echo random)"
             rm -f forge/forge-sim-debug.log results/diagnostic-game.json smoke-test.log results/validation-report.json
-            timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
+            JAVA_TOOL_OPTIONS="-Dforge.ai.lathielCounterPilot=true" timeout 900 xvfb-run -a java -jar lab/target/commander-ai-lab-1.0.0-SNAPSHOT.jar \
               --forge-jar "$FORGE_JAR" \
               --java17 "${JAVA_HOME}/bin/java" \
               --forge-dir forge/forge-gui \
