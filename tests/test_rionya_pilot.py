@@ -1,4 +1,5 @@
 import unittest
+from scripts.patch_forge_rionya_telemetry import patch as patch_telemetry
 from pathlib import Path
 import tempfile
 import importlib.util
@@ -47,6 +48,22 @@ class RionyaPatchTests(unittest.TestCase):
         self.assertIn("workflow_dispatch:",s)
         self.assertIn("random.SystemRandom().sample(fresh,3)",s)
         self.assertIn("len(fresh)>=3",s)
+
+    def test_rionya_telemetry_patch(self):
+        src = "before\n        phaseHandler = new PhaseHandler(this);\nafter\n"
+        result = patch_telemetry(src)
+        self.assertIn("new RionyaTelemetry(this)", result)
+        self.assertIn("forge.ai.rionyaTelemetry", result)
+        with self.assertRaises(ValueError):
+            patch_telemetry(result)
+
+    def test_workflow_enables_telemetry(self):
+        from pathlib import Path
+        s = Path(".github/workflows/commander-ai-lab-build.yml").read_text()
+        self.assertIn("scripts/forge/RionyaTelemetry.java", s)
+        self.assertIn("patch_forge_rionya_telemetry.py", s)
+        self.assertIn("-Dforge.ai.rionyaTelemetry=true", s)
+        self.assertNotIn("\n  push:", s)
 
 if __name__ == "__main__":
     unittest.main()
