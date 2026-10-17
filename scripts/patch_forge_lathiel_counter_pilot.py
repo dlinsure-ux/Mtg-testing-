@@ -37,5 +37,49 @@ replacement = """        // Opt-in Lathiel-only choice heuristic; leave all othe
 
     /**
      * used for ExistingCounterType"""
-path.write_text(source.replace(anchor, replacement))
+source = source.replace(anchor, replacement)
+trigger_anchor = """                } else if (preferred) {
+                    list = ComputerUtil.getSafeTargets(ai, sa, list);
+                    choice = chooseBoonTarget(list, type);
+                    if (choice == null && mandatory) {
+                        choice = Aggregates.random(list);
+                    }
+                } else if (type.equals("P1P1")) {"""
+trigger_replacement = """                } else if (preferred) {
+                    list = ComputerUtil.getSafeTargets(ai, sa, list);
+                    // Lathiel's end-step divided counter trigger enters this path, not chooseSingleCard.
+                    if (Boolean.getBoolean("forge.ai.lathielCounterPilot")
+                            && "Lathiel, the Bounteous Dawn".equals(source.getName())
+                            && "P1P1".equals(type)) {
+                        System.err.println("LATHIEL_COUNTER_TRIGGER entered candidates=" + list.size()
+                                + " divided=" + divided + " remaining=" + left);
+                        choice = null;
+                        int bestScore = Integer.MIN_VALUE;
+                        for (Card candidate : list) {
+                            if (candidate.getController() != ai || !candidate.isCreature()) continue;
+                            int score = ComputerUtilCard.evaluateCreature(candidate);
+                            if (candidate.hasKeyword(Keyword.LIFELINK)) score += 120;
+                            if (candidate.hasKeyword(Keyword.FLYING)) score += 100;
+                            if (candidate.hasKeyword(Keyword.TRAMPLE)) score += 75;
+                            if (candidate.hasKeyword(Keyword.DOUBLE_STRIKE)) score += 110;
+                            if (candidate.getNetPower() <= 1) score -= 65;
+                            if (score > bestScore) {
+                                bestScore = score;
+                                choice = candidate;
+                            }
+                        }
+                        System.err.println("LATHIEL_COUNTER_TRIGGER selected="
+                                + (choice == null ? "none" : choice.getName())
+                                + " score=" + bestScore);
+                    } else {
+                        choice = chooseBoonTarget(list, type);
+                    }
+                    if (choice == null && mandatory) {
+                        choice = Aggregates.random(list);
+                    }
+                } else if (type.equals("P1P1")) {"""
+if source.count(trigger_anchor) != 1:
+    raise SystemExit("Lathiel trigger patch anchor missing or ambiguous")
+source = source.replace(trigger_anchor, trigger_replacement)
+path.write_text(source)
 print("Installed opt-in Lathiel counter recipient selection")
