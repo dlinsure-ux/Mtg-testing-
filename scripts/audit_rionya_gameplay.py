@@ -61,13 +61,25 @@ def authoritative_summary(events):
     draws = [e for e in primary_zone if e.get("from") == "Library" and e.get("to") == "Hand" and int(e.get("turn", 0) or 0) > 0]
     mulligans = [e for e in events if e.get("type") == "mulligan" and (primary_id is None or e.get("player_id") == primary_id)]
     snapshots = [e for e in events if e.get("type") == "snapshot"]
+    snapshot_cards = [e for e in events if e.get("type") == "snapshot_card"]
+    grouped_snapshots = []
+    for snap in snapshots:
+        turn = snap.get("turn")
+        boundary = snap.get("boundary")
+        cards = [e for e in snapshot_cards
+                 if e.get("turn") == turn and e.get("boundary") == boundary
+                 and (primary_id is None or e.get("player_id") == primary_id)]
+        row = dict(snap)
+        row["hand"] = [e.get("card") for e in cards if e.get("zone") == "Hand"]
+        row["battlefield"] = [e.get("card") for e in cards if e.get("zone") == "Battlefield"]
+        grouped_snapshots.append(row)
     return dict(
         primary_player_id=primary_id,
         event_counts=dict(counts),
         opening_hand_cards=list(opening_state.values()),
         exact_draws=[dict(turn=e.get("turn"), card=e.get("card")) for e in draws],
         mulligan_count=len(mulligans),
-        snapshots=snapshots,
+        snapshots=grouped_snapshots,
         damage_events=[e for e in events if e.get("type") in ("player_damage", "card_damage")],
         mana_events=[e for e in events if e.get("type") == "mana_pool"],
         counter_events=[e for e in events if e.get("type") == "card_counters"],
