@@ -12,6 +12,7 @@ on:
       - '.github/workflows/commander-ai-lab-build.yml'
       - 'scripts/patch_forge_rionya_*.py'
       - 'tests/test_rionya_pilot.py'
+      - 'scripts/audit_rionya_gameplay.py'
   workflow_dispatch:
     inputs:
       deck:
@@ -641,6 +642,10 @@ jobs:
           echo "Configurable Commander series attempted; invalid results fail closed."
           if [ "$failed" -eq 0 ]; then echo "Configured Commander series validated"; fi
           exit "$failed"
+      - name: Audit Rionya cards and pilot decisions
+        if: always()
+        run: |
+          python3 scripts/audit_rionya_gameplay.py --results results
       - name: Publish run outcome in dashboard issue
         if: always()
         env:
