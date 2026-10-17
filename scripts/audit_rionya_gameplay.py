@@ -29,7 +29,7 @@ def audit(log):
         line = raw.strip()
         m = TURN.search(line)
         if m:
-            turn = int(m.group(1))
+            turn = int(m.group(1))\n            turn_owner = int(m.group(2))\n            rionya_turn += 1 if turn_owner == 1 else 0
         m = PHASE.search(line)
         if m:
             phase = m.group(1)
@@ -37,7 +37,7 @@ def audit(log):
         if m:
             card = m.group(1).strip()
             casts[card] += 1
-            events.append(dict(turn=turn, phase=phase, action="cast", card=card))
+            events.append(dict(global_turn=turn, rionya_turn=rionya_turn, phase=phase, action="cast", card=card))
         m = LAND.search(line)
         if m:
             card = m.group(1).strip()
@@ -55,9 +55,9 @@ def audit(log):
             unknown_draw_events += 1
         m = MARKER.search(line)
         if m:
-            markers.append(dict(turn=turn, detail=m.group(1)))
+            markers.append(dict(global_turn=turn, rionya_turn=rionya_turn, detail=m.group(1)))
     precombat = [e for e in events if e["action"] == "cast" and e["phase"] and "precombat" in e["phase"].lower()]
-    return dict(schema_version=1, events=events, cast_counts=dict(casts),
+    return dict(schema_version=2, global_turn_last_seen=turn, rionya_turns_seen=rionya_turn, events=events, cast_counts=dict(casts),
                 land_counts=dict(landplays), rionya_copy_target_counts=dict(copies),
                 precombat_casts=precombat, named_draw_counts=dict(named_draws),
                 unidentified_draw_events=unknown_draw_events, pilot_markers=markers,
@@ -78,7 +78,7 @@ def main():
         if not attempts:
             continue
         source = attempts[0]
-        report = audit(source.read_text(errors="replace"))
+        report = audit(source.read_text(errors="replace"))\n        smoke = source.with_name("smoke-test.log")\n        if smoke.exists():\n            report["pilot_markers_in_lab_log"] = [m.group(1) for line in smoke.read_text(errors="replace").splitlines() if (m := MARKER.search(line))]\n            report["pilot_markers_observed"] = report["pilot_markers_observed"] or bool(report["pilot_markers_in_lab_log"])\n        else:\n            report["pilot_markers_in_lab_log"] = []
         report["game"] = int(game.name.split("-")[1])
         report["source"] = str(source)
         out = game / "card-audit.json"
