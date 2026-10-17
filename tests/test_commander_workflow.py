@@ -23,6 +23,6 @@ class WorkflowOrderingTests(unittest.TestCase):
             check(head+body)
     def test_missing_seed_plumbing_rejected(self):
         with self.assertRaises(AssertionError):
-            check(self.workflow.replace('export FORGE_LAB_REPLAY_SEED=', 'export REMOVED_SEED=', 1))
+            check(self.workflow.replace('export FORGE_LAB_REPLAY_SEED', 'export REMOVED_SEED', 1))
 if __name__=="__main__":
     unittest.main()
