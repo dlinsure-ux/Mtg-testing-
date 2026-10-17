@@ -6,7 +6,7 @@ import json
 import re
 from pathlib import Path
 
-TURN = re.compile(r"^Turn: Turn (\d+) \(Ai\(1\)-")
+TURN = re.compile(r"^Turn: Turn (\d+) \(Ai\((\d+)\)-")
 PHASE = re.compile(r"^Phase: Ai\(1\)-.*?'s (.+)$")
 CAST = re.compile(r"^Add To Stack: Ai\(1\)-.*? cast (.+?)(?: targeting |$)")
 LAND = re.compile(r"^Land: Ai\(1\)-.*? played (.+?) \(\d+\)")
