@@ -628,19 +628,19 @@ jobs:
             fi
             cp results/validation-report.json "results/game-$game/attempt-$attempt/validation-report.json" 2>/dev/null || true
             # Reconcile the final Forge log even if the observer exited between samples.
-            python3 - "$game" <<'PYFINAL'
+            python3 - "$game" "$attempt" <<'PYFINAL'
           import json,sys
           from pathlib import Path
           from scripts.game_progress_watchdog import progress_markers
-          game=sys.argv[1]
-          log=Path(f"results/game-{game}/forge-sim-debug.log")
+          game,attempt=sys.argv[1:3]
+          log=Path(f"results/game-{game}/attempt-{attempt}/forge-sim-debug.log")
           markers=progress_markers(log.read_text(errors="replace")) if log.exists() else {}
-          report=Path(f"results/game-{game}/validation-report.json")
+          report=Path(f"results/game-{game}/attempt-{attempt}/validation-report.json")
           validation=json.loads(report.read_text()) if report.exists() else {}
-          summary={"game":int(game),"progress":markers,"validation":validation}
-          out=Path(f"results/game-{game}/game-summary.json")
+          summary={"game":int(game),"attempt":int(attempt),"progress":markers,"validation":validation}
+          out=Path(f"results/game-{game}/attempt-{attempt}/game-summary.json")
           out.write_text(json.dumps(summary,indent=2,default=str)+"\\n")
-          print(f"GAME_SUMMARY game={game} final_turn={markers.get('last_turn')} actions={markers.get('action_markers')} terminal={markers.get('terminal_result')} validation={validation.get('classification')} startup_timeouts={validation.get('startup_ai_decision_timeouts')} in_game_timeouts={validation.get('in_game_ai_decision_timeouts')}",flush=True)
+          print(f"GAME_SUMMARY game={game} attempt={attempt} final_turn={markers.get('last_turn')} actions={markers.get('action_markers')} terminal={markers.get('terminal_result')} validation={validation.get('classification')} startup_timeouts={validation.get('startup_ai_decision_timeouts')} in_game_timeouts={validation.get('in_game_ai_decision_timeouts')}",flush=True)
           PYFINAL
             if [ "$attempt_failed" -eq 0 ]; then
               game_passed=1
