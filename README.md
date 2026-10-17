@@ -1,5 +1,7 @@
 # MTG Testing — Forge / Commander AI Lab Recovery README
 
+> **LATEST HANDOFF — 2026-10-16/17, run #143:** **[READ THE RUN #143 COMBAT-PERFORMANCE HANDOFF FIRST](docs/2026-10-16-RUN-143-COMBAT-PERFORMANCE-HANDOFF.md)**. This is the authoritative next-chat restart guide, with exact run/commit IDs, game-by-game validation, seeds, measured 6–7.5-second speculative blocker calls, Shroofus COMBAT_BEGIN timeout stacks, prior #141/#142 context, safe optimization plan, and copy/paste continuation prompt. **Current status: unresolved; #143 passed 4/5, game 5 INVALID with 2 AI decision timeouts.** Documentation saved only; no performance optimization is claimed. Work on `experiment/guardrails-watchdog-v1`; never change protected baseline `3785d644` or merge PR #1.
+
 > **LATEST HANDOFF (2026-10-15):** For the current Forge AI timeout diagnosis, 663-line workflow/code audit, exact runs/commits, safety guardrails, and a copy-ready new-chat prompt, **read [docs/2026-10-15-FORGE-PERFORMANCE-AND-CODE-CLEANUP-HANDOFF.md](docs/2026-10-15-FORGE-PERFORMANCE-AND-CODE-CLEANUP-HANDOFF.md) first.** This supersedes older 'next work' sections below where they conflict. The experimental performance problem remains unresolved; do not treat earlier single-game completions as a reliable series. The protected baseline and canonical decks must not be changed without approval.
 
 
