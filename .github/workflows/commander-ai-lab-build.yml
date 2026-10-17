@@ -5,15 +5,6 @@ name: Commander Forge Test Harness
 # Experimental fixed-pod five-game run: Lathiel versus Aesi, Bello and Betor.
 # Rionya Fire Dancer: first five-game fixed-pod baseline, no custom Rionya runtime pilot.
 on:
-  push:
-    branches:
-      - experiment/guardrails-watchdog-v1
-    paths:
-      - '.github/workflows/commander-ai-lab-build.yml'
-      - 'scripts/patch_forge_rionya_*.py'
-      - 'tests/test_rionya_pilot.py'
-      - 'scripts/audit_rionya_gameplay.py'
-      - 'tests/test_rionya_audit.py'
   workflow_dispatch:
     inputs:
       deck:
