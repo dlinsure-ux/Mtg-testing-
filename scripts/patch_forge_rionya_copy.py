@@ -12,11 +12,11 @@ PATCH = '''        if (Boolean.getBoolean("forge.ai.rionyaCommanderFirst")
                         || "Rionya, Fire Dancer".equals(c.getName())) continue;
                 int score = ComputerUtilCard.evaluateCreature(c);
                 switch (c.getName()) {
-                    case "Scourge of Valkas": score += 1400; break;
-                    case "Fanatic of Mogis": score += 1300; break;
-                    case "Coercive Recruiter": score += 1200; break;
-                    case "Ardent Elementalist": score += 950; break;
-                    case "Solemn Simulacrum": score += 850; break;
+                    case "Scourge of Valkas": score += 1100 + 120 * ai.getCardsIn(ZoneType.Battlefield).stream().filter(x -> x.isDragon() && x.getController() == ai).count(); break;
+                    case "Fanatic of Mogis": score += 1150; break;
+                    case "Coercive Recruiter": score += ai.getOpponents().getCreaturesInPlay().isEmpty() ? 0 : 1200; break;
+                    case "Ardent Elementalist": score += ai.getCardsIn(ZoneType.Graveyard).stream().anyMatch(x -> x.isInstant() || x.isSorcery()) ? 950 : 0; break;
+                    case "Solemn Simulacrum": score += ai.getCardsIn(ZoneType.Library).stream().anyMatch(x -> x.isLand()) ? 850 : 0; break;
                     case "Goblin Chainwhirler": score += 700; break;
                     case "Humble Defector": score += 650; break;
                     case "Tectonic Giant": score += 550; break;
