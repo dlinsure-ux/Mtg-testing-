@@ -253,17 +253,13 @@ def main():
             "has_land_events": bool(report["land_counts"]),
             "has_pilot_decisions": bool(report["pilot_markers_observed"]),
             "has_exact_draw_identity": bool(report["authoritative_summary"]["exact_draws"]) or bool(report["authoritative_summary"]["opening_hand_cards"]),
-            "has_mulligan_events": "mulligan" in report["authoritative_summary"]["event_counts"] or bool(report["authoritative_summary"]["opening_hand_cards"]),
-            "has_mana_payment_events": bool(report["authoritative_summary"]["mana_events"]),
-            "complete_for_card_cut_recommendations": all([
-                bool(report["authoritative_summary"]["opening_hand_cards"]),
-                bool(report["authoritative_summary"]["snapshots"]),
-                bool(report["authoritative_summary"]["event_counts"].get("zone")),
-                bool(report["authoritative_summary"]["event_counts"].get("turn_begin")),
-                bool(report["authoritative_summary"]["event_counts"].get("spell")),
-                bool(report["authoritative_summary"]["event_counts"].get("mana_pool")),
-                bool(report["authoritative_summary"]["event_counts"].get("telemetry_enabled")),
-            ]),
+            "has_mulligan_events": "mulligan" in report["authoritative_summary"]["event_counts"],
+            "has_mana_pool_events": bool(report["authoritative_summary"]["mana_events"]),
+            # Mana-pool add/remove events do not identify which mana paid which cost.
+            "has_mana_payment_events": False,
+            # Fail closed until exact mana payments and mulligan/opening-hand lifecycle coverage
+            # are captured by authoritative events rather than inferred from pool activity.
+            "complete_for_card_cut_recommendations": False,
         }
         report["pilot_activation_confirmed"] = any("decision_entry" in x["detail"] for x in report["pilot_markers"]) or any("decision_entry" in x for x in report["pilot_markers_in_lab_log"])
         report["commander_search_observed"] = any("commander_search" in x["detail"] for x in report["pilot_markers"]) or any("commander_search" in x for x in report["pilot_markers_in_lab_log"])

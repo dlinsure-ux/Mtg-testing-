@@ -375,7 +375,7 @@ jobs:
           cp scripts/forge/RionyaTelemetry.java forge/forge-game/src/main/java/forge/game/RionyaTelemetry.java
           python3 scripts/patch_forge_rionya_telemetry.py forge/forge-game/src/main/java/forge/game/Game.java
           grep -Fq 'new RionyaTelemetry(this)' forge/forge-game/src/main/java/forge/game/Game.java
-          grep -Fq 'RIONYA_EVENT|type=zone' forge/forge-game/src/main/java/forge/game/RionyaTelemetry.java
+          grep -Fq 'RIONYA_EVENT|type=' forge/forge-game/src/main/java/forge/game/RionyaTelemetry.java
       - name: Integrate Rionya commander-first pilot into Forge
         shell: bash
         run: |

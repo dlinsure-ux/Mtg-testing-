@@ -19,7 +19,7 @@ Game completion is not equivalent to a valid deck-performance audit. Keep gamepl
 7. Opponent public battlefield states and interaction outcomes.
 
 ## Why not instrument these blindly?
-The pinned Forge 2.0.14 Java source is downloaded during the GitHub Actions build, not stored in this repository. Exact central-event hook signatures must be inspected and compile-tested against that source. Guessing an API would risk breaking the harness. Current AI snapshots are not a substitute.
+The pinned Forge source is now vendored under `vendor/forge/` at commit `edb28158f6d892f9eb43dc08f019aab567276027`. Event-hook signatures must be inspected against that exact snapshot and compile-tested before gameplay runs. Guessing an API would risk breaking the harness. Current AI snapshots are not a substitute.
 
 ## Acceptance gates before deck evaluation
 - Verify Java build and unit tests on the pinned source.

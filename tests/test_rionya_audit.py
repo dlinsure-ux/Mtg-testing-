@@ -1,7 +1,13 @@
 import unittest
+from pathlib import Path
 from scripts.audit_rionya_gameplay import audit, parse_snapshots, card_exposure, analyze_gameplay, parse_authoritative_events, authoritative_summary
 
 class RionyaAuditTests(unittest.TestCase):
+    def test_card_cut_gate_fails_closed_without_exact_payment_telemetry(self):
+        source = (Path(__file__).resolve().parents[1] / "scripts/audit_rionya_gameplay.py").read_text()
+        self.assertIn('"has_mana_payment_events": False', source)
+        self.assertIn('"complete_for_card_cut_recommendations": False', source)
+
     def test_four_player_turns_and_actions(self):
         log = "\n".join([
             "Turn: Turn 1 (Ai(1)-Rionya)",
@@ -64,6 +70,19 @@ class RionyaAuditTests(unittest.TestCase):
         self.assertEqual(summary["opening_hand_cards"], ["Mountain"])
         self.assertEqual(summary["exact_draws"], [{"turn": 1, "card": "Expedite"}])
         self.assertEqual(summary["damage_events"][0]["amount"], 3)
+
+
+    def test_pool_activity_does_not_claim_exact_mana_payments_or_complete_telemetry(self):
+        sample = "\n".join([
+            "RIONYA_EVENT|type=telemetry_enabled|turn=0|phase=",
+            "RIONYA_EVENT|type=zone|turn=0|phase=|player_id=0|player=Rionya|card_id=1|card=Mountain|from=Library|to=Hand",
+            "RIONYA_EVENT|type=mana_pool|turn=1|phase=MAIN1|player_id=0|player=Rionya|mode=Added|color=1",
+        ])
+        events = parse_authoritative_events(sample)
+        summary = authoritative_summary(events)
+        self.assertTrue(summary["mana_events"])
+        # Pool deltas alone cannot establish which mana paid a spell or ability cost.
+        self.assertNotIn("mana_payments", summary)
 
 if __name__ == "__main__":
     unittest.main()
