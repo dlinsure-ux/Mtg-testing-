@@ -1,4 +1,39 @@
 # MTG Testing — Forge / Commander AI Lab Recovery README
+
+## CURRENT HANDOFF — 2026-10-17: Rionya telemetry, CI repair, workflow-launch access
+
+**Start here for the next session.** Work only on `experiment/guardrails-watchdog-v1`; do not merge PR #1, modify the protected baseline, or launch more than one game without explicit authorization. The user works from an iPhone and expects GitHub to hold the complete handoff. Keep commits consolidated: each push to scripts/tests/workflows triggers automatic CI checks and may produce multiple notification emails.
+
+### Verified state and what was done
+
+- Forge 2.0.14 source is pinned and vendored at `vendor/forge/` (commit `edb28158f6d892f9eb43dc08f019aab567276027`), checked by `scripts/verify_vendored_forge.py`. Main game workflow: `.github/workflows/commander-ai-lab-build.yml`; it retains `workflow_dispatch` on both `main` and the experiment branch. Default deck is `decks/rionya.dck`; game count must be explicitly set to **1** for the next smoke test.
+- Added event-bus telemetry class `scripts/forge/RionyaTelemetry.java` (commit `b2bd6922`), opt-in `-Dforge.ai.rionyaTelemetry=true`. Added `scripts/patch_forge_rionya_telemetry.py` (`e4e84936`) to register it in Forge `Game.java`; integrated it in the main workflow (`26029838`). It emits `RIONYA_EVENT` records for selected zone changes, turns, snapshots, spells, life/damage and related events. These are **instrumentation attempts**, not validated full-fidelity gameplay telemetry.
+- Extended `scripts/audit_rionya_gameplay.py` to parse authoritative events and report completeness (`2309b7d6`, `10775949`, `db4fe547`); added tests in `tests/test_rionya_audit.py` and `tests/test_rionya_pilot.py` (`d86699ee`, `5b24ae13`). **No telemetry compilation, tests or end-to-end game run have been confirmed** since these changes. A manual-only `.github/workflows/forge-telemetry-compile.yml` exists for a compile-only gate.
+- Multiple incremental commits triggered `Forge Workflow Preflight` automatically on push and pull request; its outdated checkout-step assertion failed repeatedly with `AssertionError: Missing required workflow step`. The preflight was repaired in commit `09fd52e6af870fecfa69462e2caec5e9c45651f3` to expect the vendored Forge step and verify source integrity/order. **Confirmed success**: preflight push run `39066913935`, preflight PR run `39066921179`, and Pilot Policy Validation PR run `39066921204`. No further changes are needed for that specific assertion.
+- The user explicitly stopped changes during the earlier telemetry implementation, later authorized read-only investigation, a preflight fix, and one game launch. A game was **not** launched because the currently exposed ChatGPT GitHub connector does not include a new-workflow dispatch operation. This is an **integration/tool-availability limitation**, not proof that GitHub Actions is broken. The connector can inspect runs, edit files and rerun certain existing jobs. GitHub repository access and the manual triggers on both branches were verified; Actions-specific dispatch permission has not been independently established.
+- Recent workflow history inspected via GitHub API showed push and pull_request checks, not manually dispatched game runs. Do not imply the previous game was run or that the connector problem has been fixed.
+
+### Known risks requiring repair before any game
+
+1. **Likely guaranteed main-workflow failure:** the integration step greps `'RIONYA_EVENT|type=zone'` in `RionyaTelemetry.java`, but Java constructs the prefix dynamically as `"RIONYA_EVENT|type=" + type`. Change the check to verify a literal actually present, e.g. `'RIONYA_EVENT|type='`, without weakening the real source/compile assertions.
+2. Run offline Python tests and Java compilation against the pinned vendored Forge source; inspect `RionyaTelemetry.java` event types, subscriptions, registration, and method signatures. Fix any compilation or runtime incompatibilities. The manual `forge-telemetry-compile.yml` workflow is available when a launch method is restored.
+3. Confirm the emitted `RIONYA_EVENT` lines are actually captured in the logs consumed by `scripts/audit_rionya_gameplay.py`. Check opening hand and London mulligan reconstruction, draw/zone identity, event order, game boundaries, and whether the parser's completeness gate overstates coverage. Mana-pool changes are **not** proof of exact mana payments; AI decisions and opponent interactions may still lack authoritative capture.
+4. Do not evaluate deck cuts or pilot effectiveness from incomplete telemetry. Read `docs/RIONYA_TELEMETRY_ACCEPTANCE.md` for the acceptance criteria; parts of that document predate the newly added *unverified* instrumentation.
+5. After code repairs, run **compile-only/offline tests first**, then **one** Rionya game with the established Forge harness and true RNG; audit artifacts, crashes, game validity, player decisions, draw sources, commander casts, damage, token counts and missing event coverage. Only then consider fixed-pod five-game series, subject to user approval. Keep non-cEDH decks free of intentional infinites.
+
+### Workflow-launch recovery plan
+
+- **Do not fabricate launches or trigger games through unrelated dummy commits.** GitHub's `workflow_dispatch` REST operation is not exposed by the current ChatGPT GitHub connector. A new ChatGPT Work browser session may be able to click GitHub's manual **Run workflow** control; this is a proposed workaround, **not verified**.
+- If direct dispatch remains unavailable, inspect how historical games were launched (GitHub Actions event fields and previous launch path); distinguish missing tool exposure from missing Actions:write permission. Reconnect or escalate the connector only if justified. Do not change Forge YAML to fix an integration-tool inventory issue.
+- Once dispatch access is available, run `.github/workflows/forge-telemetry-compile.yml` first; after green compilation, run `commander-ai-lab-build.yml` on `experiment/guardrails-watchdog-v1`, `deck=decks/rionya.dck`, `games=1`. Never claim success before reviewing actual logs and artifacts.
+- Limit notification spam: group related fixes in a single tested commit; automatic preflight/policy checks run on pushes and PRs. Confirm CI outcomes before more commits.
+
+### Next-chat restart instruction
+
+> Read this README's 2026-10-17 handoff, `docs/RIONYA_TELEMETRY_ACCEPTANCE.md`, `scripts/forge/RionyaTelemetry.java`, `scripts/patch_forge_rionya_telemetry.py`, `scripts/audit_rionya_gameplay.py`, `.github/workflows/forge-telemetry-compile.yml`, and `.github/workflows/commander-ai-lab-build.yml`. First fix the mismatched telemetry grep, validate tests and compile against vendored Forge without running a game, then restore a legitimate workflow dispatch path. Only launch a single Rionya game when authorized, and inspect the resulting logs. Keep all work on the experimental branch and document verified outcomes.
+
+---
+
 > **FORGE SOURCE VENDORED (2026-10-17):** The exact pinned KoalaTrapLord/Forge-Repo commit `edb28158f6d892f9eb43dc08f019aab567276027` is now stored directly under `vendor/forge/` (56,006 files; 381,196,408 bytes). Provenance and SHA-256 metadata live in `vendor/forge-metadata/`. The Commander harness now verifies that snapshot with `scripts/verify_vendored_forge.py` and copies it to the build workspace instead of cloning Forge from upstream. The vendoring workflow is manual-only; game runs remain manual-only.
 
 
