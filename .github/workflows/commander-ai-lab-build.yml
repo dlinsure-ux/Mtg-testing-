@@ -17,7 +17,7 @@ on:
         required: true
         default: random
         type: choice
-        options: [fixed, random]
+        options: [fixed, random, b3]
       games:
         description: Number of games
         required: true
@@ -160,11 +160,13 @@ jobs:
           fixed=[Path('opponents/winota_ultra_budget.dck'),Path('opponents/shroofus.dck'),Path('opponents/deadpool.dck')]
           assert all(p in pool for p in fixed), 'Fixed opponents missing'
           mode=os.environ.get('OPPONENT_MODE','random')
-          assert mode in ('fixed','random'), 'Invalid opponent mode'
+          assert mode in ('fixed','random','b3'), 'Invalid opponent mode'
           # Exclude the previous Winota/Shroofus/Deadpool pod from new random series.
           fresh=[p for p in pool if p not in fixed and p.as_posix()!=os.environ.get('PRIMARY_DECK','')]
           assert mode!='random' or len(fresh)>=3, 'Need at least three NEW eligible opponents; refuse old pod fallback'
-          selected=random.SystemRandom().sample(fresh,3) if mode=='random' else fixed
+          b3=[Path('opponents/aesi.dck'),Path('opponents/bello.dck'),Path('opponents/betor.dck')]
+          assert all(p in pool for p in b3), 'Bracket 3 opponents missing'
+          selected=random.SystemRandom().sample(fresh,3) if mode=='random' else (b3 if mode=='b3' else fixed)
           assert mode!='random' or all(p not in fixed for p in selected), 'Old opponent slipped into random pod'
           with open(os.environ['GITHUB_ENV'],'a') as env:
               for i,p in enumerate(selected,2):
